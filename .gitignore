@@ -1,0 +1,15 @@
+# Config files
+development.ini
+production.ini
+
+# Root level scripts
+/*.sh
+
+# Python files
+__pycache__/
+*.py[cod]
+*.egg-info
+
+# Environment
+env/
+venc/
