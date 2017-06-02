@@ -1,0 +1,76 @@
+.game-logo {
+  height: 60px;
+}
+
+.col-thumb {
+  width: 1%;
+  padding: 0px;
+  font-size: 0px;
+}
+
+.col-id {
+  width: 1%;
+  text-align: right;
+}
+
+.col-type {
+  width: 100px;
+  text-align: center;
+}
+
+.col-os {
+  width: 100px;
+  text-align: center;
+}
+
+.page-link {
+  padding: 10px;
+}
+
+.deactivated {
+  opacity: 0.5;
+}
+
+#pagination-container {
+  text-align: center;
+  padding: 20px 0;
+  color: grey;
+}
+
+#product-search {
+  margin-bottom: 30px;
+}
+
+#search-bar, #search-button {
+  height: 40px;
+  font-size: inherit;
+  border-style: none;
+  background-color: inherit;
+  box-shadow: none;
+}
+
+#search-bar {
+  width: 100%;
+  padding: 0px 10px;
+}
+
+#search-button {
+  width: 40px;
+  padding: 0px;
+  cursor: pointer;
+}
+
+#search-bar-cell {
+  width: 100%;
+}
+
+#search-button-cell {
+  vertical-align: middle;
+  text-align: center;
+}
+
+#search-row {
+  font-size: 20px;
+  border: 1px solid #c5c5c5;
+  background-color: white
+}

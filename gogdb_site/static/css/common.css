@@ -1,0 +1,112 @@
+html {
+  box-sizing: border-box;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+body {
+  margin: 0px;
+  color: #212121;
+  background-color: #ccc;
+  font-family: 'Lato Latin', 'Lato', sans-serif;
+}
+
+#page {
+  max-width: 1000px;
+  margin: 20px auto;
+}
+
+th {
+  padding: 10px;
+}
+
+td {
+  padding: 10px;
+}
+
+table {
+  border-collapse: collapse;
+  background-color: #e1e1e1;
+  width: 100%;
+}
+
+.shadow {
+  box-shadow: 0 1px 5px rgba(0,0,0,.15);
+}
+
+a, a:hover, a:focus {
+  text-decoration: underline;
+  color: inherit;
+}
+
+a.no-underline, a.no-underline:hover, a.no-underline:focus {
+  text-decoration: none;
+}
+
+a.hoveronly, a.hoveronly:focus {
+  text-decoration: none;
+}
+
+a.hoveronly:hover {
+  text-decoration: underline
+}
+
+.row {
+  display: table-row;
+}
+
+.row > * {
+  display: table-cell;
+  vertical-align: top;
+}
+
+header {
+  background-color: #212121;
+  border-bottom: 1px solid black;
+}
+
+#header-content {
+  max-width: 1000px;
+  margin: 0px auto;
+  color: #ccc;
+  height: 48px;
+  font-size: 1.1rem;
+}
+
+.header-item {
+  padding: 0px 10px;
+  vertical-align: middle;
+}
+
+#header-logo-cell {
+  font-size: 0px;
+  padding-right: 10px;
+  box-sizing: content-box;
+  width: 48px;
+  height: 48px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+#header-logo {
+  width: 40px;
+  height: 40px;
+}
+
+.header-item > a, .header-item > a:hover, .header-item > a:focus {
+  text-decoration: none;
+}
+
+.header-item > a:hover {
+  color: white;
+}
+
+.rowborder tr {
+  border: 1px solid #c5c5c5;
+}
+
+.cellborder th, .cellborder td {
+  border: 1px solid #c5c5c5;
+}

@@ -1,0 +1,63 @@
+#product-logo {
+  width: 100%;
+}
+
+#page > div {
+  margin-bottom: 30px;
+}
+
+#store-button {
+  margin: 20px 0;
+  display: block;
+}
+
+#chart-canvas {
+  background-color: #e1e1e1;
+}
+
+#chart-container {
+  height: 300px;
+  margin-bottom: 30px;
+}
+
+.btn-gog {
+  background: linear-gradient(to bottom, #9fbf00, #80ab00);
+  box-shadow: 0 0 0 1px rgba(0,0,0,.25),0 1px 3px rgba(0,0,0,.3);
+  color: #fff;
+  text-align: center;
+  text-decoration: none;
+  vertical-align: middle;
+  line-height: 36px;
+  border-radius: 3px;
+  border: none;
+}
+
+.btn-gog:focus {
+  color: #fff;
+  text-decoration: none;
+}
+
+.btn-gog:hover {
+  background: linear-gradient(to bottom, #acce00, #8bba00);
+  color: #fff;
+  text-decoration: none;
+}
+
+.force-overflow {
+  width: 100%;
+  display: block;
+  white-space: nowrap;
+  margin-right: -1000px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.table-prop {
+  white-space: nowrap;
+  width: 1%;
+}
+
+#info-container {
+  width: 70%;
+  padding-right: 30px;
+}

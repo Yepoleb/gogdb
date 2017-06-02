@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>{{ title }} - GOG Database</title>
+    <link rel="shortcut icon" href="{{ request.static_path('gogdb_site:static/img/favicon.ico') }}">
+    {% assets "css-all", "fonts-all" %}
+    <link rel="stylesheet" href="{{ ASSET_URL }}">
+    {% endassets %}
+    {% block js %}{% endblock %}
+  </head>
+  <body>
+    <header class="shadow">
+      <div id="header-content">
+        <div class="row">
+          <span id="header-logo-cell">
+            <img id="header-logo" src="{{ request.static_path('gogdb_site:static/img/gogdb.svg') }}">
+          </span>
+          <span class="header-item">
+            <a href="{{ request.route_path('product_list') }}" class="no-underline">Products</a>
+          </span>
+        </div>
+      </div>
+    </header>
+    <div id="page">
+      <h1>{{ title }}</h1>
+      {% block content %}
+      {% endblock %}
+    </div>
+  </body>
+</html>
