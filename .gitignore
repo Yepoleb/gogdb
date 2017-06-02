@@ -1,6 +1,7 @@
 # Config files
 development.ini
 production.ini
+scripts/config.ini
 
 # Root level scripts
 /*.sh
@@ -8,8 +9,18 @@ production.ini
 # Python files
 __pycache__/
 *.py[cod]
+*.egg
 *.egg-info
 
 # Environment
 env/
 venc/
+
+# Generated assets
+generated/
+
+# Scripts cache
+scripts/cache
+
+# OS files
+.DS_Store
