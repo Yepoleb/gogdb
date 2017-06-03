@@ -1,0 +1,4 @@
+--index-url https://pypi.python.org/simple/
+
+git+https://github.com/Yepoleb/pyramid_webassets.git@assetspec#egg=pyramid_webassets
+-e .
