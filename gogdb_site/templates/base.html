@@ -17,13 +17,15 @@
             <img id="header-logo" src="{{ request.static_path('gogdb_site:static/img/gogdb.svg') }}">
           </span>
           <span class="header-item">
+            <a href="{{ request.route_path('index') }}" class="no-underline">Home</a>
+          </span>
+          <span class="header-item">
             <a href="{{ request.route_path('product_list') }}" class="no-underline">Products</a>
           </span>
         </div>
       </div>
     </header>
     <div id="page">
-      <h1>{{ title }}</h1>
       {% block content %}
       {% endblock %}
     </div>

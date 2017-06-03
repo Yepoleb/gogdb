@@ -110,3 +110,16 @@ header {
 .cellborder th, .cellborder td {
   border: 1px solid #c5c5c5;
 }
+
+.textbox {
+  background-color: #e1e1e1;
+  padding: 10px;
+}
+
+.textbox p:first-child {
+  margin-top: 0px;
+}
+
+.textbox p:last-child {
+  margin-bottom: 0px;
+}

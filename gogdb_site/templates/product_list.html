@@ -3,6 +3,7 @@
 {% set title %}Products{% endset %}
 
 {% block content %}
+<h1>{{ title }}</h1>
 <form id="product-search" class="shadow" action="{{ request.route_path('product_list') }}">
   <div id="search-row" class="row">
   <span id="search-bar-cell">
@@ -45,7 +46,7 @@
 </table>
 <div id="pagination-container">
   {% if not page_info.is_first %}
-  <a class="page-link" href="{{ page_info.prev_link }}" class="no-underline">
+  <a class="page-link no-underline" href="{{ page_info.prev_link }}">
     <i class="fa fa-chevron-left" aria-hidden="true"></i>
   </a>
   {% else %}
@@ -55,7 +56,7 @@
   {% endif %}
   {{ page_info.page }} of {{ page_info.num_pages }}
   {% if not page_info.is_last %}
-  <a class="page-link" href="{{ page_info.next_link }}" class="no-underline">
+  <a class="page-link no-underline" href="{{ page_info.next_link }}">
     <i class="fa fa-chevron-right" aria-hidden="true"></i>
   </a>
   {% else %}
