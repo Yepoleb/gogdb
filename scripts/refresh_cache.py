@@ -33,6 +33,7 @@ os.makedirs(os.path.join(cachedir, "api"), exist_ok=True)
 
 session = requests.Session()
 session.cookies["gog_lc"] = "US_USD_en"
+session.headers["User-Agent"] = "gogdb/0.1 (/u/Yepoleb)"
 
 
 logger.info("Downloading catalog pages")
