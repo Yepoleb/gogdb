@@ -42,7 +42,7 @@ if len(sys.argv) != 2:
     exit(1)
 
 config = gog_shared.load_config(sys.argv[1])
-engine = sqlalchemy.create_engine(config["sqlalchemy"]["url"], echo=False)
+engine = sqlalchemy.create_engine(config["sqlalchemy.url"], echo=False)
 build_searchindex(engine)
 
 logger.info("Done")

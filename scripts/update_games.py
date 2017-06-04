@@ -70,8 +70,8 @@ if len(sys.argv) != 2:
     exit(1)
 
 config = gog_shared.load_config(sys.argv[1])
-engine = sqlalchemy.create_engine(config["sqlalchemy"]["url"], echo=False)
-cachedir = config["cache"]["path"]
+engine = sqlalchemy.create_engine(config["sqlalchemy.url"], echo=False)
+cachedir = config["scripts.cache"]
 
 Session = orm.sessionmaker(bind=engine)
 session = Session()

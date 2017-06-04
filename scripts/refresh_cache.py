@@ -24,7 +24,7 @@ if len(sys.argv) != 2:
     exit(1)
 
 config = gog_shared.load_config(sys.argv[1])
-cachedir = config["cache"]["path"]
+cachedir = config["scripts.cache"]
 
 
 os.makedirs(os.path.join(cachedir, "ajax"), exist_ok=True)

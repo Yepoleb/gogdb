@@ -3,9 +3,10 @@ import os.path
 import configparser
 
 PAGE_FORMAT = "ajax/US_USD_{}.json"
+CONFIG_SECTION = "app:main"
 
 def load_pages(config):
-    cache_dir = config["cache"]["path"]
+    cache_dir = config["scripts.cache"]
     game_tuples = []
 
     page_num = 1
@@ -26,4 +27,4 @@ def load_pages(config):
 def load_config(config_path):
     config = configparser.ConfigParser()
     config.read(config_path)
-    return config
+    return config[CONFIG_SECTION]
