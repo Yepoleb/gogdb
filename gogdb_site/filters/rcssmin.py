@@ -57,4 +57,4 @@ class RCSSMin(Filter):
             self.rcssmin = rcssmin
 
     def output(self, _in, out, **kw):
-        out.write(self.rcssmin.cssmin(_in.read()))
+        out.write(self.rcssmin.cssmin(_in.read(), keep_bang_comments=True))
