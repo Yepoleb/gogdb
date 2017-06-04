@@ -37,7 +37,6 @@ from webassets.filter import Filter
 
 __all__ = ('RCSSMin',)
 
-
 class RCSSMin(Filter):
     """Minifies CSS.
 
@@ -47,8 +46,12 @@ class RCSSMin(Filter):
     """
 
     name = 'rcssmin'
+    options = {
+        'keep_bang_comments': 'RCSSMIN_KEEP_BANG_COMMENTS',
+    }
 
     def setup(self):
+        super(RCSSMin, self).setup()
         try:
             import rcssmin
         except ImportError:
@@ -57,4 +60,5 @@ class RCSSMin(Filter):
             self.rcssmin = rcssmin
 
     def output(self, _in, out, **kw):
-        out.write(self.rcssmin.cssmin(_in.read(), keep_bang_comments=True))
+        keep = self.keep_bang_comments or False
+        out.write(self.rcssmin.cssmin(_in.read(), keep_bang_comments=keep))
