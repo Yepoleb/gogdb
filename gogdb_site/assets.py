@@ -1,6 +1,7 @@
 import webassets
 from .filters.rcssmin import RCSSMin
 
+
 css_all = webassets.Bundle(
     "css/*.css",
     filters=[RCSSMin],
@@ -8,7 +9,7 @@ css_all = webassets.Bundle(
 
 fonts_all = webassets.Bundle(
     "fonts/*.css",
-    filters=["cssrewrite", RCSSMin],
+    filters=[RCSSMin],
     output="css/fonts.%(version)s.css")
 
 js_prodinfo = webassets.Bundle(
