@@ -20,3 +20,6 @@ def includeme(config):
 
     assets_env = config.get_webassets_env()
     jinja2_env.assets_environment = assets_env
+    asset_resolv = AssetResolver()
+    assets_env.append_path(
+        asset_resolv.resolve("gogdb_site:static/").abspath(), "static")
