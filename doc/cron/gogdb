@@ -1,0 +1,5 @@
+# Updates gogdb game data every 6 hours
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+40 */6 * * * www-data /var/www/gogdb/scripts/update.sh >> /var/log/gogdb/gogdb.log 2>&1
