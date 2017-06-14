@@ -52,6 +52,9 @@ def product_list(request):
 
         products = request.dbsession.query(models.Product) \
             .order_by(
+                (models.Product.release_date >
+                sqlalchemy.sql.functions.now()).asc()) \
+            .order_by(
                 sqlalchemy.sql.functions.coalesce(
                     models.Product.release_date,
                     datetime.date(1, 1, 1)).desc()) \
