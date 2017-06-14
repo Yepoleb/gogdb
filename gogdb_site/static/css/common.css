@@ -1,5 +1,6 @@
 html {
   box-sizing: border-box;
+  height: 100%;
 }
 
 *, *:before, *:after {
@@ -11,6 +12,8 @@ body {
   color: #212121;
   background-color: #ccc;
   font-family: 'Lato Latin', 'Lato', sans-serif;
+  min-height: 100%;
+  position: relative;
 }
 
 #page {
@@ -71,7 +74,7 @@ header {
   max-width: 1000px;
   margin: 0px auto;
   color: #ccc;
-  height: 48px;
+  height: 49px;
   font-size: 1.1rem;
 }
 
@@ -101,6 +104,27 @@ header {
 
 .header-item > a:hover {
   color: white;
+}
+
+body:after {
+  content: '';
+  display: block;
+  height: 48px;
+}
+
+footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 49px;
+  background-color: #212121;
+  border-top: 1px solid black;
+  color: #ccc;
+  text-align: center;
+}
+
+#footer-content {
+  line-height: 48px;
 }
 
 .rowborder tr {
