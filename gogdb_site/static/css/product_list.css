@@ -55,6 +55,10 @@
   padding: 0px 10px;
 }
 
+#search-bar:focus {
+  outline: none;
+}
+
 #search-button {
   width: 40px;
   padding: 0px;
