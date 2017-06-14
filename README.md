@@ -143,10 +143,14 @@ Create the cache and log directory and make them writable
     # mkdir /var/log/gogdb
     # chown www-data:www-data /var/log/gogdb
 
-Adjust the `SCRIPT_DIR` variable inside `/scripts/update.sh`. It should point
-to the absolute path of `/scripts` if you want to automate it.
+Change the `CONFIG_FILE` variable inside `/scripts/update.sh` to the
+`production.ini` or symlink it to `development.ini`.
 
     # edit scripts/update.sh
+
+or
+
+    # ln -s production.ini development.ini
 
 Copy the cron and logrotate configs
 

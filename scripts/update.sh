@@ -2,7 +2,7 @@
 
 set -e
 
-SCRIPT_DIR="."
+SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
 PYTHON_BIN="${SCRIPT_DIR}/../env/bin/python3"
 CONFIG_FILE="${SCRIPT_DIR}/../development.ini"
 
