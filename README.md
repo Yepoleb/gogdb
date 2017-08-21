@@ -30,17 +30,8 @@ Create virtual environment
 
 Install application into virtualenv
 
-    # env/bin/pip install setuptools wheel --upgrade
-    # env/bin/pip install -r requirements.txt
-
-Copy the example config and set database password
-
-    # cp production-example.ini production.ini
-    # editor production.ini
-
-Build assets
-
-    # env/bin/build-assets production.ini
+    # venv/bin/pip install setuptools wheel --upgrade
+    # venv/bin/pip install -r requirements.txt
 
 Install PostgreSQL and create database
 
@@ -50,9 +41,18 @@ Install PostgreSQL and create database
     postgres=# CREATE DATABASE gogdb WITH OWNER = gogdb;
     postgres=# \q
 
+Copy the example config and set database password
+
+    # cp production-example.ini production.ini
+    # editor production.ini
+
 Initialize database
 
-    # env/bin/initialize-db production.ini
+    # venv/bin/initialize-db production.ini
+
+Build assets
+
+    # venv/bin/build-assets production.ini
 
 ## Apache2
 
@@ -138,9 +138,9 @@ also used to build the search index.
 
 Create the cache and log directory and make them writable
 
-    # mkdir /var/www/gogdb/cache
+    # mkdir -p /var/www/gogdb/cache
     # chown www-data:www-data /var/www/gogdb/cache
-    # mkdir /var/log/gogdb
+    # mkdir -p /var/log/gogdb
     # chown www-data:www-data /var/log/gogdb
 
 Change the `CONFIG_FILE` variable inside `/scripts/update.sh` to the
