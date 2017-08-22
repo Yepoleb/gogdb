@@ -11,7 +11,7 @@ from requests_futures.sessions import FuturesSession
 import gog_shared
 
 GAMES_AJAX = "https://www.gog.com/games/ajax/filtered?mediaType=game&page={}&sort=bestselling"
-GOG_API = "https://api.gog.com/products/{}?expand=downloads,description"
+GOG_API = "https://api.gog.com/products/{}?expand=downloads,description&locale=en-US"
 THREAD_NUM = 4
 
 
