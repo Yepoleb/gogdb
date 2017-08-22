@@ -1,7 +1,7 @@
 from pyramid.path import AssetResolver
 
-TIME_HOUR = 3600
 TIME_WEEK = 604800
+TIME_YEAR = 31536000
 
 def includeme(config):
     config.add_route("index", "/")
@@ -11,6 +11,6 @@ def includeme(config):
     config.add_route("robots", "/robots.txt")
 
     config.add_static_view(
-        "static", "gogdb_site:static/", cache_max_age=TIME_HOUR)
+        "static", "gogdb_site:static/", cache_max_age=TIME_WEEK)
     config.add_static_view(
-        "generated", "gogdb_site:generated/", cache_max_age=TIME_WEEK)
+        "generated", "gogdb_site:generated/", cache_max_age=TIME_YEAR)
