@@ -3,6 +3,9 @@
   <head>
     <meta charset="utf-8">
     <title>{{ title }} - GOG Database Beta</title>
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="GOG Database">
+    <meta property="og:title" content="{{ title }}">
     <link rel="shortcut icon" href="{{ request.static_path('gogdb_site:static/img/favicon.ico') }}">
     {% assets "css-all", "fonts-all" %}
     <link rel="stylesheet" href="{{ ASSET_URL }}">
