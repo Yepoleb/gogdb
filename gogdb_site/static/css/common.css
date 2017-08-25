@@ -11,7 +11,7 @@ body {
   margin: 0px;
   color: #212121;
   background-color: #ccc;
-  font-family: 'Lato', sans-serif;
+  font-family: 'Lato Latin', 'Lato', sans-serif;
   min-height: 100%;
   position: relative;
 }
