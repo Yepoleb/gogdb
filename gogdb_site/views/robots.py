@@ -5,6 +5,7 @@ ROBOTS_FILE = \
 """\
 User-agent: *
 Disallow: /gogdata/
+Disallow: /legal
 """
 
 @view_config(route_name="robots")

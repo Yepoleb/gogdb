@@ -56,6 +56,10 @@ a.hoveronly:hover {
   text-decoration: underline
 }
 
+a.hoverlight:hover {
+  color: white;
+}
+
 .row {
   display: table-row;
 }
@@ -98,14 +102,6 @@ header {
   height: 40px;
 }
 
-.header-item > a, .header-item > a:hover, .header-item > a:focus {
-  text-decoration: none;
-}
-
-.header-item > a:hover {
-  color: white;
-}
-
 body:after {
   content: '';
   display: block;
@@ -120,11 +116,28 @@ footer {
   background-color: #212121;
   border-top: 1px solid black;
   color: #ccc;
-  text-align: center;
 }
 
 #footer-content {
+  max-width: 1000px;
+  margin: 0px auto;
+  color: #ccc;
   line-height: 48px;
+}
+
+.footer-right {
+  position: relative;
+  z-index: 2;
+  text-align: right;
+}
+
+.footer-center {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  text-align: center;
 }
 
 .rowborder tr {

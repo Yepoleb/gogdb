@@ -23,10 +23,10 @@
             <img id="header-logo" src="{{ request.static_path('gogdb_site:static/img/gogdb.svg') }}">
           </span>
           <span class="header-item">
-            <a href="{{ request.route_path('index') }}" class="no-underline">Home</a>
+            <a href="{{ request.route_path('index') }}" class="no-underline hoverlight">Home</a>
           </span>
           <span class="header-item">
-            <a href="{{ request.route_path('product_list') }}" class="no-underline">Products</a>
+            <a href="{{ request.route_path('product_list') }}" class="no-underline hoverlight">Products</a>
           </span>
         </div>
       </div>
@@ -36,9 +36,16 @@
       {% endblock %}
     </div>
     <footer>
-      <span id="footer-content">
-        GOG Database is not affiliated with GOG or CD Projekt.
-      </span>
+      <div id="footer-content">
+        <div class="footer-center">
+          <span id="disclaimer">
+            GOG Database is not affiliated with GOG or CD Projekt.
+          </span>
+        </div>
+        <div class="footer-right">
+          <a href="{{ request.route_path('legal') }}" class="no-underline hoverlight">Legal notice</a>
+        </div>
+      </div>
     </footer>
   </body>
 </html>
