@@ -77,7 +77,7 @@ def download_worker(dl_queue, db_queue):
 # Initialize logging
 logging.basicConfig()
 logger = logging.getLogger("UpdateGames")
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 # Load config
 config = configparser.ConfigParser()
