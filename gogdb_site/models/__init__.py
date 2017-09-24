@@ -9,7 +9,6 @@ from .model import (
     Feature,
     Genre,
     Company,
-    SearchIndex,
     PriceRecord,
     DlFile,
     Download,

@@ -62,14 +62,13 @@ def product_list(request):
 
     else:
         query = request.dbsession.query(models.Product) \
-            .join(models.SearchIndex) \
             .order_by(
                 sqlalchemy.sql.functions.char_length(models.Product.title))
 
         # Add a filter for each search word
         for word in search_words:
-            query = query.filter(models.SearchIndex.title_norm.like(
-                "%{}%".format(word)))
+            query = query.filter(models.Product.title_norm \
+                .like("%{}%".format(word)))
 
         products = query.all()
         page_info = calc_pageinfo(page, len(products))

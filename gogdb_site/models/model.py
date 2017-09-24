@@ -68,19 +68,6 @@ class Company(Base):
     def __repr__(self):
         return "<Company(slug='{}', name='{}')>".format(self.slug, self.name)
 
-class SearchIndex(Base):
-    __tablename__ = "searchindex"
-
-    prod_id = Column(
-        sql.Integer, sql.ForeignKey("products.id"), primary_key=True)
-    title_norm = Column(sql.String(120), nullable=False)
-
-    product = orm.relationship("Product", back_populates="searchindex")
-
-    def __repr__(self):
-        return "<SearchIndex(prod_id={}, title_norm='{}')>".format(
-            self.prod_id, self.title_norm)
-
 class PriceRecord(Base):
     __tablename__ = "pricerecords"
 
@@ -159,7 +146,8 @@ class Download(Base):
 
     product = orm.relationship("Product", back_populates="downloads")
     files = orm.relationship(
-        "DlFile", back_populates="download", cascade="all, delete-orphan")
+        "DlFile", back_populates="download", lazy="joined",
+        cascade="all, delete-orphan")
 
     @property
     def type_name(self):
@@ -184,6 +172,7 @@ class Product(Base):
 
     title = Column(sql.String(120), nullable=False)
     slug = Column(sql.String(120), nullable=False)
+    title_norm = Column(sql.String(120), nullable=False)
     forum_id = Column(sql.String(120), nullable=False)
 
     product_type = Column(sql.String(20), nullable=False)
@@ -242,9 +231,6 @@ class Product(Base):
     pricehistory = orm.relationship(
         "PriceRecord", back_populates="product", cascade="all, delete-orphan",
         order_by="PriceRecord.date")
-    searchindex = orm.relationship(
-        "SearchIndex", back_populates="product", cascade="all, delete-orphan",
-        uselist=False)
 
     @property
     def product_type_name(self):
