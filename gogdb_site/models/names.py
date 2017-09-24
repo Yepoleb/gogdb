@@ -1,13 +1,13 @@
 features = {
-    "achievements": "achievements",
-    "cloud_saves": "cloud saves",
-    "controller_support": "controller support",
-    "coop": "co-op",
-    "in_development": "in development",
-    "leaderboards": "leaderboards",
-    "multi": "multi-player",
-    "overlay": "overlay",
-    "single": "single-player"
+    "achievements": "Achievements",
+    "cloud_saves": "Cloud Saves",
+    "controller_support": "Controller Support",
+    "coop": "Co-op",
+    "in_development": "In Development",
+    "leaderboards": "Leaderboards",
+    "multi": "Multi-player",
+    "overlay": "Overlay",
+    "single": "Single-player"
 }
 
 genres = {
