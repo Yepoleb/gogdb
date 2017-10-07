@@ -157,6 +157,31 @@ Copy the cron and logrotate configs
     # cp doc/cron/gogdb /etc/cron.d/
     # cp doc/logrotate/gogdb /etc/logrotate.d/
 
+# Database Migrations
+
+## 18fc238 to cec5ebc
+
+This commit removes the `searchindex` table and adds a product column instead.
+
+    ALTER TABLE products ADD COLUMN title_norm character varying(120);
+    UPDATE products SET title_norm = searchindex.title_norm
+        FROM searchindex WHERE id = searchindex.prod_id;
+    ALTER TABLE products ALTER COLUMN title_norm SET NOT NULL;
+    DROP TABLE searchindex;
+
+## 728681b to a2c8a1a
+
+This commit adds deleted columns to files and downloads. Also run the
+`initialize-db` script to create the `changerecords` table.
+
+    ALTER TABLE files ADD COLUMN deleted BOOLEAN;
+    ALTER TABLE downloads ADD COLUMN deleted BOOLEAN;
+    UPDATE files SET deleted=FALSE;
+    UPDATE downloads SET deleted=FALSE;
+    ALTER TABLE files ALTER COLUMN deleted SET NOT NULL;
+    ALTER TABLE downloads ALTER COLUMN deleted SET NOT NULL;
+
+
 # Licenses
 
 * `gogdb_site/` - AGPLv3 or later
