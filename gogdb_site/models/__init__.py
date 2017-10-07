@@ -10,6 +10,7 @@ from .model import (
     Genre,
     Company,
     PriceRecord,
+    ChangeRecord,
     DlFile,
     Download,
     Product)

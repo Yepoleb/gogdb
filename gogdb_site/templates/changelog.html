@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% set title %}Changelog{% endset %}
+
+{% block content %}
+<h1>{{ title }}</h1>
+
+<div class="textbox shadow">
+  Summary of all product changes. Visit
+  <a href="{{ request.route_path('changelog_ext') }}">Extended Changelog</a>
+  for a detailed overview.
+</div>
+
+<table class="shadow rowborder">
+  {% for record in changes %}
+  <tr>
+    <td class="col-change-id">
+      <a href="{{ request.route_path('product_info', product=record.prod_id) }}">
+        {{ record.prod_id }}
+      </a>
+    </td>
+    <td class="col-change-name">
+      {% if record.type_prim == "product" %}
+        Product changed - <b>{{ record.title }}</b>
+      {% elif record.type_prim == "download" %}
+        Downloads changed - <b>{{ record.title }}</b>
+      {% endif %}
+    </td>
+    <td class="col-change-date">
+      {{ record.timestamp.strftime("%Y-%m-%d") }}
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+
+{% include "pagination.html" %}
+
+{% endblock content %}

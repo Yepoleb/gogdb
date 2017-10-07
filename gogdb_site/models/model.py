@@ -8,6 +8,8 @@ from arrow import arrow
 from .meta import Base
 from . import names
 
+
+
 class Language(Base):
     __tablename__ = "languages"
 
@@ -26,6 +28,7 @@ class Language(Base):
         return "<Language(prod_id={}, isocode='{}')>".format(
             self.prod_id, self.isocode)
 
+
 class Feature(Base):
     __tablename__ = "features"
 
@@ -43,6 +46,7 @@ class Feature(Base):
         return "<Feature(prod_id={}, slug='{}')>".format(
             self.prod_id, self.slug)
 
+
 class Genre(Base):
     __tablename__ = "genres"
 
@@ -59,6 +63,7 @@ class Genre(Base):
     def __repr__(self):
         return "<Genre(prod_id={}, slug='{}')>".format(self.prod_id, self.slug)
 
+
 class Company(Base):
     __tablename__ = "companies"
 
@@ -67,6 +72,7 @@ class Company(Base):
 
     def __repr__(self):
         return "<Company(slug='{}', name='{}')>".format(self.slug, self.name)
+
 
 class PriceRecord(Base):
     __tablename__ = "pricerecords"
@@ -113,6 +119,39 @@ class PriceRecord(Base):
         return "<PriceRecord(id={}, prod_id={}, date='{}')>".format(
             self.id, self.prod_id, self.date)
 
+
+class ChangeRecord(Base):
+    __tablename__ = "changerecords"
+
+    id = Column(sql.Integer, primary_key=True, autoincrement=True)
+    timestamp = Column(sql.DateTime, nullable=False)
+    prod_id = Column(
+        sql.Integer, sql.ForeignKey("products.id"), nullable=False)
+    action = Column(sql.String(20), nullable=False)
+    type_prim = Column(sql.String(40), nullable=False)
+    type_sec = Column(sql.String(40), nullable=True)
+    resource = Column(sql.String(120), nullable=False)
+    old = Column(sql.String(120), nullable=True)
+    new = Column(sql.String(120), nullable=True)
+
+    @property
+    def type(self):
+        if self.type_sec:
+            return self.type_prim + "."  + self.type_sec
+        else:
+            return self.type_prim
+
+    @property
+    def action_type(self):
+        return self.action + " " + self.type
+
+    @property
+    def timestamp_arrow(self):
+        return arrow.Arrow.fromdatetime(self.timestamp)
+
+    product = orm.relationship("Product", back_populates="changes")
+
+
 class DlFile(Base):
     __tablename__ = "files"
     __table_args__ = (sql.UniqueConstraint("download_id", "slug"),)
@@ -121,12 +160,14 @@ class DlFile(Base):
         primary_key=True, autoincrement=False)
     slug = Column(sql.String(50), primary_key=True)
     size = Column(sql.BigInteger, nullable=False)
+    deleted = Column(sql.Boolean, default=False, nullable=False)
 
     download = orm.relationship("Download", back_populates="files")
 
     def __repr__(self):
         return "<DlFile(download_id={}, slug='{}', name='{}')>".format(
             self.download_id, self.slug, self.size)
+
 
 class Download(Base):
     __tablename__ = "downloads"
@@ -143,15 +184,20 @@ class Download(Base):
     os = Column(sql.String(20), nullable=True)
     language = Column(sql.String(5), nullable=True)
     version = Column(sql.String(120), nullable=True)
+    deleted = Column(sql.Boolean, default=False, nullable=False)
 
     product = orm.relationship("Product", back_populates="downloads")
     files = orm.relationship(
         "DlFile", back_populates="download", lazy="joined",
-        cascade="all, delete-orphan")
+        cascade="all, delete-orphan", order_by="DlFile.slug")
 
     @property
     def type_name(self):
         return names.dl_types.get(self.type, self.type)
+
+    @property
+    def os_name(self):
+        return names.systems.get(self.os, self.os)
 
     @property
     def language_name(self):
@@ -161,9 +207,24 @@ class Download(Base):
     def bonus_type_name(self):
         return names.bonus_types.get(self.bonus_type, self.bonus_type)
 
+    @property
+    def total_size(self):
+        return sum(f.size for f in self.files if not f.deleted)
+
+    @property
+    def valid_files(self):
+        return [dlfile for dlfile in self.files if not dlfile.deleted]
+
+    def file_by_slug(self, slug):
+        for dlfile in self.files:
+            if dlfile.slug == slug:
+                return dlfile
+        return None
+
     def __repr__(self):
         return "<Download(id={}, prod_id={}, slug='{}')>".format(
             self.id, self.prod_id, self.slug)
+
 
 class Product(Base):
     __tablename__ = "products"
@@ -227,10 +288,14 @@ class Product(Base):
     genres = orm.relationship(
         "Genre", back_populates="product", cascade="all, delete-orphan")
     downloads = orm.relationship(
-        "Download", back_populates="product", cascade="all, delete-orphan")
+        "Download", back_populates="product", cascade="all, delete-orphan",
+        order_by="Download.type, desc(Download.os), Download.slug")
     pricehistory = orm.relationship(
         "PriceRecord", back_populates="product", cascade="all, delete-orphan",
         order_by="PriceRecord.date")
+    changes = orm.relationship(
+        "ChangeRecord", back_populates="product", cascade="all, delete-orphan",
+        order_by="desc(ChangeRecord.id)")
 
     @property
     def product_type_name(self):
@@ -264,6 +329,18 @@ class Product(Base):
             return arrow.Arrow.fromdate(self.release_date)
         else:
             return None
+
+    @property
+    def valid_downloads(self):
+        return [download for download in self.downloads
+                if not download.deleted]
+
+    def download_by_slug(self, slug):
+        for download in self.downloads:
+            if download.slug == slug:
+                return download
+        return None
+
 
     def __repr__(self):
         return "<Product(id={}, slug='{}')>".format(self.id, self.slug)

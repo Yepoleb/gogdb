@@ -13,7 +13,14 @@ function history_price_float(entry)
   return parseFloat(entry.price_final);
 }
 
-window.onload = function() {
+chart_init_called = false;
+function init_chart()
+{
+  if (chart_init_called) {
+      console.log("chart init double");
+      return;
+  }
+  chart_init_called = true;
   var max_price = Math.max.apply(null, pricehistory.map(history_price_float))
 
   var config = {
@@ -55,7 +62,9 @@ window.onload = function() {
       }
     }
   };
-  
+
   var ctx = document.getElementById("chart-canvas").getContext("2d");
   window.myChart = new Chart(ctx, config);
 };
+
+window.addEventListener("DOMContentLoaded", init_chart, false);

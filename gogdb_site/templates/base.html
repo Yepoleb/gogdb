@@ -20,13 +20,16 @@
       <div id="header-content">
         <div class="row">
           <span id="header-logo-cell">
-            <img id="header-logo" src="{{ request.static_path('gogdb_site:static/img/gogdb.svg') }}">
+            <img id="header-logo" src="{{ request.static_path('gogdb_site:static/img/gogdb.svg') }}" alt="logo">
           </span>
           <span class="header-item">
             <a href="{{ request.route_path('index') }}" class="no-underline hoverlight">Home</a>
           </span>
           <span class="header-item">
             <a href="{{ request.route_path('product_list') }}" class="no-underline hoverlight">Products</a>
+          </span>
+          <span class="header-item">
+            <a href="{{ request.route_path('changelog') }}" class="no-underline hoverlight">Changelog</a>
           </span>
         </div>
       </div>

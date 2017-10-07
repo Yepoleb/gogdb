@@ -16,6 +16,7 @@ js_prodinfo = webassets.Bundle(
     "js/moment.js",
     "js/Chart.js",
     "js/chartconfig.js",
+    "js/tabs.js",
     filters="rjsmin",
     output="js/product.%(version)s.js")
 

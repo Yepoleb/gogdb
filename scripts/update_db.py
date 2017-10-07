@@ -15,7 +15,7 @@ from sqlalchemy import orm
 from gogapi import GogApi
 
 from gogdb_site import models
-
+import changelog
 
 
 CONFIG_SECTION = "app:main"
@@ -24,6 +24,7 @@ GALAXY_EXPANDED = ["downloads", "description"]
 ALLOWED_CHARS = set(string.ascii_lowercase + string.digits)
 DL_WORKER_COUNT = 8
 LOCALE = ("US", "USD", "en-US")
+
 
 
 # Parsing functions
@@ -45,6 +46,7 @@ def parse_company(company_info, companies):
         companies[slug] = models.Company(
             slug=slug, name=company_info["name"])
     return companies[slug]
+
 
 def normalize_title(title):
     return "".join(c for c in title.lower() if c in ALLOWED_CHARS)
@@ -76,7 +78,7 @@ def download_worker(dl_queue, db_queue):
 
 # Initialize logging
 logging.basicConfig()
-logger = logging.getLogger("UpdateGames")
+logger = logging.getLogger("UpdateDB")
 logger.setLevel(logging.INFO)
 
 # Load config
@@ -85,7 +87,6 @@ with open(sys.argv[1], "r") as configfile:
     config.read_file(configfile)
 mainconfig = config[CONFIG_SECTION]
 engine = sqlalchemy.create_engine(mainconfig["sqlalchemy.url"])
-cachedir = mainconfig["scripts.cache"]
 
 # Create ORM session
 Session = orm.sessionmaker(bind=engine)
@@ -95,6 +96,12 @@ session = Session()
 
 api = GogApi()
 api.set_locale(*LOCALE)
+
+# Debug
+
+#import requests_cache
+#requests_cache.install_cache(backend="redis")
+#logger.setLevel(logging.DEBUG)
 
 # Load products and add them to the queue
 logger.info("Loading catalog")
@@ -119,7 +126,6 @@ for i in range(DL_WORKER_COUNT):
     dl_threads.append(t)
 
 dependencies = {}
-names = {"features": {}, "genres": {}, "languages": {}}
 companies = {}
 
 for company in session.query(models.Company):
@@ -135,16 +141,26 @@ for counter in range(products_count):
     logger.debug(
         "Product: %d (%d/%d)", api_prod.id, counter + 1, products_count)
 
+    # Get current timestamp
+
+    cur_time = datetime.datetime.utcnow()
+
     # Get the old data from the database
 
     prod = session.query(models.Product).filter(
         models.Product.id == api_prod.id).one_or_none()
     if prod is None:
-        prod = models.Product()
+        logger.info("New Product: %d %s", api_prod.id, api_prod.title)
+        prod = models.Product(id=api_prod.id)
+        changelog.prod_add(prod, prod.changes, cur_time)
+    else:
+        # Changelog product
+        changelog.prod_cs(prod, api_prod.content_systems, prod.changes, cur_time)
+        changelog.prod_os(prod, api_prod.systems, prod.changes, cur_time)
+        changelog.prod_title(prod, api_prod.title, prod.changes, cur_time)
+        changelog.prod_forum(prod, api_prod.forum_slug, prod.changes, cur_time)
 
     # Basic properties
-
-    prod.id = api_prod.id
 
     prod.product_type = api_prod.type
     prod.is_secret = api_prod.is_secret
@@ -175,7 +191,7 @@ for counter in range(products_count):
     prod.title = api_prod.title
     prod.slug = api_prod.slug
     prod.title_norm = normalize_title(api_prod.title)
-    prod.forum_id = api_prod.link_forum.rsplit('/', 1)[1]
+    prod.forum_id = api_prod.forum_slug
 
     prod.developer = parse_company(api_prod.developer, companies)
     prod.publisher = parse_company(api_prod.publisher, companies)
@@ -189,17 +205,34 @@ for counter in range(products_count):
 
     # Downloads
 
-    downloads = {}
-    for download in prod.downloads:
-        downloads[download.slug] = download
-    for api_download in api_prod.downloads:
-        if api_download.id not in downloads:
-            download = models.Download()
-            prod.downloads.append(download)
-        else:
-            download = downloads[api_download.id]
+    db_download_slugs = set(dl.slug for dl in prod.downloads if not dl.deleted)
+    api_download_slugs = set(dl.id for dl in api_prod.downloads)
 
-        download.slug = api_download.id
+    # Mark deleted downloads
+    for del_slug in db_download_slugs - api_download_slugs:
+        download = prod.download_by_slug(del_slug)
+        changelog.dl_del(download, prod.changes, cur_time)
+        download.deleted = True
+
+    for api_download in api_prod.downloads:
+        download = prod.download_by_slug(api_download.id)
+
+        # Add new downloads
+        if download is None:
+            download = models.Download(slug=api_download.id)
+            prod.downloads.append(download)
+            changelog.dl_add(download, prod.changes, cur_time)
+        elif download.deleted:
+            download.deleted = False
+            changelog.dl_add(download, prod.changes, cur_time)
+        else:
+            changelog.dl_name(
+                download, api_download.name, prod.changes, cur_time)
+            changelog.dl_version(
+                download, api_download.version, prod.changes, cur_time)
+            changelog.dl_total_size(
+                download, api_download.total_size, prod.changes, cur_time)
+
         download.name = api_download.name
         download.type = api_download.category
         download.bonus_type = api_download.bonus_type
@@ -208,51 +241,44 @@ for counter in range(products_count):
         download.language = api_download.language
         download.version = api_download.version
 
-        files = {}
-        public_slugs = []
-        for dlfile in download.files:
-            files[dlfile.slug] = dlfile
+        # Files
+
+        db_file_ids = set(f.slug for f in download.files if not f.deleted)
+        api_file_ids = set(f.id for f in api_download.files)
+
+        # Remove old files
+        for del_id in db_file_ids - api_file_ids:
+            download.file_by_slug(del_id).deleted = True
+
         for api_file in api_download.files:
-            if api_file.id not in files:
-                dlfile = models.DlFile()
+            dlfile = download.file_by_slug(api_file.id)
+
+            # Add new files
+            if dlfile is None:
+                dlfile = models.DlFile(slug=api_file.id)
                 download.files.append(dlfile)
-            else:
-                dlfile = files[api_file.id]
 
-            dlfile.slug = api_file.id
+            dlfile.deleted = False
             dlfile.size = api_file.size
-            public_slugs.append(api_file.id)
 
-        # Clear out old files
-        to_remove = []
-        for dlfile in download.files:
-            if dlfile.slug not in public_slugs:
-                logger.info("Old file: %s - %s", api_prod.title, dlfile.slug)
-                to_remove.append(dlfile)
-
-        for dlfile in to_remove:
-            download.files.remove(dlfile)
 
     # Features
 
     prod.features = []
     for feature in api_prod.features:
         prod.features.append(models.Feature(slug=feature.slug))
-        names["features"][feature.slug] = feature.name
 
     # Genres
 
     prod.genres = []
     for genre in api_prod.genres:
         prod.genres.append(models.Genre(slug=genre.slug))
-        names["genres"][genre.slug] = genre.name
 
     # Languages
 
     prod.languages = []
     for language in api_prod.languages:
         prod.languages.append(models.Language(isocode=language.isocode))
-        names["languages"][language.isocode] = language.name
 
     # Price entry
 
@@ -303,10 +329,4 @@ for prod_id, dep_id in dependencies.items():
 
 logger.info("Commiting data")
 session.commit()
-
-# Dump names
-
-with open(os.path.join(cachedir, "names.json"), "w") as namefile:
-    json.dump(names, namefile, indent=2, sort_keys=True)
-
 logger.info("Done")

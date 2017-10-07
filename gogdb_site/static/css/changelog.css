@@ -1,0 +1,35 @@
+.col-change-id {
+  width: 0px;
+  text-align: right;
+  padding-right: 0px;
+}
+
+.col-changes-name {
+  text-align: left;
+}
+
+.col-change-icon {
+  width: 0px;
+}
+
+.col-change-desc {
+  padding-left: 0px;
+}
+
+.col-change-date {
+  width: 0px;
+  white-space: nowrap;
+  text-align: right;
+}
+
+.color-add {
+  color: #00522a;
+}
+
+.color-del {
+  color: #b00005;
+}
+
+.color-change {
+  color: #004272;
+}

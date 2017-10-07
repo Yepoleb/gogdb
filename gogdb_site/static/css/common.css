@@ -17,6 +17,7 @@ body {
 }
 
 #page {
+  min-width: 640px;
   max-width: 1000px;
   margin: 20px auto;
 }
@@ -75,6 +76,7 @@ header {
 }
 
 #header-content {
+  min-width: 640px;
   max-width: 1000px;
   margin: 0px auto;
   color: #ccc;
@@ -119,6 +121,7 @@ footer {
 }
 
 #footer-content {
+  min-width: 640px;
   max-width: 1000px;
   margin: 0px auto;
   color: #ccc;
@@ -159,4 +162,8 @@ footer {
 
 .textbox p:last-child {
   margin-bottom: 0px;
+}
+
+.nobreak {
+  white-space: nowrap;
 }

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% from "changelog_format.html" import format_record %}
+
+{% set title %}Extended Changelog{% endset %}
+
+{% block content %}
+<h1>{{ title }}</h1>
+
+<div class="textbox shadow">
+  Detailed changelog for all products. Visit
+  <a href="{{ request.route_path('changelog') }}">Changelog</a>
+  for a summary.
+</div>
+
+<table class="shadow rowborder">
+  {% for record in changes %}
+  <tr>
+    <td class="col-change-id">
+      <a href="{{ request.route_path('product_info', product=record.prod_id) }}">
+        {{ record.prod_id }}
+      </a>
+    </td>
+    <td class="col-change-icon">
+      {% if record.action == "add" %}
+        <i class="fa fa-plus color-add" aria-hidden="true"></i>
+      {% elif record.action == "del" %}
+        <i class="fa fa-minus color-del" aria-hidden="true"></i>
+      {% elif record.action == "change" %}
+        <i class="fa fa-circle color-change" aria-hidden="true"></i>
+      {% endif %}
+    </td>
+    <td class="col-change-desc">
+      {{ format_record(record) }}
+    </td>
+    <td class="col-change-date">
+      {{ record.timestamp.strftime("%Y-%m-%d") }}
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+
+{% include "pagination.html" %}
+
+{% endblock content %}

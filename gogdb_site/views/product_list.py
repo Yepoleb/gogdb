@@ -7,6 +7,7 @@ import sqlalchemy
 from sqlalchemy import orm
 
 from .. import models
+from .pagination import calc_pageinfo
 
 PRODUCTS_PER_PAGE = 20
 
@@ -20,21 +21,6 @@ def normalize_search(title):
 def clean_dict(d):
     return dict((k, v) for k, v in d.items() if v)
 
-def calc_pageinfo(page, num_products):
-    num_pages = int(math.ceil(num_products / PRODUCTS_PER_PAGE))
-    page = min(max(page, 1), num_pages)
-    offset = (page - 1) * PRODUCTS_PER_PAGE
-    page_info = {
-        "is_first": page == 1,
-        "is_last": page == num_pages,
-        "page": page,
-        "num_pages": num_pages,
-        "from": offset,
-        "to": offset + PRODUCTS_PER_PAGE,
-        "prev_link": "", # Filled in later
-        "next_link": ""
-    }
-    return page_info
 
 @view_config(route_name="product_list", renderer="product_list.html")
 def product_list(request):
@@ -48,7 +34,7 @@ def product_list(request):
         num_products = request.dbsession.query(
             sqlalchemy.func.count(models.Product.id)
             ).one()[0]
-        page_info = calc_pageinfo(page, num_products)
+        page_info = calc_pageinfo(page, num_products, PRODUCTS_PER_PAGE)
 
         products = request.dbsession.query(models.Product) \
             .order_by(
@@ -71,7 +57,7 @@ def product_list(request):
                 .like("%{}%".format(word)))
 
         products = query.all()
-        page_info = calc_pageinfo(page, len(products))
+        page_info = calc_pageinfo(page, len(products), PRODUCTS_PER_PAGE)
         products = products[page_info["from"]:page_info["to"]]
 
     page_info["prev_link"] = request.route_path("product_list",
