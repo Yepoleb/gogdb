@@ -155,10 +155,14 @@ for counter in range(products_count):
         changelog.prod_add(prod, prod.changes, cur_time)
     else:
         # Changelog product
-        changelog.prod_cs(prod, api_prod.content_systems, prod.changes, cur_time)
-        changelog.prod_os(prod, api_prod.systems, prod.changes, cur_time)
-        changelog.prod_title(prod, api_prod.title, prod.changes, cur_time)
-        changelog.prod_forum(prod, api_prod.forum_slug, prod.changes, cur_time)
+        changelog.prod_cs(
+            prod, api_prod.content_systems, prod.changes, cur_time)
+        changelog.prod_os(
+            prod, api_prod.systems, prod.changes, cur_time)
+        changelog.prod_title(
+            prod, api_prod.title_galaxy, prod.changes, cur_time)
+        changelog.prod_forum(
+            prod, api_prod.forum_slug, prod.changes, cur_time)
 
     # Basic properties
 
@@ -188,7 +192,7 @@ for counter in range(products_count):
     prod.votes_count = api_prod.votes_count
     prod.reviews_count = api_prod.reviews.total_results
 
-    prod.title = api_prod.title
+    prod.title = api_prod.title_galaxy
     prod.slug = api_prod.slug
     prod.title_norm = normalize_title(api_prod.title)
     prod.forum_id = api_prod.forum_slug
