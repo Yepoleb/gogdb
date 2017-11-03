@@ -105,15 +105,17 @@ api.set_locale(*LOCALE)
 
 # Load products and add them to the queue
 logger.info("Loading catalog")
-search_res = api.search(mediaType="game", sort="bestselling", limit=10000)
-products_count = search_res.count
+search_products = list(
+    api.search(mediaType="game", sort="bestselling", limit=500).iter_products()
+)
+products_count = len(search_products)
 # Queue for passing search to download workers
 dl_queue = queue.Queue()
 # Queue for passing downloaded products back to main thread
 db_queue = queue.Queue()
 
-for prod in search_res.products: dl_queue.put(prod)
-del search_res
+for prod in search_products: dl_queue.put(prod)
+del search_products
 logger.info("Found %s products", products_count)
 
 
