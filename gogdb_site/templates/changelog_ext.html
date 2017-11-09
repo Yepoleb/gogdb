@@ -15,7 +15,7 @@
   (like RSS).
 </div>
 
-{% for _, recordgroup in changes|groupby("timestamp") %}
+{% for recordgroup in changes %}
 <div class="shadow">
   <div class="changelog-title">
     <a href="{{ request.route_path('product_info', product=recordgroup[0].prod_id) }}#changelog" class="hoveronly"><b>{{ recordgroup[0].product.title }}</b></a>

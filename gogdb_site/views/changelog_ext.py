@@ -1,3 +1,5 @@
+import itertools
+
 from pyramid.view import view_config
 from pyramid.renderers import render_to_response
 from sqlalchemy import orm
@@ -34,10 +36,16 @@ def changelog_ext(request):
     page_info["next_link"] = request.route_path("changelog_ext",
         _query={"page": page_info["page"] + 1})
 
+    recordgroups = []
+    for groupkey, items in itertools.groupby(
+            changes, key=lambda record: (record.timestamp, record.prod_id)):
+        recordgroups.append(list(items))
+
+
     if request.matched_route.name == "changelog_atom":
         response = render_to_response(
             "changelog_ext.xml",
-            {"changes": changes, "page_info": page_info},
+            {"changes": recordgroups, "page_info": page_info},
             request=request
         )
         response.content_type = "application/atom+xml"
@@ -46,6 +54,6 @@ def changelog_ext(request):
     else:
         return render_to_response(
             "changelog_ext.html",
-            {"changes": changes, "page_info": page_info},
+            {"changes": recordgroups, "page_info": page_info},
             request=request
         )

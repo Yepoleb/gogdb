@@ -8,17 +8,17 @@
   <link rel="alternate" href="{{ request.route_url('changelog_ext') }}" type="text/html"/>
   <link rel="self" href="{{ request.route_url('changelog_atom') }}" type="application/atom+xml"/>
   <icon>{{ request.static_url('gogdb_site:static/img/favicon.ico') }}</icon>
-  <updated>{{ changes[0].timestamp.replace(microsecond=0).isoformat() }}Z</updated>
+  <updated>{{ changes[0][0].timestamp.replace(microsecond=0).isoformat() }}Z</updated>
   <author>
     <name>GOG Database</name>
   </author>
   <id>urn:uuid:ae1c2a61-1778-4abf-9fa4-d51b662c93c7</id>
 
-  {% for timestamp, recordgroup in changes|groupby("timestamp") %}
+  {% for recordgroup in changes %}
   <entry>
-    <id>tag:gogdb.yepoleb.me,2017-11-01:{{ timestamp.__hash__()|abs }}</id>
+    <id>tag:gogdb.yepoleb.me,2017-11-01:{{ recordgroup[0].timestamp.__hash__()|abs }}</id>
     <title>{{ recordgroup[0].product.title }} - {{ recordgroup[0].prod_id }}</title>
-    <updated>{{ timestamp.replace(microsecond=0).isoformat() }}Z</updated>
+    <updated>{{ recordgroup[0].timestamp.replace(microsecond=0).isoformat() }}Z</updated>
     <link rel="alternate" href="{{ request.route_path('product_info', product=recordgroup[0].prod_id) }}#changelog"/>
     <content type="html">
       {% filter forceescape %}
