@@ -6,7 +6,7 @@
 <h1>{{ title }}</h1>
 
 <div class="textbox shadow">
-  Summary of all product changes. Visit
+  Summary of all product changes, visit
   <a href="{{ request.route_path('changelog_ext') }}">Extended Changelog</a>
   for a detailed overview.
 </div>
@@ -15,7 +15,7 @@
   {% for record in changes %}
   <tr>
     <td class="col-change-id">
-      <a href="{{ request.route_path('product_info', product=record.prod_id) }}">
+      <a href="{{ request.route_path('product_info', product=record.prod_id) }}#changelog">
         {{ record.prod_id }}
       </a>
     </td>

@@ -1,4 +1,5 @@
 from pyramid.view import view_config
+from pyramid.renderers import render_to_response
 from sqlalchemy import orm
 
 from .. import models
@@ -9,6 +10,7 @@ ITEMS_PER_PAGE = 100
 
 
 
+@view_config(route_name="changelog_atom", renderer="changelog_ext.xml")
 @view_config(route_name="changelog_ext", renderer="changelog_ext.html")
 def changelog_ext(request):
     page = int(request.params.get("page", "1"))
@@ -32,4 +34,18 @@ def changelog_ext(request):
     page_info["next_link"] = request.route_path("changelog_ext",
         _query={"page": page_info["page"] + 1})
 
-    return {"changes": changes, "page_info": page_info}
+    if request.matched_route.name == "changelog_atom":
+        response = render_to_response(
+            "changelog_ext.xml",
+            {"changes": changes, "page_info": page_info},
+            request=request
+        )
+        response.content_type = "application/atom+xml"
+        return response
+
+    else:
+        return render_to_response(
+            "changelog_ext.html",
+            {"changes": changes, "page_info": page_info},
+            request=request
+        )

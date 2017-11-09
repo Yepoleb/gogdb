@@ -6,6 +6,8 @@ def includeme(config):
     config.include("pyramid_jinja2")
     config.add_jinja2_renderer(".html")
     config.add_jinja2_search_path("gogdb_site:templates/", ".html")
+    config.add_jinja2_renderer(".xml")
+    config.add_jinja2_search_path("gogdb_site:templates/", ".xml")
     config.commit()
     jinja2_env = config.get_jinja2_environment(".html")
     jinja2_env.filters["yes_no"] = filters.format_yes_no

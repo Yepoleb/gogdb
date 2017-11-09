@@ -8,19 +8,22 @@
 <h1>{{ title }}</h1>
 
 <div class="textbox shadow">
-  Detailed changelog for all products. Visit
+  Detailed changelog for all products, visit
   <a href="{{ request.route_path('changelog') }}">Changelog</a>
-  for a summary.
+  for a summary. This site is also available as an
+  <a href="{{ request.route_url('changelog_atom') }}">Atom feed</a>
+  (like RSS).
 </div>
 
-<table class="shadow rowborder">
-  {% for record in changes %}
+{% for _, recordgroup in changes|groupby("timestamp") %}
+<div class="shadow">
+  <div class="changelog-title">
+    <a href="{{ request.route_path('product_info', product=recordgroup[0].prod_id) }}#changelog" class="hoveronly"><b>{{ recordgroup[0].product.title }}</b></a>
+    - {{ recordgroup[0].prod_id }}
+  </div>
+<table class="changelog-table rowborder">
+  {% for record in recordgroup %}
   <tr>
-    <td class="col-change-id">
-      <a href="{{ request.route_path('product_info', product=record.prod_id) }}">
-        {{ record.prod_id }}
-      </a>
-    </td>
     <td class="col-change-icon">
       {% if record.action == "add" %}
         <i class="fa fa-plus color-add" aria-hidden="true"></i>
@@ -39,6 +42,8 @@
   </tr>
   {% endfor %}
 </table>
+</div>
+{% endfor %}
 
 {% include "pagination.html" %}
 

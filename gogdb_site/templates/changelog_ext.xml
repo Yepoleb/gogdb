@@ -1,0 +1,55 @@
+{% from "changelog_format.html" import format_record %}
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title>GOG Database</title>
+  <link rel="alternate" href="{{ request.route_url('changelog_ext') }}" type="text/html"/>
+  <link rel="self" href="{{ request.route_url('changelog_atom') }}" type="application/atom+xml"/>
+  <icon>{{ request.static_url('gogdb_site:static/img/favicon.ico') }}</icon>
+  <updated>{{ changes[0].timestamp.isoformat() }}</updated>
+  <author>
+    <name>GOG Database</name>
+  </author>
+  <id>urn:uuid:ae1c2a61-1778-4abf-9fa4-d51b662c93c7</id>
+
+  {% for timestamp, recordgroup in changes|groupby("timestamp") %}
+  <entry>
+    <id>tag:gogdb.yepoleb.me,2017-11-01:{{ timestamp.__hash__()|abs }}</id>
+    <title>{{ recordgroup[0].product.title }} - {{ recordgroup[0].prod_id }}</title>
+    <updated>{{ timestamp.isoformat() }}</updated>
+    <link rel="alternate" href="{{ request.route_path('product_info', product=recordgroup[0].prod_id) }}#changelog"/>
+    <content type="html">
+      {% filter forceescape %}
+      <style>
+      .nobreak {
+        white-space: nowrap;
+      }
+      </style>
+
+      <table>
+      {% for record in recordgroup %}
+      <tr>
+        <td>
+          {% if record.action == "add" %}
+            +
+          {% elif record.action == "del" %}
+            -
+          {% elif record.action == "change" %}
+            o
+          {% endif %}
+        </td>
+        <td>
+          {{ format_record(record) }}
+        </td>
+        <td>
+          {{ record.timestamp.strftime("%Y-%m-%d") }}
+        </td>
+      </tr>
+      {% endfor %}
+      </table>
+      {% endfilter %}
+    </content>
+  </entry>
+  {% endfor %}
+
+</feed>

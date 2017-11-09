@@ -33,3 +33,17 @@
 .color-change {
   color: #004272;
 }
+
+.changelog-title {
+  line-height: 2.3rem;
+  font-size: 1.2rem;
+  padding: 0 0.6rem;
+  padding-top: 3px;
+  background-color: #e1e1e1;
+  border: 1px solid #c5c5c5;
+  border-bottom: 3px solid #f18e00;
+}
+
+.changelog-table tr:first-child {
+  border-top: none;
+}
