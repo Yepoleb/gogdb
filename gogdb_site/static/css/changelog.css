@@ -4,7 +4,8 @@
   padding-right: 0px;
 }
 
-.col-changes-name {
+.col-change-name {
+  width: 100%;
   text-align: left;
 }
 
@@ -13,6 +14,7 @@
 }
 
 .col-change-desc {
+  width: 100%;
   padding-left: 0px;
 }
 
