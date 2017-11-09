@@ -1,5 +1,7 @@
-{% from "changelog_format.html" import format_record %}
 <?xml version="1.0" encoding="utf-8"?>
+
+{% from "changelog_format.html" import format_record %}
+
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title>GOG Database</title>
