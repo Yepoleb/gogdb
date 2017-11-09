@@ -8,7 +8,7 @@
   <link rel="alternate" href="{{ request.route_url('changelog_ext') }}" type="text/html"/>
   <link rel="self" href="{{ request.route_url('changelog_atom') }}" type="application/atom+xml"/>
   <icon>{{ request.static_url('gogdb_site:static/img/favicon.ico') }}</icon>
-  <updated>{{ changes[0].timestamp.isoformat() }}</updated>
+  <updated>{{ changes[0].timestamp.replace(microsecond=0).isoformat() }}</updated>
   <author>
     <name>GOG Database</name>
   </author>
@@ -18,16 +18,10 @@
   <entry>
     <id>tag:gogdb.yepoleb.me,2017-11-01:{{ timestamp.__hash__()|abs }}</id>
     <title>{{ recordgroup[0].product.title }} - {{ recordgroup[0].prod_id }}</title>
-    <updated>{{ timestamp.isoformat() }}</updated>
+    <updated>{{ timestamp.replace(microsecond=0).isoformat() }}</updated>
     <link rel="alternate" href="{{ request.route_path('product_info', product=recordgroup[0].prod_id) }}#changelog"/>
     <content type="html">
       {% filter forceescape %}
-      <style>
-      .nobreak {
-        white-space: nowrap;
-      }
-      </style>
-
       <table>
       {% for record in recordgroup %}
       <tr>
