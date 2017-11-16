@@ -184,6 +184,5 @@ This commit adds deleted columns to files and downloads. Also run the
 
 # Licenses
 
-* `gogdb_site/` - AGPLv3 or later
-* `scripts/` - MIT
+AGPLv3 or later
 
