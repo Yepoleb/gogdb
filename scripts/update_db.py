@@ -102,11 +102,12 @@ api.set_locale(*LOCALE)
 #import requests_cache
 #requests_cache.install_cache(backend="redis")
 #logger.setLevel(logging.DEBUG)
+#logging.getLogger("gogapi").setLevel(logging.DEBUG)
 
 # Load products and add them to the queue
 logger.info("Loading catalog")
 search_products = list(
-    api.search(mediaType="game", sort="bestselling", limit=500).iter_products()
+    api.search(mediaType="game", sort="bestselling", limit=50).iter_products()
 )
 products_count = len(search_products)
 # Queue for passing search to download workers
