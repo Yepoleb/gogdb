@@ -17,15 +17,13 @@ requires = [
     'zope.sqlalchemy',
 
     # assets
-    'pyramid_webassets',
     'webassets',
     'rcssmin',
     'rjsmin',
 
     # util
     'arrow',
-    'requests',
-    'requests-futures'
+    'requests'
 ]
 
 setup(
