@@ -2,12 +2,12 @@ from setuptools import setup, find_packages
 
 
 
+# Debug modules: pyramid_debugtoolbar, waitress
+
 requires = [
     # base
     'pyramid',
     'pyramid_jinja2',
-    'pyramid_debugtoolbar',
-    'waitress',
 
     # database
     'pyramid_tm',
