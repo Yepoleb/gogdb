@@ -135,7 +135,7 @@ for company in session.query(models.Company):
     companies[company.slug] = company
 
 for counter in range(products_count):
-    api_prod = db_queue.get()
+    api_prod = db_queue.get(timeout=60)
 
     # Check if product actually got loaded
     if not ("galaxy" in api_prod.loaded and "web" in api_prod.loaded):
