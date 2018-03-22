@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% set title %}Home{% endset %}
+
+{% block content %}
+<h1>GOG Database</h1>
+
+<div class="textbox shadow">
+  <p>
+    Welcome to the GOG Database, a third-party website that collects data on
+    <a href="https://www.gog.com">GOG games</a>
+    and tries to display it in a user-friendly manner. It's currently
+    in beta state, because a lot of planned functionality is still missing.
+  </p>
+
+  <p>
+    To get started visit the
+    <a href="{{ url_for('product_list') }}">products site</a>
+    and search for a game. Click on the name or ID to go to its info page.
+  </p>
+
+  <p>
+    If you found bugs or want to request a feature, you can contact me on
+    <a href="https://freenode.net/">freenode IRC</a> (##gogdb),
+    <a href="https://discordapp.com/">Discord</a> (Yepoleb#6459),
+    <a href="https://steamcommunity.com/id/yepoleb">Steam</a>
+    or post them in the
+    <a href="https://www.gog.com/forum/general/gog_database_a_website_that_collects_data_on_gog_games">GOG community topic</a>.
+    Source code is hosted on
+    <a href="https://github.com/Yepoleb/gogdb">Github</a>.
+  </p>
+</div>
+{% endblock content %}

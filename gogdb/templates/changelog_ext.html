@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% from "changelog_format.html" import format_record %}
+
+{% set title %}Extended Changelog{% endset %}
+
+{% block link %}
+<link rel="alternate" type="application/atom+xml" title="Atom Feed for GOG Database" href="{{ url_for('changelog_atom') }}">
+{% endblock %}
+
+{% block content %}
+<h1>{{ title }}</h1>
+
+<div class="textbox shadow">
+  Detailed changelog for all products, visit
+  <a href="{{ url_for('changelog') }}">Changelog</a>
+  for a summary. This site is also available as an
+  <a href="{{ url_for('changelog_atom') }}">Atom feed</a>
+  (like RSS).
+</div>
+
+{% for recordgroup in changes %}
+<div class="shadow">
+  <div class="changelog-title">
+    <a href="{{ url_for('product_info', prod_id=recordgroup[0].prod_id) }}#changelog" class="hoveronly"><b>{{ recordgroup[0].product.title }}</b></a>
+    - {{ recordgroup[0].prod_id }}
+  </div>
+<table class="changelog-table rowborder">
+  {% for record in recordgroup %}
+  <tr>
+    <td class="col-change-icon">
+      {% if record.action == "add" %}
+        <i class="fa fa-plus color-add" aria-hidden="true"></i>
+      {% elif record.action == "del" %}
+        <i class="fa fa-minus color-del" aria-hidden="true"></i>
+      {% elif record.action == "change" %}
+        <i class="fa fa-circle color-change" aria-hidden="true"></i>
+      {% endif %}
+    </td>
+    <td class="col-change-desc">
+      {{ format_record(record) }}
+    </td>
+    <td class="col-change-date">
+      {{ record.timestamp.strftime("%Y-%m-%d") }}
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+</div>
+{% endfor %}
+
+{% include "pagination.html" %}
+
+{% endblock content %}

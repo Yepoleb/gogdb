@@ -14,11 +14,11 @@ import sqlalchemy
 from sqlalchemy import orm
 from gogapi import GogApi
 
-from gogdb_site import models
+import gogdb
+from gogdb import db, model
 import changelog
 
 
-CONFIG_SECTION = "app:main"
 IMAGE_RE = re.compile(r".+gog.com/([0-9a-f]+).*")
 GALAXY_EXPANDED = ["downloads", "description"]
 ALLOWED_CHARS = set(string.ascii_lowercase + string.digits)
@@ -43,7 +43,7 @@ def parse_age(rating):
 def parse_company(company_info, companies):
     slug = company_info["slug"]
     if slug not in companies:
-        companies[slug] = models.Company(
+        companies[slug] = model.Company(
             slug=slug, name=company_info["name"])
     return companies[slug]
 
@@ -81,16 +81,8 @@ logging.basicConfig()
 logger = logging.getLogger("UpdateDB")
 logger.setLevel(logging.INFO)
 
-# Load config
-config = configparser.ConfigParser()
-with open(sys.argv[1], "r") as configfile:
-    config.read_file(configfile)
-mainconfig = config[CONFIG_SECTION]
-engine = sqlalchemy.create_engine(mainconfig["sqlalchemy.url"])
-
-# Create ORM session
-Session = orm.sessionmaker(bind=engine)
-session = Session()
+# Alias session
+session = db.session
 
 # Initialize API
 
@@ -101,7 +93,7 @@ api.set_locale(*LOCALE)
 
 #import requests_cache
 #requests_cache.install_cache(backend="redis")
-#logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.DEBUG)
 #logging.getLogger("gogapi").setLevel(logging.DEBUG)
 
 # Load products and add them to the queue
@@ -131,7 +123,7 @@ for i in range(DL_WORKER_COUNT):
 dependencies = {}
 companies = {}
 
-for company in session.query(models.Company):
+for company in session.query(model.Company):
     companies[company.slug] = company
 
 for counter in range(products_count):
@@ -150,11 +142,11 @@ for counter in range(products_count):
 
     # Get the old data from the database
 
-    prod = session.query(models.Product).filter(
-        models.Product.id == api_prod.id).one_or_none()
+    prod = session.query(model.Product).filter(
+        model.Product.id == api_prod.id).one_or_none()
     if prod is None:
         logger.info("New Product: %d %s", api_prod.id, api_prod.title)
-        prod = models.Product(id=api_prod.id)
+        prod = model.Product(id=api_prod.id)
         changelog.prod_add(prod, prod.changes, cur_time)
     else:
         # Changelog product
@@ -226,7 +218,7 @@ for counter in range(products_count):
 
         # Add new downloads
         if download is None:
-            download = models.Download(slug=api_download.id)
+            download = model.Download(slug=api_download.id)
             prod.downloads.append(download)
             changelog.dl_add(download, prod.changes, cur_time)
         elif download.deleted:
@@ -262,7 +254,7 @@ for counter in range(products_count):
 
             # Add new files
             if dlfile is None:
-                dlfile = models.DlFile(slug=api_file.id)
+                dlfile = model.DlFile(slug=api_file.id)
                 download.files.append(dlfile)
 
             dlfile.deleted = False
@@ -273,28 +265,28 @@ for counter in range(products_count):
 
     prod.features = []
     for feature in api_prod.features:
-        prod.features.append(models.Feature(slug=feature.slug))
+        prod.features.append(model.Feature(slug=feature.slug))
 
     # Genres
 
     prod.genres = []
     for genre in api_prod.genres:
-        prod.genres.append(models.Genre(slug=genre.slug))
+        prod.genres.append(model.Genre(slug=genre.slug))
 
     # Languages
 
     prod.languages = []
     for language in api_prod.languages:
-        prod.languages.append(models.Language(isocode=language.isocode))
+        prod.languages.append(model.Language(isocode=language.isocode))
 
     # Price entry
 
     if prod.pricehistory:
         last_record = prod.pricehistory[-1]
     else:
-        last_record = models.PriceRecord()
+        last_record = model.PriceRecord()
 
-    current_record = models.PriceRecord(
+    current_record = model.PriceRecord(
         price_base = api_prod.price.base,
         price_final = api_prod.price.final,
         date = datetime.datetime.utcnow()
@@ -319,7 +311,7 @@ for counter in range(products_count):
 # Set dependencies
 
 products = {}
-for product in session.query(models.Product):
+for product in session.query(model.Product):
     products[product.id] = product
 
 for prod_id, dep_id in dependencies.items():

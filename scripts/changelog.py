@@ -1,4 +1,4 @@
-from gogdb_site.models import ChangeRecord
+from gogdb.model import ChangeRecord
 
 
 

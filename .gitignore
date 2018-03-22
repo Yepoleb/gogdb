@@ -1,7 +1,6 @@
 # Config files
-development.ini
-production.ini
-scripts/config.ini
+config-development.py
+config-production.py
 
 # Root level scripts
 /*.sh
@@ -17,10 +16,7 @@ env/
 venv/
 
 # Generated assets
-generated/
-
-# Scripts cache
-scripts/cache
+gogdb/generated/
 
 # OS files
 .DS_Store

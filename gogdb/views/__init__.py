@@ -1,0 +1,10 @@
+import gogdb.views.changelog
+import gogdb.views.changelog_ext
+import gogdb.views.favicon
+import gogdb.views.generated
+import gogdb.views.gogdata
+import gogdb.views.index
+import gogdb.views.legal
+import gogdb.views.product_info
+import gogdb.views.product_list
+import gogdb.views.robots

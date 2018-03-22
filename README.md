@@ -7,7 +7,7 @@ Website that collects data on GOG games.
 Commands are prefixed with `$` or `#` depending if they can be run as a regular
 user or must be run as root. They are specific to Debian/Ubuntu, Apache2 and
 uWSGI. If you want to use a different web or app server search for deploying
-Pyramid or Paste based applications.
+Flask applications.
 
 ## Application
 
@@ -26,7 +26,7 @@ Clone the application
 
 Create virtual environment
 
-    # python3 -m venv env
+    # python3 -m venv venv
 
 Install application into virtualenv
 
@@ -43,16 +43,21 @@ Install PostgreSQL and create database
 
 Copy the example config and set database password
 
-    # cp production-example.ini production.ini
-    # editor production.ini
+    # cp example-production.py production.py
+    # editor production.py
+
+Set up environment
+
+    $ export FLASK_APP=gogdb
+    $ export GOGDB_CONFIG=../config-development.py
 
 Initialize database
 
-    # venv/bin/initialize-db production.ini
+    $ venv/bin/gogdb-init
 
 Build assets
 
-    # venv/bin/build-assets production.ini
+    # venv/bin/flask assets build
 
 ## Apache2
 
@@ -100,46 +105,13 @@ Restart uWSGI
 
     # systemctl restart uwsgi
 
-## mod_proxy_uwsgi
-
-If you're mounting gogdb in a subpath like `/gogdb` instead of the server root,
-it may not handle certain URLs correctly. In that case you can download my fork
-and replace the bugged module.
-
-Change to a temporary directory where you can build the module
-
-    $ cd ~/
-
-Install the Apache headers
-
-    # apt install apache2-dev
-
-Clone my uWSGI fork
-
-    $ git clone https://github.com/Yepoleb/uwsgi.git
-    $ cd uwsgi/apache2
-
-Build the module and install it
-
-    # apxs2 -i -c mod_proxy_uwsgi.c
-
-Restart Apache2
-
-    # systemctl restart apache2
-
-Change back to gogdb directory
-
-    $ cd /var/www/gogdb
-
 ## Scripts
 
 Scripts insert the data into the database and keep it up to date. They are
 also used to build the search index.
 
-Create the cache and log directory and make them writable
+Create the log directory and make it writable
 
-    # mkdir -p /var/www/gogdb/cache
-    # chown www-data:www-data /var/www/gogdb/cache
     # mkdir -p /var/log/gogdb
     # chown www-data:www-data /var/log/gogdb
 

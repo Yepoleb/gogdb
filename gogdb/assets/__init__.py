@@ -1,0 +1,1 @@
+import gogdb.assets.bundles

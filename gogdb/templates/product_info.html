@@ -1,0 +1,326 @@
+{% extends "base.html" %}
+
+{% from "changelog_format.html" import format_record %}
+
+{% set title %}{{ product.title }}{% endset %}
+
+{% block js %}
+{% assets "js-prodinfo" %}
+<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+<script type="application/json" id="pricehistory-json">
+  {{ pricehistory | tojson | safe }}
+</script>
+{% endblock js %}
+
+{% block content %}
+<h1>{{ title }}</h1>
+<div>
+  <div id="info-container-left">
+    <table id="info-table" class="shadow cellborder">
+      <tr>
+        <td>Product ID</td>
+        <td>{{ product.id }}</td>
+      </tr>
+      <tr>
+        <td>Product Type</td>
+        <td>{{ product.product_type_name }}</td>
+      </tr>
+      <tr>
+        <td>Name</td>
+        <td>{{ product.title }}</td>
+      </tr>
+      <tr>
+        <td>Slug</td>
+        <td>{{ product.slug }}</td>
+      </tr>
+      <tr>
+        <td>Supported Sytems</td>
+        <td>{{ product.systems | os_icons }}</td>
+      </tr>
+      <tr>
+        <td>Developer</td>
+        <td>{{ product.developer.name }}</td>
+      </tr>
+      <tr>
+        <td>Publisher</td>
+        <td>{{ product.publisher.name }}</td>
+      </tr>
+      <tr>
+        <td>Release Date</td>
+        {% if product.release_date %}
+        <td>{{ product.release_arrow.format("MMMM D, YYYY") }} ({{ product.release_arrow.humanize() }})</td>
+        {% else %}
+        <td></td>
+        {% endif %}
+      </tr>
+    </table>
+  </div>
+  <div id="info-container-right">
+    <img id="product-logo" class="shadow" src="https://images.gog.com/{{ product.image_logo }}_ggvgm.jpg" alt="Product logo">
+    <a id="store-button" class="btn-gog" href="https://www.gog.com/game/{{ product.slug }}">
+      Store Page
+    </a>
+  </div>
+</div>
+
+<div id="tabs-container" class="shadow">
+  <a href="#prices" class="tabs-item no-underline">Prices</a>
+  <a href="#details" class="tabs-item no-underline">Details</a>
+  <a href="#downloads" class="tabs-item no-underline">Downloads</a>
+  <a href="#changelog" class="tabs-item no-underline">Changelog</a>
+</div>
+
+<div id="tab-prices" class="tab">
+  <h2>Prices</h2>
+
+  <div id="chart-container">
+    <canvas id="chart-canvas" class="shadow"></canvas>
+  </div>
+  <table class="shadow cellborder">
+    <tr>
+      <th>Start</th>
+      <th>End</th>
+      <th>Base</th>
+      <th>Final</th>
+      <th>Discount</th>
+    </tr>
+    {% for price in priceframes %}
+    <tr>
+      <td>{{ price.start.format("MMMM D, YYYY") }}</td>
+      <td>{{ price.end.format("MMMM D, YYYY") }}</td>
+      <td>${{ price.price_base }}</td>
+      <td>${{ price.price_final }}</td>
+      {% if price.discount > 0 %}
+      <td>{{ price.discount }}%</td>
+      {% else %}
+      <td>-</td>
+      {% endif %}
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+
+<div id="tab-details" class="tab">
+  <h2>Details</h2>
+
+  <table class="shadow cellborder">
+    <tr>
+      <td>Genres</td>
+      <td>{{ product.genres | comma_attr("name") }}</td>
+    </tr>
+    <tr>
+      <td>Languages</td>
+      <td>{{ product.languages | comma_attr("isocode") }}</td>
+    </tr>
+    <tr>
+      <td>Features</td>
+      <td>{{ product.features | comma_attr("name") }}</td>
+    </tr>
+    <tr>
+      <td>Secret</td>
+      <td>{{ product.is_secret | yes_no }}</td>
+    </tr>
+    <tr>
+      <td>Price visible</td>
+      <td>{{ product.is_price_visible | yes_no }}</td>
+    </tr>
+    <tr>
+      <td>Reviews enabled</td>
+      <td>{{ product.can_be_reviewed | yes_no }}</td>
+    </tr>
+    <tr>
+      <td>Content system compatibility</td>
+      <td>{{ product.cs_systems | os_icons }}</td>
+    </tr>
+    <tr>
+      <td>Coming soon</td>
+      <td>{{ product.is_coming_soon | yes_no }}</td>
+    </tr>
+    <tr>
+      <td>Pre-order</td>
+      <td>{{ product.is_pre_order | yes_no }}</td>
+    </tr>
+    <tr>
+      <td>Development active</td>
+      <td>{{ product.development_active | yes_no }}</td>
+    </tr>
+  </table>
+
+  <table class="shadow cellborder">
+    <tr>
+      <td class="table-prop">Product page</td>
+      <td>
+        <span class="force-overflow">
+          <a href="https://www.gog.com/game/{{ product.slug }}">
+            https://www.gog.com/game/{{ product.slug }}
+          </a>
+        </span>
+      </td>
+    </tr>
+    <tr>
+      <td class="table-prop">Support</td>
+      <td>
+        <span class="force-overflow">
+          <a href="https://www.gog.com/support/{{ product.slug }}">
+            https://www.gog.com/support/{{ product.slug }}
+          </a>
+        </span>
+      </td>
+    </tr>
+    <tr>
+      <td class="table-prop">Forum</td>
+      <td>
+        <span class="force-overflow">
+          <a href="https://www.gog.com/forum/{{ product.forum_id }}">
+            https://www.gog.com/forum/{{ product.forum_id }}
+          </a>
+        </span>
+      </td>
+    </tr>
+    <tr>
+      <td class="table-prop">Background image</td>
+      <td>
+        <span class="force-overflow">
+          <a href="https://images.gog.com/{{ product.image_background }}.jpg">
+            https://images.gog.com/{{ product.image_background }}.jpg
+          </a>
+        </span>
+      </td>
+    </tr>
+    <tr>
+      <td class="table-prop">Logo image</td>
+      <td>
+        <span class="force-overflow">
+          <a href="https://images.gog.com/{{ product.image_logo }}.jpg">
+            https://images.gog.com/{{ product.image_logo }}.jpg
+          </a>
+        </span>
+      </td>
+    </tr>
+    {% if product.image_icon %}
+    <tr>
+      <td class="table-prop">Icon</td>
+      <td>
+        <span class="force-overflow">
+          <a href="https://images.gog.com/{{ product.image_icon }}.png">
+            https://images.gog.com/{{ product.image_icon }}.png
+          </a>
+        </span>
+      </td>
+    </tr>
+    {% endif %}
+    <tr>
+      <td class="table-prop">Galaxy API</td>
+      <td>
+        <span class="force-overflow">
+          <a href="https://api.gog.com/products/{{ product.id }}?expand=downloads,expanded_dlcs,description,screenshots,videos,related_products,changelog">
+            https://api.gog.com/products/{{ product.id }}?expand=downloads,expanded_dlcs,description,screenshots,videos,related_products,changelog
+          </a>
+        </span>
+      </td>
+    </tr>
+    <tr>
+      <td class="table-prop">gogData</td>
+      <td>
+        <span class="force-overflow">
+          <a href="{{ url_for('gogdata', slug=product.slug, _external=True) }}">
+            {{ url_for('gogdata', slug=product.slug, _external=True) }}
+          </a>
+        </span>
+      </td>
+    </tr>
+  </table>
+</div>
+
+
+<div id="tab-downloads" class="tab">
+  <h2>Downloads</h2>
+
+  <table class="shadow cellborder">
+    <tr>
+      <th class="dl-name">Name</th>
+      <th class="dl-os">OS</th>
+      <th class="dl-lang">Language</th>
+      <th class="dl-type">Type</th>
+      <th class="dl-size">Size</th>
+      <th class="dl-version">Version</th>
+    </tr>
+    {% for download in product.valid_downloads %}
+    {% if download.type != "bonus_content" %}
+    {% for dlfile in download.valid_files %}
+    <tr>
+      <td>
+        <a href="https://www.gog.com/downlink/{{ product.slug }}/{{ dlfile.slug }}">
+          {{ download.name }}
+          {% if loop.length > 1 %}
+          (Part {{ loop.index }} of {{ loop.length }})
+          {% endif %}
+        </a>
+      </td>
+      <td>{{ download.os | os_icon }}</td>
+      <td>{{ download.language_name }}</td>
+      <td>{{ download.type_name }}</td>
+      <td>{{ dlfile.size | filesizeformat }}</td>
+      <td>{{ download.version | default('N/A', true) }}</td>
+    </tr>
+    {% endfor %}
+    {% endif %}
+    {% endfor %}
+  </table>
+
+  <table id="downloads-bonus" class="shadow cellborder">
+    <tr>
+      <th class="dl-name">Name</th>
+      <th class="dl-category">Category</th>
+      <th class="dl-type">Type</th>
+      <th class="dl-size">Size</th>
+      <th class="dl-count">Count</th>
+    </tr>
+    {% for download in product.valid_downloads %}
+    {% if download.type == "bonus_content" %}
+    {% for dlfile in download.valid_files %}
+    <tr>
+      <td>
+        <a href="https://www.gog.com/downlink/file/{{ product.slug }}/{{ dlfile.slug }}">
+          {{ download.name | title }}
+        </a>
+      </td>
+      <td>{{ download.bonus_type_name }}</td>
+      <td>{{ download.type_name }}</td>
+      <td>{{ dlfile.size | filesizeformat}}</td>
+      <td>{{ download.count }}</td>
+    </tr>
+    {% endfor %}
+    {% endif %}
+    {% endfor %}
+  </table>
+</div>
+
+<div id="tab-changelog" class="tab">
+  <h2>Changelog</h2>
+
+  <table class="shadow rowborder">
+    {% for record in product.changes %}
+    <tr>
+      <td class="col-change-icon">
+        {% if record.action == "add" %}
+          <i class="fa fa-plus color-add" aria-hidden="true"></i>
+        {% elif record.action == "del" %}
+          <i class="fa fa-minus color-del" aria-hidden="true"></i>
+        {% elif record.action == "change" %}
+          <i class="fa fa-circle color-change" aria-hidden="true"></i>
+        {% endif %}
+      </td>
+      <td class="col-change-desc">
+        {{ format_record(record) }}
+      </td>
+      <td class="col-change-date">
+        {{ record.timestamp.strftime("%Y-%m-%d") }}
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+
+{% endblock content %}
