@@ -154,7 +154,7 @@ This commit adds deleted columns to files and downloads. Also run the
     ALTER TABLE downloads ALTER COLUMN deleted SET NOT NULL;
 
 
-# Licenses
+# License
 
 AGPLv3 or later
 
