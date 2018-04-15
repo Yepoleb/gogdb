@@ -8,3 +8,4 @@ import gogdb.views.legal
 import gogdb.views.product_info
 import gogdb.views.product_list
 import gogdb.views.robots
+import gogdb.views.slug_map
