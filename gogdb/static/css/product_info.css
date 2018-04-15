@@ -1,9 +1,18 @@
-#product-logo {
-  width: 100%;
-}
-
 #page > div, .tab > * {
   margin-bottom: 30px;
+}
+
+#info-container {
+  display: flex;
+}
+
+#info-container-left {
+  flex-grow: 1;
+  margin-right: 30px;
+}
+
+#info-container-right {
+  width: 30%;
 }
 
 #store-button {
@@ -11,13 +20,53 @@
   display: block;
 }
 
-#chart-canvas {
+#product-logo {
+  width: 100%;
   background-color: #e1e1e1;
 }
 
 #chart-container {
   height: 300px;
-  margin-bottom: 30px;
+  background-color: #e1e1e1;
+}
+
+.force-overflow {
+  width: 100%;
+  display: block;
+  white-space: nowrap;
+  margin-right: -1000px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.table-prop {
+  white-space: nowrap;
+  width: 1%;
+}
+
+#tabs-container {
+  display: flex;
+  text-align: center;
+  font-size: 1.1rem;
+  background-color: #e1e1e1;
+}
+
+.tabs-item {
+  padding: 8px 0px;
+  flex: 1 1 0;
+}
+
+.tabs-item:hover {
+  background-color: #d5d5d5
+}
+
+.tabs-item:focus {
+  outline: 0px;
+}
+
+.tabs-item-selected {
+  padding-bottom: 4px;
+  border-bottom: 4px solid #f18e00;
 }
 
 .btn-gog {
@@ -35,63 +84,11 @@
 .btn-gog:focus {
   color: #fff;
   text-decoration: none;
+  outline: 0px;
 }
 
 .btn-gog:hover {
   background: linear-gradient(to bottom, #acce00, #8bba00);
   color: #fff;
   text-decoration: none;
-}
-
-.force-overflow {
-  width: 100%;
-  display: block;
-  white-space: nowrap;
-  margin-right: -1000px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.table-prop {
-  white-space: nowrap;
-  width: 1%;
-}
-
-#info-container-left {
-  display: inline-block;
-  width: 70%;
-  padding-right: 30px;
-}
-
-#info-container-right {
-  display: inline-block;
-  width: 30%;
-  float: right;
-}
-
-#tabs-container {
-  width: 100%;
-  text-align: center;
-  font-size: 0px;
-}
-
-.tabs-item {
-  font-size: 1.1rem;
-  padding: 8px 0px;
-  width: 25%;
-  display: inline-block;
-  background-color: #e1e1e1;
-}
-
-.tabs-item:hover {
-  background-color: #d5d5d5
-}
-
-.tabs-item:focus {
-  outline: 0px;
-}
-
-.tabs-item-selected {
-  padding-bottom: 4px;
-  border-bottom: 4px solid #f18e00;
 }

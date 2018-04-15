@@ -8,6 +8,7 @@ from gogdb import app
 
 GOGDATA_RE = re.compile(r"var gogData = (\{.*\})")
 
+
 @app.route("/gogdata/<slug>")
 def gogdata(slug):
     resp = requests.get("https://www.gog.com/game/" + slug,

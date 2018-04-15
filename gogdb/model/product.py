@@ -13,46 +13,48 @@ class Product(db.Model):
 
     id = Column(sql.Integer, primary_key=True, autoincrement=False)
 
-    title = Column(sql.String(120), nullable=False)
-    slug = Column(sql.String(120), nullable=False)
-    title_norm = Column(sql.String(120), nullable=False)
-    forum_id = Column(sql.String(120), nullable=False)
+    title = Column(sql.String(120), nullable=True)
+    slug = Column(sql.String(120), nullable=True)
+    title_norm = Column(sql.String(120), default="", nullable=False)
+    forum_id = Column(sql.String(120), nullable=True)
 
-    product_type = Column(sql.String(20), nullable=False)
-    is_secret = Column(sql.Boolean, nullable=False)
-    is_price_visible = Column(sql.Boolean, nullable=False)
-    can_be_reviewed = Column(sql.Boolean, nullable=False)
+    product_type = Column(sql.String(20), nullable=True)
+    is_secret = Column(sql.Boolean, nullable=True)
+    is_price_visible = Column(sql.Boolean, nullable=True)
+    can_be_reviewed = Column(sql.Boolean, nullable=True)
     base_prod_id = Column(
         sql.Integer, sql.ForeignKey("products.id"), nullable=True)
 
-    cs_windows = Column(sql.Boolean, nullable=False)
-    cs_mac = Column(sql.Boolean, nullable=False)
-    cs_linux = Column(sql.Boolean, nullable=False)
+    cs_windows = Column(sql.Boolean, nullable=True)
+    cs_mac = Column(sql.Boolean, nullable=True)
+    cs_linux = Column(sql.Boolean, nullable=True)
 
-    os_windows = Column(sql.Boolean, nullable=False)
-    os_mac = Column(sql.Boolean, nullable=False)
-    os_linux = Column(sql.Boolean, nullable=False)
+    os_windows = Column(sql.Boolean, nullable=True)
+    os_mac = Column(sql.Boolean, nullable=True)
+    os_linux = Column(sql.Boolean, nullable=True)
 
-    is_coming_soon = Column(sql.Boolean, nullable=False)
-    is_pre_order = Column(sql.Boolean, nullable=False)
+    is_coming_soon = Column(sql.Boolean, nullable=True)
+    is_pre_order = Column(sql.Boolean, nullable=True)
     release_date = Column(sql.Date, nullable=True)
-    development_active = Column(sql.Boolean, nullable=False)
+    store_date = Column(sql.Date, nullable=True)
+    development_active = Column(sql.Boolean, nullable=True)
+    availability = Column(sql.SmallInteger, nullable=True)
 
     age_esrb = Column(sql.SmallInteger, nullable=True)
     age_pegi = Column(sql.SmallInteger, nullable=True)
     age_usk = Column(sql.SmallInteger, nullable=True)
 
-    rating = Column(sql.SmallInteger, nullable=False)
-    votes_count = Column(sql.Integer, nullable=False)
-    reviews_count = Column(sql.Integer, nullable=False)
+    rating = Column(sql.SmallInteger, nullable=True)
+    votes_count = Column(sql.Integer, nullable=True)
+    reviews_count = Column(sql.Integer, nullable=True)
 
     developer_slug = Column(
-        sql.String(120), sql.ForeignKey("companies.slug"), nullable=False)
+        sql.String(120), sql.ForeignKey("companies.slug"), nullable=True)
     publisher_slug = Column(
-        sql.String(120), sql.ForeignKey("companies.slug"), nullable=False)
+        sql.String(120), sql.ForeignKey("companies.slug"), nullable=True)
 
-    image_background = Column(sql.String(64), nullable=False)
-    image_logo = Column(sql.String(64), nullable=False)
+    image_background = Column(sql.String(64), nullable=True)
+    image_logo = Column(sql.String(64), nullable=True)
     image_icon = Column(sql.String(64), nullable=True)
 
     description_full = Column(sql.Text, nullable=True)
@@ -115,7 +117,19 @@ class Product(db.Model):
     @property
     def valid_downloads(self):
         return [download for download in self.downloads
-                if not download.deleted]
+            if not download.deleted]
+
+    @property
+    def valid_installers(self):
+        return [download for download in self.downloads
+            if not download.deleted and download.type != "bonus_content"
+        ]
+
+    @property
+    def valid_bonus(self):
+        return [download for download in self.downloads
+            if not download.deleted and download.type == "bonus_content"
+        ]
 
     def download_by_slug(self, slug):
         for download in self.downloads:

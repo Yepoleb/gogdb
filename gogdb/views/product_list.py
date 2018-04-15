@@ -19,7 +19,7 @@ def normalize_search(title):
     return "".join(filter(lambda c: c in ALLOWED_CHARS, title.lower()))
 
 
-@app.route("/product_list")
+@app.route("/products")
 def product_list():
     page = int(flask.request.args.get("page", "1"))
     search = flask.request.args.get("search", "").strip()
@@ -50,8 +50,10 @@ def product_list():
 
         # Add a filter for each search word
         for word in search_words:
-            query = query.filter(model.Product.title_norm \
-                .like("%{}%".format(word)))
+            word_cond = model.Product.title_norm.like("%{}%".format(word))
+            if word.isdecimal():
+                word_cond |= (model.Product.id == int(word))
+            query = query.filter(word_cond)
 
         products = query.all()
         page_info = calc_pageinfo(page, len(products), PRODUCTS_PER_PAGE)

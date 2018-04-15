@@ -1,16 +1,9 @@
-function history_date(entry)
+function null_to_nan(value)
 {
-  return moment(entry.date);
-}
-
-function history_price(entry)
-{
-  return entry.price_final;
-}
-
-function history_price_float(entry)
-{
-  return parseFloat(entry.price_final);
+  if (value == null) {
+    return NaN;
+  }
+  return value;
 }
 
 chart_init_called = false;
@@ -23,19 +16,19 @@ function init_chart()
   chart_init_called = true;
 
   var pricehistory = JSON.parse(document.getElementById("pricehistory-json").innerHTML)
-  var max_price = Math.max.apply(null, pricehistory.map(history_price_float))
+  pricehistory["values"] = pricehistory["values"].map(null_to_nan);
 
   var config = {
     type: "line",
     data: {
-      labels: pricehistory.map(history_date),
+      labels: pricehistory["labels"],
       datasets: [{
         label: "Price",
         fill: false,
         steppedLine: true,
         borderColor: "rgb(241, 142, 0)",
         backgroundColor: "rgb(241, 142, 0)",
-        data: pricehistory.map(history_price),
+        data: pricehistory["values"],
       }]
     },
     options: {
@@ -49,7 +42,7 @@ function init_chart()
         yAxes: [{
           ticks: {
             beginAtZero: true,
-            suggestedMax: Math.round(max_price) + 1
+            suggestedMax: Math.round(pricehistory["max"]) + 1
           }
         }]
       },
@@ -65,8 +58,10 @@ function init_chart()
     }
   };
 
-  var ctx = document.getElementById("chart-canvas").getContext("2d");
-  window.myChart = new Chart(ctx, config);
+  var ctx = document.getElementById("chart-canvas");
+  if (ctx != null) {
+    window.myChart = new Chart(ctx, config);
+  }
 };
 
 window.addEventListener("DOMContentLoaded", init_chart, false);

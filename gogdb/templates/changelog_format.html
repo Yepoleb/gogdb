@@ -7,6 +7,10 @@
   {% endif %}
 {% endmacro %}
 
+{% macro avail_name(availability) %}
+  {{ ["Private", "Public", "Store"][availability] }}
+{% endmacro %}
+
 {% macro old_new(record) %}
   <span class="nobreak">{{ record.old }} ⇒ {{ record.new }}</span>
 {% endmacro %}
@@ -14,7 +18,7 @@
 {% macro format_record(record) %}
   {% if record.action == "add" %}
     {% if record.type == "product" %}
-      Added to catalog
+      Added to database
     {% elif record.type == "download" %}
       Added download - {{ download_name(record) }}
     {% elif record.type == "product.cs" %}
@@ -34,13 +38,16 @@
         {{ record.new | int | filesizeformat }}
     {% endif %}
   {% elif record.action == "del" %}
-    {% if record.type == "product" %}
-      Removed from catalog
-    {% elif record.type == "download" %}
+    {% if record.type == "download" %}
       Removed download - {{ download_name(record) }}
     {% endif %}
   {% elif record.action == "change" %}
-    {% if record.type == "product.cs" %}
+    {% if record.type == "product.avail" %}
+      Changed access -
+      <span class="nobreak">
+        {{ avail_name(record.old_int) }} ⇒ {{ avail_name(record.new_int) }}
+      </span>
+    {% elif record.type == "product.cs" %}
       Changed content system compatibility - {{ old_new(record) }}
     {% elif record.type == "product.os" %}
       Changed OS compatibility - {{ old_new(record) }}
@@ -55,8 +62,8 @@
     {% elif record.type == "download.total_size" %}
       Changed download size - {{ download_name(record) }} -
       <span class="nobreak">
-        {{ record.old | int | filesizeformat }} ⇒ {{ record.new | int | filesizeformat }}
-        {% set sizediff = record.new|int - record.old|int %}
+        {{ record.old_int | filesizeformat }} ⇒ {{ record.new_int | filesizeformat }}
+        {% set sizediff = record.new_int - record.old_int %}
         {% if sizediff >= 0 %}
           (+{{ sizediff | filesizeformat }})
         {% else %}

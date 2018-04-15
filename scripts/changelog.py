@@ -25,6 +25,21 @@ def prod_add(product, changes, cur_time):
     )
     changes.append(record)
 
+def prod_avail(product, value, changes, cur_time):
+    if product.availability == value:
+        return
+
+    record = ChangeRecord(
+        timestamp=cur_time,
+        action="change",
+        type_prim="product",
+        type_sec="avail",
+        resource=str(product.id),
+        old=str(product.availability),
+        new=str(value)
+    )
+    changes.append(record)
+
 def prod_cs(product, value, changes, cur_time):
     if set(product.cs_systems) == set(value):
         return

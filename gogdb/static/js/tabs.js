@@ -30,6 +30,7 @@ function onTabLinkClick(event) {
 
 function initTabs() {
     var tabLinks = document.getElementsByClassName("tabs-item");
+
     var tabNames = [];
     for (var i = 0; i < tabLinks.length; i++) {
         var tabLink = tabLinks[i];

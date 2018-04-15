@@ -35,47 +35,19 @@
 #pagination-container {
   text-align: center;
   padding: 20px 0;
-  color: grey;
+  color: #888888;
 }
 
 #product-search {
-  margin-bottom: 30px;
-}
-
-#search-bar, #search-button {
   height: 40px;
-  font-size: inherit;
-  border-style: none;
-  background-color: inherit;
-  box-shadow: none;
-}
-
-#search-bar {
-  width: 100%;
-  padding: 0px 10px;
-}
-
-#search-bar:focus {
-  outline: none;
-}
-
-#search-button {
-  width: 40px;
-  padding: 0px;
-  cursor: pointer;
-}
-
-#search-bar-cell {
-  width: 100%;
-}
-
-#search-button-cell {
-  vertical-align: middle;
-  text-align: center;
-}
-
-#search-row {
+  margin-bottom: 30px;
   font-size: 20px;
-  border: 1px solid #c5c5c5;
-  background-color: white
+}
+
+#product-search:focus-within {
+  box-shadow: 0 1px 5px rgba(46,23,143,.5);
+}
+
+#product-search-button {
+  width: 38px;
 }

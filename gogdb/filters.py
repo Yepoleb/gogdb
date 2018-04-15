@@ -11,7 +11,10 @@ OS_ICON_ELEMENTS = {
 
 @app.template_filter("yes_no")
 def format_yes_no(value):
-    return "Yes" if value else "No"
+    if isinstance(value, jinja2.Undefined):
+        return value
+    else:
+        return ["No", "Yes"][bool(value)]
 
 @app.template_filter("os_icon")
 def os_icon(system):

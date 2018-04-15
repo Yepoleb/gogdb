@@ -29,6 +29,20 @@ class ChangeRecord(db.Model):
             return self.type_prim
 
     @property
+    def old_int(self):
+        if self.old is not None:
+            return int(self.old)
+        else:
+            return None
+
+    @property
+    def new_int(self):
+        if self.new is not None:
+            return int(self.new)
+        else:
+            return None
+
+    @property
     def action_type(self):
         return self.action + " " + self.type
 

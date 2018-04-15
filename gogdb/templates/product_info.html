@@ -2,7 +2,7 @@
 
 {% from "changelog_format.html" import format_record %}
 
-{% set title %}{{ product.title }}{% endset %}
+{% set title %}{{ product.title | default("Unknown", true) }}{% endset %}
 
 {% block js %}
 {% assets "js-prodinfo" %}
@@ -15,7 +15,13 @@
 
 {% block content %}
 <h1>{{ title }}</h1>
-<div>
+{% if product.title is none %}
+<div class="textbox shadow">
+  No information available. Something referenced this ID but we
+  currently don't have access to its data.
+</div>
+{% else %}
+<div id="info-container">
   <div id="info-container-left">
     <table id="info-table" class="shadow cellborder">
       <tr>
@@ -23,44 +29,54 @@
         <td>{{ product.id }}</td>
       </tr>
       <tr>
-        <td>Product Type</td>
-        <td>{{ product.product_type_name }}</td>
-      </tr>
-      <tr>
-        <td>Name</td>
-        <td>{{ product.title }}</td>
-      </tr>
-      <tr>
         <td>Slug</td>
         <td>{{ product.slug }}</td>
       </tr>
       <tr>
+        <td>Product Type</td>
+        <td>{{ product.product_type_name }}</td>
+      </tr>
+      <tr>
+        <td>Access</td>
+        <td>{{ ["Private", "Public", "Public (Store)"][product.availability] }}</td>
+      </tr>
+      {% if product.systems %}
+      <tr>
         <td>Supported Sytems</td>
         <td>{{ product.systems | os_icons }}</td>
       </tr>
+      {% endif %}
+      {% if product.developer is not none %}
       <tr>
         <td>Developer</td>
         <td>{{ product.developer.name }}</td>
       </tr>
+      {% endif %}
+      {% if product.publisher is not none %}
       <tr>
         <td>Publisher</td>
         <td>{{ product.publisher.name }}</td>
       </tr>
+      {% endif %}
+      {% if product.release_date %}
       <tr>
         <td>Release Date</td>
-        {% if product.release_date %}
         <td>{{ product.release_arrow.format("MMMM D, YYYY") }} ({{ product.release_arrow.humanize() }})</td>
-        {% else %}
-        <td></td>
-        {% endif %}
       </tr>
+      {% endif %}
     </table>
   </div>
   <div id="info-container-right">
-    <img id="product-logo" class="shadow" src="https://images.gog.com/{{ product.image_logo }}_ggvgm.jpg" alt="Product logo">
+    {% if product.image_logo %}
+    <img id="product-logo" class="shadow" src="https://images.gog.com/{{ product.image_logo }}_ggvgm.jpg" alt="">
+    {% else %}
+    <img id="product-logo" class="shadow" src="{{ url_for('static', filename='img/no_logo_1600x900.svg') }}" alt="">
+    {% endif %}
+    {% if product.availability >= 2 %}
     <a id="store-button" class="btn-gog" href="https://www.gog.com/game/{{ product.slug }}">
       Store Page
     </a>
+    {% endif %}
   </div>
 </div>
 
@@ -74,6 +90,7 @@
 <div id="tab-prices" class="tab">
   <h2>Prices</h2>
 
+  {% if priceframes %}
   <div id="chart-container">
     <canvas id="chart-canvas" class="shadow"></canvas>
   </div>
@@ -89,6 +106,11 @@
     <tr>
       <td>{{ price.start.format("MMMM D, YYYY") }}</td>
       <td>{{ price.end.format("MMMM D, YYYY") }}</td>
+      {% if price.price_base is none or price.price_final is none %}
+      <td>-</td>
+      <td>-</td>
+      <td>-</td>
+      {% else %}
       <td>${{ price.price_base }}</td>
       <td>${{ price.price_final }}</td>
       {% if price.discount > 0 %}
@@ -96,27 +118,37 @@
       {% else %}
       <td>-</td>
       {% endif %}
+      {% endif %}
     </tr>
     {% endfor %}
   </table>
+  {% else %}
+  <div class="textbox shadow">
+    No price data available.
+  </div>
+  {% endif %}
 </div>
 
 <div id="tab-details" class="tab">
   <h2>Details</h2>
 
   <table class="shadow cellborder">
+    {% if product.genres %}
     <tr>
       <td>Genres</td>
       <td>{{ product.genres | comma_attr("name") }}</td>
     </tr>
+    {% endif %}
     <tr>
       <td>Languages</td>
       <td>{{ product.languages | comma_attr("isocode") }}</td>
     </tr>
+    {% if product.features %}
     <tr>
       <td>Features</td>
       <td>{{ product.features | comma_attr("name") }}</td>
     </tr>
+    {% endif %}
     <tr>
       <td>Secret</td>
       <td>{{ product.is_secret | yes_no }}</td>
@@ -131,7 +163,11 @@
     </tr>
     <tr>
       <td>Content system compatibility</td>
+      {% if product.cs_systems %}
       <td>{{ product.cs_systems | os_icons }}</td>
+      {% else %}
+      <td>Incompatible</td>
+      {% endif %}
     </tr>
     <tr>
       <td>Coming soon</td>
@@ -148,6 +184,7 @@
   </table>
 
   <table class="shadow cellborder">
+    {% if product.availability >= 2 %}
     <tr>
       <td class="table-prop">Product page</td>
       <td>
@@ -158,6 +195,7 @@
         </span>
       </td>
     </tr>
+    {% endif %}
     <tr>
       <td class="table-prop">Support</td>
       <td>
@@ -178,6 +216,7 @@
         </span>
       </td>
     </tr>
+    {% if product.image_background %}
     <tr>
       <td class="table-prop">Background image</td>
       <td>
@@ -188,6 +227,8 @@
         </span>
       </td>
     </tr>
+    {% endif %}
+    {% if product.image_logo %}
     <tr>
       <td class="table-prop">Logo image</td>
       <td>
@@ -198,6 +239,7 @@
         </span>
       </td>
     </tr>
+    {% endif %}
     {% if product.image_icon %}
     <tr>
       <td class="table-prop">Icon</td>
@@ -220,6 +262,7 @@
         </span>
       </td>
     </tr>
+    {% if product.availability >= 2 %}
     <tr>
       <td class="table-prop">gogData</td>
       <td>
@@ -230,6 +273,7 @@
         </span>
       </td>
     </tr>
+    {% endif %}
   </table>
 </div>
 
@@ -237,6 +281,8 @@
 <div id="tab-downloads" class="tab">
   <h2>Downloads</h2>
 
+  {% if product.valid_downloads %}
+  {% if product.valid_installers %}
   <table class="shadow cellborder">
     <tr>
       <th class="dl-name">Name</th>
@@ -246,8 +292,7 @@
       <th class="dl-size">Size</th>
       <th class="dl-version">Version</th>
     </tr>
-    {% for download in product.valid_downloads %}
-    {% if download.type != "bonus_content" %}
+    {% for download in product.valid_installers %}
     {% for dlfile in download.valid_files %}
     <tr>
       <td>
@@ -265,10 +310,11 @@
       <td>{{ download.version | default('N/A', true) }}</td>
     </tr>
     {% endfor %}
-    {% endif %}
     {% endfor %}
   </table>
+  {% endif %}
 
+  {% if product.valid_bonus %}
   <table id="downloads-bonus" class="shadow cellborder">
     <tr>
       <th class="dl-name">Name</th>
@@ -277,8 +323,7 @@
       <th class="dl-size">Size</th>
       <th class="dl-count">Count</th>
     </tr>
-    {% for download in product.valid_downloads %}
-    {% if download.type == "bonus_content" %}
+    {% for download in product.valid_bonus %}
     {% for dlfile in download.valid_files %}
     <tr>
       <td>
@@ -292,14 +337,20 @@
       <td>{{ download.count }}</td>
     </tr>
     {% endfor %}
-    {% endif %}
     {% endfor %}
   </table>
+  {% endif %}
+  {% else %}
+  <div class="textbox shadow">
+    No downloads available.
+  </div>
+  {% endif %}
 </div>
 
 <div id="tab-changelog" class="tab">
   <h2>Changelog</h2>
 
+  {% if product.changes %}
   <table class="shadow rowborder">
     {% for record in product.changes %}
     <tr>
@@ -321,6 +372,12 @@
     </tr>
     {% endfor %}
   </table>
+  {% else %}
+  <div class="textbox shadow">
+    No changelog entries.
+  </div>
+  {% endif %}
 </div>
+{% endif %}
 
 {% endblock content %}

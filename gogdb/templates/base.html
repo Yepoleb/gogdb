@@ -6,7 +6,12 @@
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="GOG Database">
     <meta property="og:title" content="{{ title }}">
-    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
+    <link rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}" type="image/vnd.microsoft.icon">
+    {% for size in [16, 32, 48, 64, 128, 256] %}
+    <link rel="icon" sizes="{{ "{0}x{0}".format(size) }}" href="{{ url_for('static', filename='img/sizes/gogdb_{0}x{0}.png'.format(size)) }}" type="image/png">
+    {% endfor %}
+    <link rel="icon" sizes="any" href="{{ url_for('static', filename='img/gogdb.svg') }}" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/sizes/gogdb_180x180.png') }}">
     {% block link %}{% endblock %}
     {% assets "css-all", "fonts-all" %}
     <link rel="stylesheet" href="{{ ASSET_URL }}">
@@ -19,27 +24,28 @@
   <body>
     <header class="shadow">
       <div id="header-content">
-        <div class="row">
-          <span id="header-logo-cell">
-            <img id="header-logo" src="{{ url_for('static', filename='img/gogdb.svg') }}" alt="logo">
-          </span>
-          <span class="header-item">
-            <a href="{{ url_for('index') }}" class="no-underline hoverlight">Home</a>
-          </span>
-          <span class="header-item">
-            <a href="{{ url_for('product_list') }}" class="no-underline hoverlight">Products</a>
-          </span>
-          <span class="header-item">
-            <a href="{{ url_for('changelog') }}" class="no-underline hoverlight">Changelog</a>
-          </span>
-        </div>
+        <img id="header-logo" class="header-item" src="{{ url_for('static', filename='img/gogdb.svg') }}" alt="logo">
+        <span class="header-item">
+          <a href="{{ url_for('index') }}" class="no-underline hoverlight">Home</a>
+        </span>
+        <span class="header-item">
+          <a href="{{ url_for('product_list') }}" class="no-underline hoverlight">Products</a>
+        </span>
+        <span class="header-item">
+          <a href="{{ url_for('changelog') }}" class="no-underline hoverlight">Changelog</a>
+        </span>
+        <span class="header-spacer"></span>
+        <form id="header-search" class="header-item search-bar" action="{{ url_for('product_list') }}">
+          <input id="header-search-input" class="search-input" type="search" name="search" placeholder="Search...">
+          <button id="header-search-button" class="search-button" type="submit"><i class="fa fa-search" aria-hidden="true"></i></button>
+        </form>
       </div>
     </header>
     <div id="page">
       {% block content %}
       {% endblock %}
     </div>
-    <footer>
+    <footer class="shadow">
       <div id="footer-content">
         <div class="footer-center">
           <span id="disclaimer">
