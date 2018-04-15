@@ -6,7 +6,6 @@
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="GOG Database">
     <meta property="og:title" content="{{ title }}">
-    <link rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}" type="image/vnd.microsoft.icon">
     {% for size in [16, 32, 48, 64, 128, 256] %}
     <link rel="icon" sizes="{{ "{0}x{0}".format(size) }}" href="{{ url_for('static', filename='img/sizes/gogdb_{0}x{0}.png'.format(size)) }}" type="image/png">
     {% endfor %}
