@@ -170,9 +170,6 @@ for counter in range(products_count):
     if "galaxy" in api_prod.loaded:
 
         # Changelog product
-        if prod.cs_windows is not None:
-            changelog.prod_cs(
-                prod, api_prod.content_systems, prod.changes, cur_time)
         if api_prod.has("systems") and (prod.os_windows is not None):
             changelog.prod_os(
                 prod, api_prod.systems, prod.changes, cur_time)
