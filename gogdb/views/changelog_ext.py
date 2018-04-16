@@ -14,17 +14,10 @@ def changelog_ext_page(view):
     total_entries = db.session.query(model.ChangeRecord.id).count()
     page_info = calc_pageinfo(page, total_entries, ITEMS_PER_PAGE)
 
-    changes = db.session.query(
-        model.ChangeRecord
-    ).options(
-        orm.subqueryload(
-            "product"
-        ).subqueryload(
-            "downloads"
-        )
-    ).order_by(
-        model.ChangeRecord.id.desc()
-    ).offset(page_info["from"]).limit(ITEMS_PER_PAGE)
+    changes = db.session.query(model.ChangeRecord) \
+        .options(orm.selectinload("product").selectinload("downloads")) \
+        .order_by(model.ChangeRecord.id.desc()) \
+        .offset(page_info["from"]).limit(ITEMS_PER_PAGE)
 
     page_info["prev_link"] = flask.url_for(
         view, page=page_info["page"] - 1)

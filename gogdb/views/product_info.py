@@ -11,9 +11,6 @@ from gogdb import app, db, model
 def product_info(prod_id):
     product = db.session.query(model.Product) \
         .filter_by(id=prod_id) \
-        .options(
-            orm.subqueryload("downloads") \
-            .subqueryload("files")) \
         .one_or_none()
 
     if product is None:
