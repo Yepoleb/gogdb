@@ -180,7 +180,7 @@ a.hoverlight:hover {
 
 .search-input {
   flex-grow: 1;
-  padding: 0 .3em;
+  padding: 0 .4em;
 }
 
 .search-input:focus {

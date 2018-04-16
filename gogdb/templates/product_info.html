@@ -40,12 +40,10 @@
         <td>Access</td>
         <td>{{ ["Private", "Public", "Public (Store)"][product.availability] }}</td>
       </tr>
-      {% if product.systems %}
       <tr>
         <td>Supported Sytems</td>
         <td>{{ product.systems | os_icons }}</td>
       </tr>
-      {% endif %}
       {% if product.base_prod_id is not none %}
       <tr>
         <td>Base Product</td>
@@ -151,7 +149,7 @@
     {% endif %}
     <tr>
       <td>Languages</td>
-      <td>{{ product.languages | comma_attr("isocode") }}</td>
+      <td>{{ product.languages | comma_attr("isocode") | upper }}</td>
     </tr>
     {% if product.features %}
     <tr>

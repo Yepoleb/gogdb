@@ -56,7 +56,7 @@ def prod_cs(product, value, changes, cur_time):
     changes.append(record)
 
 def prod_os(product, value, changes, cur_time):
-    if set(product.systems) == set(value):
+    if set(product.comp_systems) == set(value):
         return
 
     record = ChangeRecord(
@@ -65,7 +65,7 @@ def prod_os(product, value, changes, cur_time):
         type_prim="product",
         type_sec="os",
         resource=str(product.id),
-        old=make_systems_str(product.systems),
+        old=make_systems_str(product.comp_systems),
         new=make_systems_str(value)
     )
     changes.append(record)

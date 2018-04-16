@@ -170,7 +170,7 @@ for counter in range(products_count):
     if "galaxy" in api_prod.loaded:
 
         # Changelog product
-        if api_prod.has("systems") and (prod.os_windows is not None):
+        if api_prod.has("systems") and (prod.comp_systems is not None):
             changelog.prod_os(
                 prod, api_prod.systems, prod.changes, cur_time)
         if prod.title is not None:
@@ -191,14 +191,12 @@ for counter in range(products_count):
             prod.is_price_visible = False
             prod.can_be_reviewed = False
 
-        prod.cs_windows = "windows" in api_prod.content_systems
-        prod.cs_mac = "mac" in api_prod.content_systems
-        prod.cs_linux = "linux" in api_prod.content_systems
+        prod.cs_systems = api_prod.content_systems
 
         if api_prod.has("systems"):
-            prod.os_windows = "windows" in api_prod.systems
-            prod.os_mac = "mac" in api_prod.systems
-            prod.os_linux = "linux" in api_prod.systems
+            prod.comp_systems = api_prod.systems
+
+        prod.dl_systems = set(dl.os for dl in api_prod.downloads)
 
         if api_prod.has("is_coming_soon"):
             prod.is_coming_soon = api_prod.is_coming_soon

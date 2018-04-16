@@ -33,6 +33,10 @@ class Product(db.Model):
     os_mac = Column(sql.Boolean, nullable=True)
     os_linux = Column(sql.Boolean, nullable=True)
 
+    dl_windows = Column(sql.Boolean, nullable=True)
+    dl_mac = Column(sql.Boolean, nullable=True)
+    dl_linux = Column(sql.Boolean, nullable=True)
+
     is_coming_soon = Column(sql.Boolean, nullable=True)
     is_pre_order = Column(sql.Boolean, nullable=True)
     release_date = Column(sql.Date, nullable=True)
@@ -85,27 +89,43 @@ class Product(db.Model):
     def product_type_name(self):
         return names.prod_types.get(self.product_type, self.product_type)
 
-    @property
-    def cs_systems(self):
+    def get_systems_list(self, prefix):
         systems = []
-        if self.cs_windows:
-            systems.append("windows")
-        if self.cs_mac:
-            systems.append("mac")
-        if self.cs_linux:
-            systems.append("linux")
+        for system_name in ["windows", "mac", "linux"]:
+            if getattr(self, prefix + system_name) is None:
+                return None
+            elif getattr(self, prefix + system_name):
+                systems.append(system_name)
         return systems
+
+    def set_systems_list(self, prefix, systems):
+        for system_name in ["windows", "mac", "linux"]:
+            if system_name in systems:
+                setattr(self, prefix + system_name, True)
+            else:
+                setattr(self, prefix + system_name, False)
+
+    cs_systems = property(
+        lambda self: self.get_systems_list("cs_"),
+        lambda self, v: self.set_systems_list("cs_", v)
+    )
+
+    comp_systems = property(
+        lambda self: self.get_systems_list("os_"),
+        lambda self, v: self.set_systems_list("os_", v)
+    )
+
+    dl_systems = property(
+        lambda self: self.get_systems_list("dl_"),
+        lambda self, v: self.set_systems_list("dl_", v)
+    )
 
     @property
     def systems(self):
-        systems = []
-        if self.os_windows:
-            systems.append("windows")
-        if self.os_mac:
-            systems.append("mac")
-        if self.os_linux:
-            systems.append("linux")
-        return systems
+        if self.comp_systems is not None:
+            return self.comp_systems
+        else:
+            return self.dl_systems
 
     @property
     def release_arrow(self):

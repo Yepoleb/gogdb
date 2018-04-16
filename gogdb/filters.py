@@ -28,7 +28,10 @@ def os_icons(systems):
     icons = []
     for system in systems:
         icons.append(OS_ICON_ELEMENTS[system])
-    return jinja2.Markup(" ".join(icons))
+    if icons:
+        return jinja2.Markup(" ".join(icons))
+    else:
+        return "N/A"
 
 
 def iter_attr(attr_name, objects):
