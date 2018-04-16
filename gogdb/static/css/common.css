@@ -32,7 +32,7 @@ body {
 header {
   background-color: #212121;
   border-bottom: 1px solid black;
-  color: #ccc;
+  color: #e4e4e4;
 }
 
 #header-content {
@@ -67,11 +67,13 @@ header {
   display: inline-flex;
   height: 32px;
   width: 30%;
+  background-color: #333;
+  border-radius: 3px;
 }
 
 footer {
   background-color: #212121;
-  color: #ccc;
+  color: #e4e4e4;
   border-top: 1px solid black;
 }
 
@@ -165,8 +167,6 @@ a.hoverlight:hover {
 
 .search-bar {
   display: flex;
-  border: 1px solid #c5c5c5;
-  background-color: white;
 }
 
 .search-input, .search-button {
@@ -175,6 +175,7 @@ a.hoverlight:hover {
   border-style: none;
   background-color: inherit;
   box-shadow: none;
+  color: inherit;
 }
 
 .search-input {
@@ -182,7 +183,7 @@ a.hoverlight:hover {
   padding: 0 .3em;
 }
 
-.search-bar:focus {
+.search-input:focus {
   outline: none;
 }
 

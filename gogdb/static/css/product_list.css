@@ -36,6 +36,9 @@
   height: 40px;
   margin-bottom: 30px;
   font-size: 20px;
+  border-radius: 2px;
+  border: 1px solid #c5c5c5;
+  background-color: white;
 }
 
 #product-search:focus-within {
