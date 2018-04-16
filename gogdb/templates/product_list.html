@@ -6,43 +6,46 @@
 <h1>{{ title }}</h1>
 <form id="product-search" class="search-bar shadow" action="{{ url_for('product_list') }}">
   <input id="product-search-input" class="search-input" class="shadow" type="search" name="search" placeholder="Search..." value="{{ search }}" autofocus>
-  <button id="product-search-button" class="search-button" type="submit"><i class="fa fa-search" aria-hidden="true"></i></button>
+  <button id="product-search-button" class="search-button" type="submit"><i class="fa fa-search" aria-hidden="true"></i><span class="nocss">Search</span></button>
 </form>
-<table id="product-table" class="shadow rowborder">
-  <tr>
-    <th></th>
-    <th>ID</th>
-    <th>Name</th>
-    <th>Type</th>
-    <th>Systems</th>
-  </tr>
-  {% for product in products %}
-  <tr>
-    <td class="col-thumb">
-      <a href="{{ url_for('product_info', prod_id=product.id) }}">
-        {% if product.image_logo %}
-        <img class="game-logo" src="https://images.gog.com/{{ product.image_logo }}_196.jpg" alt="">
-        {% else %}
-        <img class="game-logo" src="{{ url_for('static', filename='img/no_logo_1600x900.svg') }}" alt="">
-        {% endif %}
-      </a>
-    </td>
-    <td class="col-id">
-      <a href="{{ url_for('product_info', prod_id=product.id) }}" class="hoveronly">
-        {{ product.id }}
-      </a>
-    </td>
-    <td class="col-name">
-      <a href="{{ url_for('product_info', prod_id=product.id) }}" class="hoveronly">
-        {{ product.title }}
-      </a>
-    </td>
-    <td class="col-type">{{ product.product_type_name }}</td>
-    <td class="col-os">{{ product.systems | os_icons }}</td>
-  </tr>
-  {% endfor %}
-</table>
 
-{% include "pagination.html" %}
+<div id="result-container">
+  <table id="product-table" class="shadow rowborder">
+    <tr>
+      <th></th>
+      <th>ID</th>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Systems</th>
+    </tr>
+    {% for product in products %}
+    <tr>
+      <td class="col-thumb">
+        <a href="{{ url_for('product_info', prod_id=product.id) }}">
+          {% if product.image_logo %}
+          <img class="game-logo" src="https://images.gog.com/{{ product.image_logo }}_196.jpg" alt="">
+          {% else %}
+          <img class="game-logo" src="{{ url_for('static', filename='img/no_logo_1600x900.svg') }}" alt="">
+          {% endif %}
+        </a>
+      </td>
+      <td class="col-id">
+        <a href="{{ url_for('product_info', prod_id=product.id) }}" class="hoveronly">
+          {{ product.id }}
+        </a>
+      </td>
+      <td class="col-name">
+        <a href="{{ url_for('product_info', prod_id=product.id) }}" class="hoveronly">
+          {{ product.title }}
+        </a>
+      </td>
+      <td class="col-type">{{ product.product_type_name }}</td>
+      <td class="col-os">{{ product.systems | os_icons }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  {% include "pagination.html" %}
+</div>
 
 {% endblock content %}

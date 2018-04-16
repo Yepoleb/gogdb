@@ -1,21 +1,25 @@
-<div id="pagination-container">
+<div class="pagination-container">
   {% if not page_info.is_first %}
   <a class="page-link no-underline" href="{{ page_info.prev_link }}">
     <i class="fa fa-chevron-left" aria-hidden="true"></i>
+    <span class="nocss">&lt</span>
   </a>
   {% else %}
   <span class="page-link deactivated">
     <i class="fa fa-chevron-left" aria-hidden="true"></i>
+    <span class="nocss">&lt</span>
   </span>
   {% endif %}
   {{ page_info.page }} of {{ page_info.num_pages }}
   {% if not page_info.is_last %}
   <a class="page-link no-underline" href="{{ page_info.next_link }}">
     <i class="fa fa-chevron-right" aria-hidden="true"></i>
+    <span class="nocss">&gt</span>
   </a>
   {% else %}
   <span class="page-link deactivated">
     <i class="fa fa-chevron-right" aria-hidden="true"></i>
+    <span class="nocss">&gt</span>
   </span>
   {% endif %}
 </div>

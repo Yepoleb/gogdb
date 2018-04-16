@@ -23,7 +23,7 @@
   <body>
     <header class="shadow">
       <div id="header-content">
-        <img id="header-logo" class="header-item" src="{{ url_for('static', filename='img/gogdb.svg') }}" alt="logo">
+        <img id="header-logo" class="header-item" src="{{ url_for('static', filename='img/gogdb.svg') }}" alt="">
         <span class="header-item">
           <a href="{{ url_for('index') }}" class="no-underline hoverlight">Home</a>
         </span>
@@ -36,7 +36,7 @@
         <span class="header-spacer"></span>
         <form id="header-search" class="header-item search-bar" action="{{ url_for('product_list') }}">
           <input id="header-search-input" class="search-input" type="search" name="search" placeholder="Search...">
-          <button id="header-search-button" class="search-button" type="submit"><i class="fa fa-search" aria-hidden="true"></i></button>
+          <button id="header-search-button" class="search-button" type="submit"><i class="fa fa-search" aria-hidden="true"></i><span class="nocss">Search</span></button>
         </form>
       </div>
     </header>

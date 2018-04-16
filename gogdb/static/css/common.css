@@ -159,6 +159,10 @@ a.hoverlight:hover {
   white-space: nowrap;
 }
 
+.nocss {
+  display: none;
+}
+
 .search-bar {
   display: flex;
   border: 1px solid #c5c5c5;
@@ -184,4 +188,10 @@ a.hoverlight:hover {
 
 .search-button {
   cursor: pointer;
+}
+
+.pagination-container {
+  text-align: center;
+  margin: 20px 0;
+  color: #888888;
 }

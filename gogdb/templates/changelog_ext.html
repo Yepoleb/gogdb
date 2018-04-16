@@ -31,10 +31,13 @@
     <td class="col-change-icon">
       {% if record.action == "add" %}
         <i class="fa fa-plus color-add" aria-hidden="true"></i>
+        <span class="nocss">+</span>
       {% elif record.action == "del" %}
         <i class="fa fa-minus color-del" aria-hidden="true"></i>
+        <span class="nocss">-</span>
       {% elif record.action == "change" %}
         <i class="fa fa-circle color-change" aria-hidden="true"></i>
+        <span class="nocss">o</span>
       {% endif %}
     </td>
     <td class="col-change-desc">

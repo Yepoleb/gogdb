@@ -46,6 +46,16 @@
         <td>{{ product.systems | os_icons }}</td>
       </tr>
       {% endif %}
+      {% if product.base_prod_id is not none %}
+      <tr>
+        <td>Base Product</td>
+        <td>
+          <a class="hoveronly" href="{{ url_for('product_info', prod_id=product.base_prod_id) }}">
+            ({{ product.base_prod_id }}) {{ product.base_product.title }}
+          </a>
+        </td>
+      </tr>
+      {% endif %}
       {% if product.developer is not none %}
       <tr>
         <td>Developer</td>
@@ -183,6 +193,8 @@
     </tr>
   </table>
 
+  <h2>Links</h2>
+
   <table class="shadow cellborder">
     {% if product.availability >= 2 %}
     <tr>
@@ -275,6 +287,41 @@
     </tr>
     {% endif %}
   </table>
+
+  {% if product.dlcs %}
+  <h2>DLCs</h2>
+
+  <table id="dlc-table" class="shadow rowborder">
+    <tr>
+      <th></th>
+      <th>ID</th>
+      <th>Name</th>
+    </tr>
+    {% for dlc_prod in product.dlcs %}
+    <tr>
+      <td class="col-thumb">
+        <a href="{{ url_for('product_info', prod_id=dlc_prod.id) }}">
+          {% if dlc_prod.image_logo %}
+          <img class="game-logo" src="https://images.gog.com/{{ dlc_prod.image_logo }}_196.jpg" alt="">
+          {% else %}
+          <img class="game-logo" src="{{ url_for('static', filename='img/no_logo_1600x900.svg') }}" alt="">
+          {% endif %}
+        </a>
+      </td>
+      <td class="col-id">
+        <a href="{{ url_for('product_info', prod_id=dlc_prod.id) }}" class="hoveronly">
+          {{ dlc_prod.id }}
+        </a>
+      </td>
+      <td class="col-name">
+        <a href="{{ url_for('product_info', prod_id=dlc_prod.id) }}" class="hoveronly">
+          {{ dlc_prod.title }}
+        </a>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% endif %}
 </div>
 
 
@@ -357,10 +404,13 @@
       <td class="col-change-icon">
         {% if record.action == "add" %}
           <i class="fa fa-plus color-add" aria-hidden="true"></i>
+          <span class="nocss">+</span>
         {% elif record.action == "del" %}
           <i class="fa fa-minus color-del" aria-hidden="true"></i>
+          <span class="nocss">-</span>
         {% elif record.action == "change" %}
           <i class="fa fa-circle color-change" aria-hidden="true"></i>
+          <span class="nocss">o</span>
         {% endif %}
       </td>
       <td class="col-change-desc">
