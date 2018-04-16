@@ -1,22 +1,36 @@
-function getTabName(tabLink) {
-    return tabLink.href.split("#")[1];
+function getHash(url) {
+    return url.substr(url.indexOf("#"));
 }
 
-function switchTab(tabName) {
+function switchTab(url) {
+    var tabLinks = document.getElementsByClassName("tabs-item");
     var tabs = document.getElementsByClassName("tab");
+    var selectedTab = getHash(url);
+
+    var tabExists = false;
+    for (var i = 0; i < tabLinks.length; i++) {
+        if (getHash(tabLinks[i].href) == selectedTab) {
+            tabExists = true;
+        }
+    }
+
+    if (!tabExists) {
+        selectedTab = getHash(tabLinks[0].href)
+    }
+    var selectedName = selectedTab.substr(1);
+
     for (var i = 0; i < tabs.length; i++) {
         var tab = tabs[i];
-        if (tab.id == "tab-" + tabName) {
+        if (tab.id == "tab-" + selectedName) {
             tab.style.display = "";
         } else {
             tab.style.display = "none";
         }
     }
 
-    var tabLinks = document.getElementsByClassName("tabs-item");
     for (var i = 0; i < tabLinks.length; i++) {
         var tabLink = tabLinks[i];
-        if (getTabName(tabLink) == tabName) {
+        if (getHash(tabLink.href) == selectedTab) {
             tabLink.classList.add("tabs-item-selected");
         } else {
             tabLink.classList.remove("tabs-item-selected");
@@ -24,26 +38,13 @@ function switchTab(tabName) {
     }
 }
 
-function onTabLinkClick(event) {
-    switchTab(getTabName(event.target));
+function initTabs() {
+    switchTab(location.href);
 }
 
-function initTabs() {
-    var tabLinks = document.getElementsByClassName("tabs-item");
-
-    var tabNames = [];
-    for (var i = 0; i < tabLinks.length; i++) {
-        var tabLink = tabLinks[i];
-        tabLink.onclick = onTabLinkClick;
-        tabNames.push(getTabName(tabLink));
-    }
-
-    var defaultTab = getTabName(window.location);
-    if (tabNames.indexOf(defaultTab) == -1) {
-        defaultTab = getTabName(tabLinks[0]);
-    }
-
-    switchTab(defaultTab);
+function onHashChange(event) {
+    switchTab(event.newURL);
 }
 
 window.addEventListener("DOMContentLoaded", initTabs, false);
+window.addEventListener("hashchange", onHashChange, false);
