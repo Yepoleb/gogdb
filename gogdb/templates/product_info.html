@@ -76,7 +76,7 @@
   </div>
   <div id="info-container-right">
     {% if product.image_logo %}
-    <img id="product-logo" class="shadow" src="https://images.gog.com/{{ product.image_logo }}_ggvgm.jpg" alt="">
+    <img id="product-logo" class="shadow" src="{{ product.image_logo | gog_image('_ggvgm.jpg') }}" alt="">
     {% else %}
     <img id="product-logo" class="shadow" src="{{ url_for('static', filename='img/no_logo_1600x900.svg') }}" alt="">
     {% endif %}
@@ -87,6 +87,14 @@
     {% endif %}
   </div>
 </div>
+
+{% if product.availability == 0 %}
+<div class="textbox shadow">
+  <strong>
+    This product can't currently be accessed, so the data might be outdated!
+  </strong>
+</div>
+{% endif %}
 
 <div id="tabs-container" class="shadow">
   <a href="#prices" class="tabs-item no-underline">Prices</a>
@@ -290,7 +298,7 @@
       <td class="col-thumb">
         <a href="{{ url_for('product_info', prod_id=dlc_prod.id) }}">
           {% if dlc_prod.image_logo %}
-          <img class="game-logo" src="https://images.gog.com/{{ dlc_prod.image_logo }}_196.jpg" alt="">
+          <img class="game-logo" src="{{ dlc_prod.image_logo | gog_image('_196.jpg') }}" alt="">
           {% else %}
           <img class="game-logo" src="{{ url_for('static', filename='img/no_logo_1600x900.svg') }}" alt="">
           {% endif %}

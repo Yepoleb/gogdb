@@ -12,6 +12,9 @@ OS_ICON_ELEMENTS = {
         '<span class="nocss">L</span>'
 }
 
+NUM_IMAGE_HOSTS = 4
+
+
 @app.template_filter("yes_no")
 def format_yes_no(value):
     if isinstance(value, jinja2.Undefined):
@@ -43,3 +46,10 @@ def iter_attr(attr_name, objects):
 @app.template_filter("comma_attr")
 def comma_attr(objects, attr_name):
     return ", ".join(sorted(iter_attr(attr_name, objects)))
+
+
+@app.template_filter("gog_image")
+def gog_image(image_id, extension):
+    host_num = hash(image_id) % NUM_IMAGE_HOSTS + 1
+    return "https://images-{}.gog.com/{}{}".format(
+        host_num, image_id, extension)
