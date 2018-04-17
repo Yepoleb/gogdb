@@ -122,7 +122,7 @@ class Product(db.Model):
 
     @property
     def systems(self):
-        if self.comp_systems is not None:
+        if self.availability >= 2:
             return self.comp_systems
         else:
             return self.dl_systems
