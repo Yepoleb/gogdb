@@ -8,7 +8,7 @@
 {% endmacro %}
 
 {% macro avail_name(availability) %}
-  {{ ["Private", "Public", "Store"][availability] }}
+  {{ ["Private", "Unlisted", "Public"][availability] }}
 {% endmacro %}
 
 {% macro old_new(record) %}
