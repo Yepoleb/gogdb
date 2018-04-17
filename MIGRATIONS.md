@@ -62,3 +62,11 @@ to be added.
 Clean up old content system changelog entries.
 
      DELETE FROM changerecords WHERE type_prim='product' AND type_sec='cs';
+
+## 4c36b1c
+
+Add download systems caching.
+
+    ALTER TABLE products ADD COLUMN dl_windows BOOLEAN;
+    ALTER TABLE products ADD COLUMN dl_mac BOOLEAN;
+    ALTER TABLE products ADD COLUMN dl_linux BOOLEAN;
