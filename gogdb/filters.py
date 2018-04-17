@@ -25,6 +25,8 @@ def os_icon(system):
 
 @app.template_filter("os_icons")
 def os_icons(systems):
+    if systems is None:
+        return "N/A"
     icons = []
     for system in systems:
         icons.append(OS_ICON_ELEMENTS[system])
