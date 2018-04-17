@@ -3,7 +3,7 @@ import json
 import re
 import datetime
 import string
-import os.path
+import os
 import logging
 import queue
 import threading
@@ -94,10 +94,13 @@ api.set_locale(*LOCALE)
 
 # Debug
 
-#import requests_cache
-#requests_cache.install_cache(backend="redis", allowable_codes=(200, 404))
-#logger.setLevel(logging.DEBUG)
-#logging.getLogger("gogapi").setLevel(logging.DEBUG)
+if os.environ.get("DEBUG_CACHE"):
+    import requests_cache
+    requests_cache.install_cache(backend="redis", allowable_codes=(200, 404))
+if os.environ.get("DEBUG_UPDATEDB"):
+    logger.setLevel(logging.DEBUG)
+if os.environ.get("DEBUG_GOGAPI"):
+    logging.getLogger("gogapi").setLevel(logging.DEBUG)
 
 # Load products and add them to the queue
 logger.info("Loading catalog")
