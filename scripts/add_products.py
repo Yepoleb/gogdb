@@ -8,7 +8,7 @@ from gogdb import db, model
 import changelog
 
 
-if len(sys.argv) < 2):
+if len(sys.argv) < 2:
     print("Usage: {} <games.json>".format(sys.argv[0]))
 
 json_path = sys.argv[1]
