@@ -254,8 +254,8 @@ for counter in range(products_count):
             # Add new downloads
             if download is None:
                 download = model.Download(slug=api_download.id)
-                prod.downloads.append(download)
                 changelog.dl_add(download, prod.changes, cur_time)
+                prod.downloads.append(download)
             elif download.deleted:
                 download.deleted = False
                 changelog.dl_add(download, prod.changes, cur_time)
