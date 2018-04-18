@@ -2,7 +2,7 @@
 
 ## cec5ebc
 
-This commit removes the `searchindex` table and adds a product column instead.
+Remove the `searchindex` table and add a product column instead.
 
     ALTER TABLE products ADD COLUMN title_norm character varying(120);
     UPDATE products SET title_norm = searchindex.title_norm
@@ -12,8 +12,8 @@ This commit removes the `searchindex` table and adds a product column instead.
 
 ## a2c8a1a
 
-This commit adds deleted columns to files and downloads. Also run the
-`initialize-db` script to create the `changerecords` table.
+Add deleted columns to files and downloads. Also run the `initialize-db`
+script to create the `changerecords` table.
 
     ALTER TABLE files ADD COLUMN deleted BOOLEAN;
     ALTER TABLE downloads ADD COLUMN deleted BOOLEAN;
@@ -24,8 +24,7 @@ This commit adds deleted columns to files and downloads. Also run the
 
 ## fbfe39c
 
-This commit makes almost all columns optional to allow unavailable games
-to be added.
+Make almost all columns optional to allow unavailable games to be added.
 
     ALTER TABLE products ADD COLUMN store_date DATE;
     ALTER TABLE products ADD COLUMN availability SMALLINT;
@@ -54,8 +53,12 @@ to be added.
     ALTER TABLE products ALTER COLUMN image_background DROP NOT NULL;
     ALTER TABLE products ALTER COLUMN image_logo DROP NOT NULL;
 
+Make prices optional and delete invalid entries
+
     ALTER TABLE pricerecords ALTER COLUMN price_base DROP NOT NULL;
     ALTER TABLE pricerecords ALTER COLUMN price_final DROP NOT NULL;
+
+    DELETE FROM pricerecords WHERE price_base = 99.99 AND price_final = 99.99;
 
 ## 86b9c8e
 
