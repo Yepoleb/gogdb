@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name GOG DB Integration
 // @description Add a GOG DB button to the GOG store
-// @version 0.1
+// @version 0.2
 // @author Yepoleb
 // @license CC0
 // @namespace https://gogdb.org
@@ -13,7 +13,7 @@
 
 
 var button_element = document.createElement("a");
-button_element.innerHTML = '<img src="https://www.gogdb.org/static/img/gogdb_trans.svg" alt="" style="height: 15px; margin-right: 0.5em">GOG Database';
+button_element.innerHTML = '<img src="https://www.gogdb.org/static/img/gogdb_trans.svg" alt="" style="height: 15px; margin-right: 0.5em" referrerpolicy="no-referrer">GOG Database';
 button_element.setAttribute("href", "https://www.gogdb.org/product/" + gogData.gameProductData.id);
 button_element.className = "wishlist-btn";
 button_element.setAttribute("style", "display: flex; flex-direction: row; justify-content: center; align-items: center");
