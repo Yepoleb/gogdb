@@ -17,7 +17,7 @@
   {% for recordgroup in changes %}
   <entry>
     <id>tag:www.gogdb.org,2018-04-16:{{ recordgroup[0].prod_id ~ ((recordgroup[0].timestamp.timestamp() * 1000000) | int) }}</id>
-    <title>{{ recordgroup[0].product.title }} - {{ recordgroup[0].prod_id }}</title>
+    <title>{{ recordgroup[0].product.title | default("Unknown", true) }} - {{ recordgroup[0].prod_id }}</title>
     <updated>{{ recordgroup[0].timestamp.replace(microsecond=0).isoformat() }}Z</updated>
     <link rel="alternate" href="{{ url_for('product_info', prod_id=recordgroup[0].prod_id) }}#changelog"/>
     <content type="html">

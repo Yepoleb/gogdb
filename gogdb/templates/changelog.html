@@ -25,7 +25,7 @@
     </td>
     <td class="col-change-name">
       {% if record.type_prim == "product" %}
-        Product changed - <b>{{ record.title }}</b>
+        Product changed - <b>{{ record.title | default("Unknown", true) }}</b>
       {% elif record.type_prim == "download" %}
         Downloads changed - <b>{{ record.title }}</b>
       {% endif %}

@@ -22,7 +22,9 @@
 {% for recordgroup in changes %}
 <div class="shadow">
   <div class="changelog-title">
-    <a href="{{ url_for('product_info', prod_id=recordgroup[0].prod_id) }}#changelog" class="hoveronly"><b>{{ recordgroup[0].product.title }}</b></a>
+    <a href="{{ url_for('product_info', prod_id=recordgroup[0].prod_id) }}#changelog" class="hoveronly">
+      <b>{{ recordgroup[0].product.title | default("Unknown", true) }}</b>
+    </a>
     - {{ recordgroup[0].prod_id }}
   </div>
 <table class="changelog-table rowborder">
