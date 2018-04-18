@@ -67,13 +67,15 @@ def download_worker(api, dl_queue, db_queue):
         try:
             product.update_galaxy(expand=GALAXY_EXPANDED)
         except (requests.HTTPError, gogapi.GogError) as e:
-            logger.warning("Failed to load api data for %s: %s", product.id, e)
+            if not hasattr(e, "response") or e.response.status_code != 404:
+                logger.warning("Failed to load api data for %s: %s", product.id, e)
 
         if slug is not None:
             try:
                 product.update_web()
             except (requests.HTTPError, gogapi.GogError) as e:
-                logger.warning("Failed to load gogdata for %s: %s", product.id, e)
+                if not hasattr(e, "response") or e.response.status_code != 404:
+                    logger.warning("Failed to load gogdata for %s: %s", product.id, e)
 
         db_queue.put(product)
         dl_queue.task_done()
