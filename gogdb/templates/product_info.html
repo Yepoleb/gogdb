@@ -100,6 +100,7 @@
   <a href="#prices" class="tabs-item no-underline">Prices</a>
   <a href="#details" class="tabs-item no-underline">Details</a>
   <a href="#downloads" class="tabs-item no-underline">Downloads</a>
+  <a href="#media" class="tabs-item no-underline">Media</a>
   <a href="#changelog" class="tabs-item no-underline">Changelog</a>
 </div>
 
@@ -298,9 +299,9 @@
       <td class="col-thumb">
         <a href="{{ url_for('product_info', prod_id=dlc_prod.id) }}">
           {% if dlc_prod.image_logo %}
-          <img class="game-logo" src="{{ dlc_prod.image_logo | gog_image('_196.jpg') }}" alt="">
+          <img class="img-thumb" src="{{ dlc_prod.image_logo | gog_image('_196.jpg') }}" alt="">
           {% else %}
-          <img class="game-logo" src="{{ url_for('static', filename='img/no_logo_1600x900.svg') }}" alt="">
+          <img class="img-thumb" src="{{ url_for('static', filename='img/no_logo_1600x900.svg') }}" alt="">
           {% endif %}
         </a>
       </td>
@@ -386,6 +387,38 @@
   {% else %}
   <div class="textbox shadow">
     No downloads available.
+  </div>
+  {% endif %}
+</div>
+
+<div id="tab-media" class="tab">
+  {% if not (product.screenshots or product.videos) %}
+  <div class="textbox shadow">
+    No media files available.
+  </div>
+  {% endif %}
+
+  {% if product.screenshots %}
+  <h2>Screenshots</h2>
+
+  <div id="screen-container">
+    {% for image in product.screenshots %}
+    <a class="screen-item no-underline" href="https://images.gog.com/{{ image.image_id }}.jpg">
+      <img class="screen-thumb" src="{{ image.image_id | gog_image('_ggvgm.jpg') }}" alt="Screenshot {{ loop.index }}">
+    </a>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if product.videos %}
+  <h2>Videos</h2>
+
+  <div id="video-container">
+    {% for video in product.videos %}
+    <a class="video-item no-underline" href="https://www.youtube.com/watch?v={{ video.video_id }}">
+      <img class="video-thumb" src="https://img.youtube.com/vi/{{ video.video_id }}/mqdefault.jpg" alt="Video {{ loop.index }}">
+    </a>
+    {% endfor %}
   </div>
   {% endif %}
 </div>

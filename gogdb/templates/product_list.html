@@ -23,9 +23,9 @@
       <td class="col-thumb">
         <a href="{{ url_for('product_info', prod_id=product.id) }}">
           {% if product.image_logo %}
-          <img class="game-logo" src="{{ product.image_logo | gog_image('_196.jpg') }}" alt="">
+          <img class="img-thumb" src="{{ product.image_logo | gog_image('_196.jpg') }}" alt="">
           {% else %}
-          <img class="game-logo" src="{{ url_for('static', filename='img/no_logo_1600x900.svg') }}" alt="">
+          <img class="img-thumb" src="{{ url_for('static', filename='img/no_logo_1600x900.svg') }}" alt="">
           {% endif %}
         </a>
       </td>

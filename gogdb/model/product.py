@@ -63,6 +63,7 @@ class Product(db.Model):
 
     description_full = Column(sql.Text, nullable=True)
     description_cool = Column(sql.Text, nullable=True)
+    changelog = Column(sql.Text, nullable=True)
 
     developer = orm.relationship("Company", foreign_keys=[developer_slug])
     publisher = orm.relationship("Company", foreign_keys=[publisher_slug])
@@ -75,6 +76,10 @@ class Product(db.Model):
         "Feature", back_populates="product", cascade="all, delete-orphan")
     genres = orm.relationship(
         "Genre", back_populates="product", cascade="all, delete-orphan")
+    screenshots = orm.relationship(
+        "Screenshot", back_populates="product", cascade="all, delete-orphan")
+    videos = orm.relationship(
+        "Video", back_populates="product", cascade="all, delete-orphan")
     downloads = orm.relationship(
         "Download", back_populates="product", cascade="all, delete-orphan",
         order_by="Download.type, desc(Download.os), Download.slug")
@@ -213,7 +218,36 @@ class Genre(db.Model):
         return names.genres.get(self.slug, self.slug)
 
     def __repr__(self):
-        return "<Genre(prod_id={}, slug='{}')>".format(self.prod_id, self.slug)
+        return "<Genre(prod_id={}, slug='{}')>".format(
+            self.prod_id, self.slug)
+
+
+class Screenshot(db.Model):
+    __tablename__ = "screenshots"
+
+    prod_id = Column(
+        sql.Integer, sql.ForeignKey("products.id"), primary_key=True)
+    image_id = Column(sql.String(255), primary_key=True)
+
+    product = orm.relationship("Product", back_populates="screenshots")
+
+    def __repr__(self):
+        return "<Screenshot(prod_id={}, image_id='{}')>".format(
+            self.prod_id, self.image_id)
+
+
+class Video(db.Model):
+    __tablename__ = "videos"
+
+    prod_id = Column(
+        sql.Integer, sql.ForeignKey("products.id"), primary_key=True)
+    video_id = Column(sql.String(20), primary_key=True)
+
+    product = orm.relationship("Product", back_populates="videos")
+
+    def __repr__(self):
+        return "<Video(prod_id={}, video_id='{}')>".format(
+            self.prod_id, self.video_id)
 
 
 class Company(db.Model):

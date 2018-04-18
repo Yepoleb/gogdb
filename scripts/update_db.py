@@ -21,7 +21,8 @@ import changelog
 
 
 IMAGE_RE = re.compile(r".+gog.com/([0-9a-f]+).*")
-GALAXY_EXPANDED = ["downloads", "description"]
+GALAXY_EXPANDED = [
+    "downloads", "description", "screenshots", "videos", "changelog"]
 ALLOWED_CHARS = set(string.ascii_lowercase + string.digits)
 DL_WORKER_COUNT = 8
 LOCALE = ("US", "USD", "en-US")
@@ -238,6 +239,9 @@ for counter in range(products_count):
         prod.description_full = api_prod.description
         prod.description_cool = api_prod.cool_about_it
 
+        if api_prod.has("changelog"):
+            prod.changelog = api_prod.changelog
+
         # Downloads
 
         db_download_slugs = set(dl.slug for dl in prod.downloads if not dl.deleted)
@@ -315,11 +319,29 @@ for counter in range(products_count):
 
         prod.languages = []
         for language in api_prod.languages:
-            prod.languages.append(model.Language(isocode=language.isocode))
+            prod.languages.append(
+                model.Language(isocode=language.isocode))
+
+        # Screenshots
+
+        if api_prod.has("screenshots"):
+            prod.screenshots = []
+            for image_id in api_prod.screenshots:
+                prod.screenshots.append(
+                    model.Screenshot(image_id=image_id))
+
+        # Videos
+
+        if api_prod.has("videos"):
+            prod.videos = []
+            video_ids = set(video.video_id for video in api_prod.videos)
+            for video_id in video_ids:
+                prod.videos.append(model.Video(video_id=video_id))
 
         # Dependency
 
-        if api_prod.has("required_product") and api_prod.required_product is not None:
+        if api_prod.has("required_product") \
+                and api_prod.required_product is not None:
             dependencies[api_prod.id] = api_prod.required_product.id
 
     # Price entry
