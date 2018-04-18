@@ -80,3 +80,7 @@ Rename availability to access.
 
     ALTER TABLE products RENAME COLUMN availability TO access;
     UPDATE changerecords SET type_sec='access' WHERE type_sec='avail';
+
+## 75d20e0
+
+    ALTER TABLE products ADD COLUMN changelog TEXT;
