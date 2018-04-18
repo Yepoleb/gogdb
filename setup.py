@@ -24,7 +24,7 @@ requires = [
 
 setup(
     name='gogdb',
-    version='0.2',
+    version='0.3',
     description='GOG Database',
     classifiers=[
         'Programming Language :: Python',
@@ -33,8 +33,8 @@ setup(
         'Topic :: Internet :: WWW/HTTP :: WSGI :: Application'
     ],
     author='Gabriel Huber',
-    author_email='',
-    url='https://gogdb.org',
+    author_email='gabriel@yepoleb.at',
+    url='https://www.gogdb.org',
     keywords='web flask',
     packages=find_packages(),
     include_package_data=True,
