@@ -42,7 +42,7 @@ class Product(db.Model):
     release_date = Column(sql.Date, nullable=True)
     store_date = Column(sql.Date, nullable=True)
     development_active = Column(sql.Boolean, nullable=True)
-    availability = Column(sql.SmallInteger, nullable=True)
+    access = Column(sql.SmallInteger, nullable=True)
 
     age_esrb = Column(sql.SmallInteger, nullable=True)
     age_pegi = Column(sql.SmallInteger, nullable=True)
@@ -122,7 +122,7 @@ class Product(db.Model):
 
     @property
     def systems(self):
-        if self.availability >= 2:
+        if self.access >= 2:
             return self.comp_systems
         else:
             return self.dl_systems

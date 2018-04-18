@@ -7,8 +7,8 @@
   {% endif %}
 {% endmacro %}
 
-{% macro avail_name(availability) %}
-  {{ ["Private", "Unlisted", "Public"][availability] }}
+{% macro access_name(access) %}
+  {{ ["Private", "Unlisted", "Public"][access] }}
 {% endmacro %}
 
 {% macro old_new(record) %}
@@ -42,10 +42,10 @@
       Removed download - {{ download_name(record) }}
     {% endif %}
   {% elif record.action == "change" %}
-    {% if record.type == "product.avail" %}
+    {% if record.type == "product.access" %}
       Changed access -
       <span class="nobreak">
-        {{ avail_name(record.old_int) }} ⇒ {{ avail_name(record.new_int) }}
+        {{ access_name(record.old_int) }} ⇒ {{ access_name(record.new_int) }}
       </span>
     {% elif record.type == "product.cs" %}
       Changed content system compatibility - {{ old_new(record) }}

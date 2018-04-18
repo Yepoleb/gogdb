@@ -38,7 +38,7 @@
       </tr>
       <tr>
         <td>Access</td>
-        <td>{{ ["Private", "Unlisted", "Public"][product.availability] }}</td>
+        <td>{{ ["Private", "Unlisted", "Public"][product.access] }}</td>
       </tr>
       <tr>
         <td>Supported Sytems</td>
@@ -80,7 +80,7 @@
     {% else %}
     <img id="product-logo" class="shadow" src="{{ url_for('static', filename='img/no_logo_1600x900.svg') }}" alt="">
     {% endif %}
-    {% if product.availability >= 2 %}
+    {% if product.access >= 2 %}
     <a id="store-button" class="btn-gog" href="https://www.gog.com/game/{{ product.slug }}">
       Store Page
     </a>
@@ -88,7 +88,7 @@
   </div>
 </div>
 
-{% if product.availability == 0 %}
+{% if product.access == 0 %}
 <div class="textbox shadow">
   <strong>
     This product can't currently be accessed, so the data might be outdated!
@@ -202,7 +202,7 @@
   <h2>Links</h2>
 
   <table class="shadow cellborder">
-    {% if product.availability >= 2 %}
+    {% if product.access >= 2 %}
     <tr>
       <td class="table-prop">Product page</td>
       <td>
@@ -270,7 +270,7 @@
         </span>
       </td>
     </tr>
-    {% if product.availability >= 2 %}
+    {% if product.access >= 2 %}
     <tr>
       <td class="table-prop">gogData</td>
       <td>

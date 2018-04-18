@@ -157,18 +157,17 @@ for counter in range(products_count):
         prod = model.Product(id=api_prod.id)
         changelog.prod_add(prod, prod.changes, cur_time)
 
-    # Set availability
+    # Set access
     if "galaxy" not in api_prod.loaded:
-        availability = 0
+        access = 0
     elif "web" not in api_prod.loaded:
-        availability = 1
+        access = 1
     else:
-        availability = 2
+        access = 2
 
-    if prod.availability is not None:
-        changelog.prod_avail(
-            prod, availability, prod.changes, cur_time)
-    prod.availability = availability
+    if prod.access is not None:
+        changelog.prod_access(prod, access, prod.changes, cur_time)
+    prod.access = access
 
     if "galaxy" in api_prod.loaded:
 

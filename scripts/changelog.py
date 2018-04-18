@@ -25,17 +25,17 @@ def prod_add(product, changes, cur_time):
     )
     changes.append(record)
 
-def prod_avail(product, value, changes, cur_time):
-    if product.availability == value:
+def prod_access(product, value, changes, cur_time):
+    if product.access == value:
         return
 
     record = ChangeRecord(
         timestamp=cur_time,
         action="change",
         type_prim="product",
-        type_sec="avail",
+        type_sec="access",
         resource=str(product.id),
-        old=str(product.availability),
+        old=str(product.access),
         new=str(value)
     )
     changes.append(record)
