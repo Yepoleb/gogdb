@@ -34,7 +34,11 @@
           {{ product.id }}
         </a>
       </td>
+      {% if product.access < 2 %}
+      <td class="col-name prod-unlisted">
+      {% else %}
       <td class="col-name">
+      {% endif %}
         <a href="{{ url_for('product_info', prod_id=product.id) }}" class="hoveronly">
           {{ product.title }}
         </a>

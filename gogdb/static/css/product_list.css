@@ -1,7 +1,3 @@
-.game-logo {
-  height: 60px;
-}
-
 .col-thumb {
   width: 1%;
   height: 60px;
@@ -22,6 +18,14 @@
 .col-os {
   width: 100px;
   text-align: center;
+}
+
+.game-logo {
+  height: 60px;
+}
+
+.prod-unlisted {
+  font-style: italic;
 }
 
 .page-link {
