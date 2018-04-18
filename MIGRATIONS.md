@@ -73,3 +73,10 @@ Add download systems caching.
     ALTER TABLE products ADD COLUMN dl_windows BOOLEAN;
     ALTER TABLE products ADD COLUMN dl_mac BOOLEAN;
     ALTER TABLE products ADD COLUMN dl_linux BOOLEAN;
+
+## 41f2860
+
+Rename availability to access.
+
+    ALTER TABLE products RENAME COLUMN availability TO access;
+    UPDATE changerecords SET type_sec='access' WHERE type_sec='avail';
