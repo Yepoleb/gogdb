@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% set title %}{{ build.product.title }} - Build {{ build.build_id }}{% endset %}
+
+{% block content %}
+<h1>{{ title }}</h1>
+
+<h2>Basic Info</h2>
+<div class="shadow">
+  <table class="cellborder">
+    <tr>
+      <td>Name</td>
+      <td>{{ repo.name }}</td>
+    </tr>
+    <tr>
+      <td>Root Product ID</td>
+      <td>
+        {{ repo.base_prod_id | prod_url }}
+      </td>
+    </tr>
+    <tr>
+      <td>Install Directory</td>
+      <td>{{ repo.install_directory }}/</td>
+    </tr>
+    <tr>
+      <td>Timestamp</td>
+      <td>{{ repo.timestamp }}</td>
+    </tr>
+    <tr>
+      <td>OS</td>
+      <td>{{ build.os | os_icon }}</td>
+    </tr>
+    <tr>
+      <td>URL</td>
+      <td>
+        {% if build.os == "windows" %}
+        <a href="https://cdn.gog.com/content-system/v1/manifests/{{ build.prod_id }}/windows/{{ build.legacy_build_id }}/repository.json">
+          https://cdn.gog.com/content-system/v1/manifests/{{ build.prod_id }}/windows/{{ build.legacy_build_id }}/repository.json
+        </a>
+        {% elif build.os == "mac" %}
+        <a href="https://cdn.gog.com/content-system/v1/manifests/{{ build.prod_id }}/osx/{{ build.legacy_build_id }}/repository.json">
+          https://cdn.gog.com/content-system/v1/manifests/{{ build.prod_id }}/osx/{{ build.legacy_build_id }}/repository.json
+        </a>
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <td>Generation</td>
+      <td>1</td>
+    </tr>
+  </table>
+</div>
+
+{% if repo.redists %}
+<h2>Redistributables</h2>
+<div class="shadow">
+  <table class="cellborder">
+    <tr>
+      <th>Name</th>
+      <th>Executable</th>
+      <th>Arguments</th>
+    </tr>
+    {% for redist in repo.redists %}
+    <tr>
+      <td>{{ redist.redist }}</td>
+      <td>{{ redist.executable | default("", True) }}</td>
+      <td>{{ redist.argument | default("", True) }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% endif %}
+
+{% if repo.support_commands %}
+<h2>Support Commands</h2>
+<div class="shadow">
+  <table class="cellborder">
+    <tr>
+      <th>Language</th>
+      <th>Executable</th>
+      <th>Product ID</th>
+      <th>System</th>
+    </tr>
+    {% for cmd in repo.support_commands %}
+    <tr>
+      <td>{{ cmd.lang }}</td>
+      <td>{{ cmd.executable }}</td>
+      <td>{{ cmd.prod_id | prod_url }}</td>
+      <td>{{ cmd.os | os_icon }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% endif %}
+
+<h2>Products</h2>
+<div class="shadow">
+  <table class="cellborder">
+    <tr>
+      <th>Product ID</th>
+      <th>Name</th>
+      <th>Dependency</th>
+    </tr>
+    {% for prod in repo.products %}
+    <tr>
+      <td>{{ prod.prod_id | prod_url }}</td>
+      <td>{{ prod.name }}</td>
+      <td>{{ prod.dependency | default("", true) }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+
+<h2>Depots</h2>
+<div class="shadow">
+  <table class="cellborder">
+    <tr>
+      <th>Languages</th>
+      <th>Product IDs</th>
+      <th>Size</th>
+      <th>OS</th>
+      <th>Manifest ID</th>
+    </tr>
+    {% for depot in repo.depots %}
+    <tr>
+      <td>{{ depot.languages | join(", ") | default("N/A", True) }}</td>
+      <td>{{ depot.prod_ids | join(", ") }}</td>
+      {% if depot.size is not none %}
+      <td>{{ depot.size | filesizeformat }}</td>
+      {% else %}
+      <td>N/A</td>
+      {% endif %}
+      <td>{{ depot.systems | os_icons }}</td>
+      <td class="mono"><a href="{{ url_for('manifest', manifest_id=depot.manifest.manifest_id) }}">{{ depot.manifest.manifest_id }}</a></td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+
+{% endblock content %}

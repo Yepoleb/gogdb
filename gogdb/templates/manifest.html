@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% set title %}Manifest {{ manifest.manifest_id }}{% endset %}
+
+{% block content %}
+
+{% if manifest.name %}
+<h1>{{ manifest.name }}</h1>
+{% else %}
+<h1>Manifest {{ manifest.manifest_id }}</h1>
+{% endif %}
+
+<h2>Parent Builds</h2>
+
+<div class="shadow">
+  <table id="builds-table" class="cellborder">
+    <tr>
+      <th>Build ID</th>
+      <th>OS</th>
+      <th>Version</th>
+      <th>Date</th>
+      <th>Gen</th>
+      <th>Repository ID</th>
+    </tr>
+    {% for build in builds %}
+    <tr>
+      <td><a href="{{ url_for('build', prod_id=build.prod_id, build_id=build.build_id) }}">{{ build.build_id }}</a></td>
+      <td>{{ build.os | os_icon }}</td>
+      <td>{{ build.version | default("N/A", true) }}</td>
+      <td>{{ build.date_published.strftime("%Y-%m-%d") }}</td>
+      <td>{{ build.generation }}</td>
+      {% if build.generation == 1 %}
+      <td class="mono">{{ build.legacy_build_id }}</td>
+      {% else %}
+      <td class="mono">{{ build.meta_id }}</td>
+      {% endif %}
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+
+<h2>Files ({{ files_count }})</h2>
+{% if files %}
+{% if files_count > 1100 %}
+<div class="textbox shadow">
+  This file list has been truncated to 1000 entries. You can get the full
+  list <a href="{{ url_for('filelist', manifest_id=manifest.manifest_id) }}">here</a>.
+</div>
+{% endif %}
+<div class="shadow">
+  <table class="dense-table cellborder">
+    <tr>
+      <th>Path</th>
+      <th>Size</th>
+      <th>Checksum</th>
+      <th>Flags</th>
+    </tr>
+    {% autoescape false %}
+    {% for file in files %}
+    <tr>
+      <td>{{ file.path | escape }}</td>
+      <td class="nobreak">{{ file.size | filesizeformat }}</td>
+      <td class="mono">{{ file.checksum }}</td>
+      <td>{{ file.flags }}</td>
+    </tr>
+    {% endfor %}
+    {% endautoescape %}
+  </table>
+</div>
+{% else %}
+<div class="textbox shadow">
+  This manifest does not contain any files.
+</div>
+{% endif %}
+
+{% if directories %}
+<h2>Directories ({{ directories | length}})</h2>
+<div class="shadow">
+  <table class="dense-table cellborder">
+    <tr>
+      <th>Path</th>
+      <th>Flags</th>
+    </tr>
+    {% autoescape false %}
+    {% for ddir in directories %}
+    <tr>
+      <td>{{ ddir.path | escape }}</td>
+      <td>{{ ddir.flags }}</td>
+    </tr>
+    {% endfor %}
+    {% endautoescape %}
+  </table>
+</div>
+{% endif %}
+
+{% if links %}
+<h2>Symlinks ({{ links | length }})</h2>
+<div class="shadow">
+  <table class="dense-table cellborder">
+    <tr>
+      <th>Path</th>
+      <th>Target</th>
+    </tr>
+    {% autoescape false %}
+    {% for link in links %}
+    <tr>
+      <td>{{ link.path | escape }}</td>
+      <td>{{ link.target | escape }}</td>
+    </tr>
+    {% endfor %}
+    {% endautoescape %}
+  </table>
+</div>
+{% endif %}
+
+{% endblock content %}

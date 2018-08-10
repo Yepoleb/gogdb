@@ -1,0 +1,15 @@
+/*
+ * Roboto Mono by Christian Robertson
+ * License: Apache License 2.0
+ */
+
+@font-face {
+    font-family: 'Roboto Mono';
+    src: url('../../static/fonts/roboto-mono/roboto-mono-v5-latin-regular.eot'); /* IE9 Compat Modes */
+    src: url('../../static/fonts/roboto-mono/roboto-mono-v5-latin-regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+         url('../../static/fonts/roboto-mono/roboto-mono-v5-latin-regular.woff2') format('woff2'), /* Modern Browsers */
+         url('../../static/fonts/roboto-mono/roboto-mono-v5-latin-regular.woff') format('woff'), /* Modern Browsers */
+         url('../../static/fonts/roboto-mono/roboto-mono-v5-latin-regular.ttf') format('truetype');
+    font-style: normal;
+    font-weight: 700;
+}

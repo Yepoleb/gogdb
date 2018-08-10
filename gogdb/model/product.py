@@ -5,7 +5,8 @@ from sqlalchemy import Column
 from arrow import arrow
 
 from gogdb import db
-from gogdb import names
+from gogapi import names
+from gogdb.model.common import get_systems_list, set_systems_list
 
 
 class Product(db.Model):
@@ -83,6 +84,9 @@ class Product(db.Model):
     downloads = orm.relationship(
         "Download", back_populates="product", cascade="all, delete-orphan",
         order_by="Download.type, desc(Download.os), Download.slug")
+    builds = orm.relationship(
+        "Build", back_populates="product", cascade="all, delete-orphan",
+        order_by="desc(Build.date_published)")
     pricehistory = orm.relationship(
         "PriceRecord", back_populates="product", cascade="all, delete-orphan",
         order_by="PriceRecord.date")
@@ -92,37 +96,21 @@ class Product(db.Model):
 
     @property
     def product_type_name(self):
-        return names.prod_types.get(self.product_type, self.product_type)
-
-    def get_systems_list(self, prefix):
-        systems = []
-        for system_name in ["windows", "mac", "linux"]:
-            if getattr(self, prefix + system_name) is None:
-                return None
-            elif getattr(self, prefix + system_name):
-                systems.append(system_name)
-        return systems
-
-    def set_systems_list(self, prefix, systems):
-        for system_name in ["windows", "mac", "linux"]:
-            if system_name in systems:
-                setattr(self, prefix + system_name, True)
-            else:
-                setattr(self, prefix + system_name, False)
+        return names.PROD_TYPES.get(self.product_type, self.product_type)
 
     cs_systems = property(
-        lambda self: self.get_systems_list("cs_"),
-        lambda self, v: self.set_systems_list("cs_", v)
+        lambda self: get_systems_list(self, "cs_"),
+        lambda self, v: set_systems_list(self, "cs_", v)
     )
 
     comp_systems = property(
-        lambda self: self.get_systems_list("os_"),
-        lambda self, v: self.set_systems_list("os_", v)
+        lambda self: get_systems_list(self, "os_"),
+        lambda self, v: set_systems_list(self, "os_", v)
     )
 
     dl_systems = property(
-        lambda self: self.get_systems_list("dl_"),
-        lambda self, v: self.set_systems_list("dl_", v)
+        lambda self: get_systems_list(self, "dl_"),
+        lambda self, v: set_systems_list(self, "dl_", v)
     )
 
     @property
@@ -162,6 +150,11 @@ class Product(db.Model):
                 return download
         return None
 
+    def build_by_id(self, build_id):
+        for build in self.builds:
+            if build.id == build_id:
+                return build
+        return None
 
     def __repr__(self):
         return "<Product(id={}, slug='{}')>".format(self.id, self.slug)
@@ -172,14 +165,14 @@ class Language(db.Model):
 
     prod_id = Column(
         sql.Integer, sql.ForeignKey("products.id"), primary_key=True)
-    isocode = Column(sql.String(5), primary_key=True)
+    isocode = Column(sql.String(20), primary_key=True)
 
     product = orm.relationship("Product", back_populates="languages")
 
     @property
     def name(self):
         # Fall back to isocode if a name isn't defined
-        return names.languages.get(self.isocode, self.isocode)
+        return names.IETF_CODES.get(self.isocode, self.isocode)
 
     def __repr__(self):
         return "<Language(prod_id={}, isocode='{}')>".format(
@@ -197,7 +190,7 @@ class Feature(db.Model):
 
     @property
     def name(self):
-        return names.features.get(self.slug, self.slug)
+        return names.FEATURES.get(self.slug, self.slug)
 
     def __repr__(self):
         return "<Feature(prod_id={}, slug='{}')>".format(
@@ -215,7 +208,7 @@ class Genre(db.Model):
 
     @property
     def name(self):
-        return names.genres.get(self.slug, self.slug)
+        return names.GENRES.get(self.slug, self.slug)
 
     def __repr__(self):
         return "<Genre(prod_id={}, slug='{}')>".format(

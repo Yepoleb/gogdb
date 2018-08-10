@@ -30,9 +30,7 @@
         </a>
       </td>
       <td class="col-id">
-        <a href="{{ url_for('product_info', prod_id=product.id) }}" class="hoveronly">
-          {{ product.id }}
-        </a>
+        {{ product.id | prod_url }}
       </td>
       {% if product.access < 2 %}
       <td class="col-name prod-unlisted">

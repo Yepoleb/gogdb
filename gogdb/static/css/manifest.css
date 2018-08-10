@@ -1,0 +1,12 @@
+.mono {
+  font-family: "Roboto Mono", monospace;
+}
+
+.dense-table td {
+  font-size: 14px;
+  padding: 7px;
+}
+
+.col-prod-name {
+  width: 80%;
+}

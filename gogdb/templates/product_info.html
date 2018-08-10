@@ -100,6 +100,7 @@
   <a href="#prices" class="tabs-item no-underline">Prices</a>
   <a href="#details" class="tabs-item no-underline">Details</a>
   <a href="#downloads" class="tabs-item no-underline">Downloads</a>
+  <a href="#builds" class="tabs-item no-underline">Builds</a>
   <a href="#media" class="tabs-item no-underline">Media</a>
   <a href="#changelog" class="tabs-item no-underline">Changelog</a>
 </div>
@@ -158,7 +159,7 @@
     {% endif %}
     <tr>
       <td>Languages</td>
-      <td>{{ product.languages | comma_attr("isocode") | upper }}</td>
+      <td>{{ product.languages | comma_attr("name") }}</td>
     </tr>
     {% if product.features %}
     <tr>
@@ -271,6 +272,28 @@
         </span>
       </td>
     </tr>
+    <tr>
+      <td class="table-prop">Builds Windows</td>
+      <td>
+        <div class="force-overflow">
+          <a href="https://content-system.gog.com/products/{{ product.id }}/os/windows/builds?generation=2">
+            https://content-system.gog.com/products/{{ product.id }}/os/windows/builds?generation=2
+          </a>
+        </div>
+      </td>
+    </tr>
+    {% if product.systems and "mac" in product.systems %}
+    <tr>
+      <td class="table-prop">Builds macOS</td>
+      <td>
+        <div class="force-overflow">
+          <a href="https://content-system.gog.com/products/{{ product.id }}/os/osx/builds?generation=2">
+            https://content-system.gog.com/products/{{ product.id }}/os/osx/builds?generation=2
+          </a>
+        </div>
+      </td>
+    </tr>
+    {% endif %}
     {% if product.access >= 2 %}
     <tr>
       <td class="table-prop">gogData</td>
@@ -387,6 +410,41 @@
   {% else %}
   <div class="textbox shadow">
     No downloads available.
+  </div>
+  {% endif %}
+</div>
+
+<div id="tab-builds" class="tab">
+  <h2>Builds</h2>
+
+  {% if product.builds %}
+  <table id="builds-table" class="shadow cellborder">
+    <tr>
+      <th>Build ID</th>
+      <th>OS</th>
+      <th>Version</th>
+      <th>Date</th>
+      <th>Gen</th>
+      <th>Repository ID</th>
+    </tr>
+    {% for build in product.builds %}
+    <tr>
+      <td><a href="{{ url_for('build', prod_id=build.prod_id, build_id=build.build_id) }}">{{ build.build_id }}</a></td>
+      <td>{{ build.os | os_icon }}</td>
+      <td>{{ build.version | default("N/A", true) }}</td>
+      <td>{{ build.date_published.strftime("%Y-%m-%d") }}</td>
+      <td>{{ build.generation }}</td>
+      {% if build.generation == 1 %}
+      <td class="mono">{{ build.legacy_build_id }}</td>
+      {% else %}
+      <td class="mono">{{ build.meta_id }}</td>
+      {% endif %}
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}
+  <div class="textbox shadow">
+    No builds available.
   </div>
   {% endif %}
 </div>

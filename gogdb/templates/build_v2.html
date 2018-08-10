@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% set title %}{{ build.product.title }} - Build {{ build.build_id }}{% endset %}
+
+{% block content %}
+<h1>{{ title }}</h1>
+
+<h2>Basic Info</h2>
+<div class="shadow">
+  <table class="cellborder">
+    <tr>
+      <td>Install Directory</td>
+      <td>{{ repo.install_directory }}/</td>
+    </tr>
+    <tr>
+      <td>Root Product ID</td>
+      <td>
+        {{ repo.base_prod_id | prod_url }}
+      </td>
+    </tr>
+    <tr>
+      <td>OS</td>
+      <td>{{ repo.os | os_icon }}</td>
+    </tr>
+    <tr>
+      <td>URL</td>
+      <td>
+        <a href="{{ url_for('meta', meta_id=build.meta_id) }}">
+          {{ build.meta_id | gog_meta }}
+        </a>
+      </td>
+    </tr>
+    {% if repo.tags %}
+    <tr>
+      <td>Tags</td>
+      <td>{{ repo.tags | join(", ") }}</td>
+    </tr>
+    {% endif %}
+    {% if repo.client_id %}
+    <tr>
+      <td>Client ID</td>
+      <td class="mono">{{ repo.client_id }}</td>
+    </tr>
+    <tr>
+      <td>Client Secret</td>
+      <td class="mono">{{ repo.client_secret }}</td>
+    </tr>
+    {% endif %}
+    <tr>
+      <td>Dependencies</td>
+      <td>{{ repo.dependencies | join(", ") | default("None", true) }}</td>
+    </tr>
+    <tr>
+      <td>Generation</td>
+      <td>2</td>
+    </tr>
+  </table>
+</div>
+
+{% if repo.cloudsaves %}
+<h2>Cloud Saves</h2>
+<div class="shadow">
+  <table class="cellborder">
+    <tr>
+      <th>Name</th>
+      <th>Path</th>
+    </tr>
+    {% for cloudsave in repo.cloudsaves %}
+    <tr>
+      <td>{{ cloudsave.name }}</td>
+      <td>{{ cloudsave.location }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% endif %}
+
+{% if repo.redists %}
+<h2>Redistributables</h2>
+<div class="shadow">
+  <table class="cellborder">
+    <tr>
+      <th>Name</th>
+      <th>Executable</th>
+      <th>Arguments</th>
+    </tr>
+    {% for redist in repo.redists %}
+    <tr>
+      <td>{{ redist.redist }}</td>
+      <td>{{ redist.executable }}</td>
+      <td>{{ redist.argument }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% endif %}
+
+<h2>Products</h2>
+<div class="shadow">
+  <table class="cellborder">
+    <tr>
+      <th>Product ID</th>
+      <th>Name</th>
+    </tr>
+    {% for prod in repo.products %}
+    <tr>
+      <td>{{ prod.prod_id | prod_url }}</td>
+      <td class="col-prod-name">{{ prod.name }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+
+{% if repo.scripted_prods %}
+<h2>Scripts</h2>
+<div class="shadow">
+  <table class="cellborder">
+    <tr>
+      <th>Product ID</th>
+      <th>Script</th>
+      <th>Temp Executable</th>
+    </tr>
+    {% for prod in repo.scripted_prods %}
+    <tr>
+      <td>{{ prod.prod_id | prod_url }}</td>
+      <td>{{ prod.script | default("", true) }}</td>
+      <td>{{ prod.temp_executable }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% endif %}
+
+<h2>Depots</h2>
+<div class="shadow">
+  <table class="cellborder">
+    <tr>
+      <th>Languages</th>
+      <th>Product ID</th>
+      <th>Size</th>
+      <th>Bitness</th>
+      <th>GOG Depot</th>
+      <th>Is Offline</th>
+      <th>Manifest ID</th>
+    </tr>
+    {% for depot in repo.depots %}
+    <tr>
+      <td>{{ depot.languages | join(", ") }}</td>
+      <td>{{ depot.prod_id | prod_url }}</td>
+      <td>{{ depot.size | filesizeformat }}</td>
+      <td>{{ depot.bitness | join(", ") | default("Any", true) }}</td>
+      <td>{{ depot.is_gog_depot | yes_no }}</td>
+      <td>{{ depot.is_offline | yes_no }}</td>
+      <td class="mono"><a href="{{ url_for('manifest', manifest_id=depot.manifest.manifest_id) }}">{{ depot.manifest.manifest_id }}</a></td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+
+{% endblock content %}

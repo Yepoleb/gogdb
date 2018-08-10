@@ -3,7 +3,7 @@ from sqlalchemy import orm
 from sqlalchemy import Column
 
 from gogdb import db
-from gogdb import names
+from gogapi import names
 
 
 class DlFile(db.Model):
@@ -47,19 +47,19 @@ class Download(db.Model):
 
     @property
     def type_name(self):
-        return names.dl_types.get(self.type, self.type)
+        return names.DL_TYPES.get(self.type, self.type)
 
     @property
     def os_name(self):
-        return names.systems.get(self.os, self.os)
+        return names.SYSTEMS.get(self.os, self.os)
 
     @property
     def language_name(self):
-        return names.languages.get(self.language, self.language)
+        return names.IETF_CODES.get(self.language, self.language)
 
     @property
     def bonus_type_name(self):
-        return names.bonus_types.get(self.bonus_type, self.bonus_type)
+        return names.BONUS_TYPES.get(self.bonus_type, self.bonus_type)
 
     @property
     def total_size(self):
