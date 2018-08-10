@@ -84,3 +84,7 @@ Rename availability to access.
 ## 75d20e0
 
     ALTER TABLE products ADD COLUMN changelog TEXT;
+
+## 675db34
+
+    ALTER TABLE languages ALTER COLUMN isocode TYPE VARCHAR(20);
