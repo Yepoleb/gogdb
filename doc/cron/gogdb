@@ -1,7 +1,6 @@
-# Updates gogdb game data every 6 hours
+# Updates gogdb game data every 2 hours
 SHELL=/bin/sh
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 
-40 */6 * * * www-data /var/www/gogdb/venv/bin/python /var/www/gogdb/scripts/update_db.py /etc/gogdb/production.ini
-# 40 */6 * * * www-data /var/www/gogdb/venv/bin/python /var/www/gogdb/scripts/update_db.py /etc/gogdb/production.ini 2>&1 | tee /var/log/gogdb/gogdb.log
+50 */2 * * * www-data /var/www/gogdb/scripts/update.sh >> /var/log/gogdb/gogdb.log 2>&1
 
