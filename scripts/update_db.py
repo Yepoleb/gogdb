@@ -178,6 +178,7 @@ search_products = list(
     g_api.search(mediaType="game", sort="bestselling", limit=50) \
         .iter_products()
 )
+logger.info("Catalog contains %s products", len(search_products))
 # Queue for passing search to download workers
 dl_queue = queue.Queue()
 # Queue for passing downloaded products back to main thread
@@ -194,7 +195,7 @@ random.shuffle(shuffled_items)
 for prod_item in shuffled_items:
     dl_queue.put(prod_item)
 products_count = len(slug_map)
-logger.info("Found %s products", products_count)
+logger.info("Updating %s products", products_count)
 
 existing = {}
 existing["repo"] = set(
