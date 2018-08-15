@@ -335,7 +335,7 @@ def insert_manifest_v1(session, manifests_v1):
         ]
 
         if any(classitems for classitems in depotitems.values()):
-            logger.debug("Inserting V1 depot items")
+            logger.debug("Inserting V1 depot %s", manifest_id)
         for cls in depotclasses:
             classitems = depotitems[cls.__name__]
             if not classitems:
@@ -413,7 +413,7 @@ def insert_manifest_v2(session, manifests_v2):
         ]
 
         if any(classitems for classitems in depotitems.values()):
-            logger.debug("Inserting V2 depot items")
+            logger.debug("Inserting V2 depot %s", manifest_id)
         for cls in depotclasses:
             classitems = depotitems[cls.__name__]
             if not classitems:
