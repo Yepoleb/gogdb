@@ -154,6 +154,7 @@ g_session = session_factory()
 
 token = gogapi.Token.from_file(gogdb.app.config["TOKEN_PATH"])
 g_api = gogapi.GogApi(token)
+g_api.set_locale(*LOCALE)
 
 # Debug
 
