@@ -25,8 +25,8 @@ IMAGE_RE = re.compile(r".+gog.com/([0-9a-f]+).*")
 GALAXY_EXPANDED = [
     "downloads", "description", "screenshots", "videos", "changelog"]
 ALLOWED_CHARS = set(string.ascii_lowercase + string.digits)
-DL_WORKER_COUNT = 8
-DB_QUEUE_LEN = 20
+DL_WORKER_COUNT = 4
+DB_QUEUE_LEN = 8
 LOCALE = ("US", "USD", "en-US")
 
 
