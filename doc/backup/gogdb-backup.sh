@@ -9,13 +9,16 @@ set -e
 month=`date '+%Y-%m'`
 today=`date '+%Y-%m-%d'`
 
-mkdir -p "$BACKUP_PSQL/$month"
+mkdir -p "$BACKUP_PSQL"
 mkdir -p "$BACKUP_CSV/$month"
 
 # Postgres custom dump
-pg_dump -F custom "$DATABASE" -f "$BACKUP_PSQL/$month/gogdb_$today.dump"
+pg_dump -F custom "$DATABASE" -f "$BACKUP_PSQL/gogdb_$today.dump"
 cd "$BACKUP_PSQL"
-find * -name "*.dump" | sort > "$BACKUP_PSQL/filelist.txt"
+# Clean up old files
+find . -name "*.dump" -printf '%P\n' | sort | head -n -5 | xargs --no-run-if-empty rm
+# Generate filelist
+find . -name "*.dump" -printf '%P\n' | sort > "$BACKUP_PSQL/filelist.txt"
 
 # CSV export
 tempdir=`mktemp -d`
