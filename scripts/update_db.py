@@ -280,6 +280,19 @@ def insert_downloads(prod, api_prod, cur_time):
             dlfile.size = api_file.size
 
 
+def flush_manifest(session, depotitems, depotclasses):
+    for cls in depotclasses:
+        classitems = depotitems[cls.__name__]
+        if not classitems:
+            continue
+        converted_items = [dict(item) for item in classitems]
+        converted_items.sort(key=lambda x: x["path"])
+        session.bulk_insert_mappings(
+            cls, converted_items, return_defaults=False,
+            render_nulls=True)
+        depotitems[cls.__name__] = []
+
+
 def insert_manifest_v1(session, manifests_v1):
     manifest_v1_ids = list(manifests_v1.keys())
     db_manifests_v1 = {manifest.manifest_id: manifest
@@ -307,8 +320,9 @@ def insert_manifest_v1(session, manifests_v1):
 
         manifest.name = api_manifest.name
         manifest.loaded = True
-        depotitems["DepotFileV1"] += [
-            model.DepotFileV1(
+
+        for api_file in api_manifest.files:
+            depotf = model.DepotFileV1(
                 manifest_id=manifest.id,
                 size=api_file.size,
                 path=api_file.path,
@@ -316,8 +330,10 @@ def insert_manifest_v1(session, manifests_v1):
                 url=api_file.url,
                 offset=api_file.offset,
                 flags=api_file.flags)
-            for api_file in api_manifest.files
-        ]
+            depotitems["DepotFileV1"].append(depotf)
+            if (len(depotitems["DepotFileV1"]) > 5000):
+                logger.debug("Flushing depot V1 %s", manifest_id)
+                flush_manifest(session, depotitems, depotclasses)
 
         depotitems["DepotDirectoryV1"] += [
             model.DepotDirectoryV1(
@@ -340,15 +356,7 @@ def insert_manifest_v1(session, manifests_v1):
 
         if any(classitems for classitems in depotitems.values()):
             logger.debug("Inserting V1 depot %s", manifest_id)
-        for cls in depotclasses:
-            classitems = depotitems[cls.__name__]
-            if not classitems:
-                continue
-            converted_items = [dict(item) for item in classitems]
-            converted_items.sort(key=lambda x: x["path"])
-            session.bulk_insert_mappings(
-                cls, converted_items, return_defaults=False,
-                render_nulls=True)
+            flush_manifest(session, depotitems, depotclasses)
 
     db_manifest_v1_ids = {
         mf.manifest_id: mf.id for mf in db_manifests_v1.values()
@@ -398,6 +406,9 @@ def insert_manifest_v2(session, manifests_v2):
             depotf.checksum = api_depotf.checksum
             depotf.flags = api_depotf.flags
             depotitems["DepotFileV2"].append(depotf)
+            if (len(depotitems["DepotFileV2"]) > 5000):
+                logger.debug("Flushing depot V2 %s", manifest_id)
+                flush_manifest(session, depotitems, depotclasses)
 
         depotitems["DepotDirectoryV2"] += [
             model.DepotDirectoryV2(
@@ -418,15 +429,7 @@ def insert_manifest_v2(session, manifests_v2):
 
         if any(classitems for classitems in depotitems.values()):
             logger.debug("Inserting V2 depot %s", manifest_id)
-        for cls in depotclasses:
-            classitems = depotitems[cls.__name__]
-            if not classitems:
-                continue
-            converted_items = [dict(item) for item in classitems]
-            converted_items.sort(key=lambda x: x["path"])
-            session.bulk_insert_mappings(
-                cls, converted_items, return_defaults=False,
-                render_nulls=True)
+            flush_manifest(session, depotitems, depotclasses)
 
     db_manifest_v2_ids = {
         mf.manifest_id: mf.id for mf in db_manifests_v2.values()
