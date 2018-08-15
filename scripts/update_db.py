@@ -9,6 +9,7 @@ import queue
 import threading
 import sys
 import configparser
+import random
 
 import requests
 import sqlalchemy
@@ -188,7 +189,9 @@ slug_map = {row[0]: None for row in g_session.query(model.Product.id)}
 for prod in search_products:
     slug_map[prod.id] = prod.slug
 del search_products
-for prod_item in slug_map.items():
+shuffled_items = list(slug_map.items())
+random.shuffle(shuffled_items)
+for prod_item in shuffled_items:
     dl_queue.put(prod_item)
 products_count = len(slug_map)
 logger.info("Found %s products", products_count)
