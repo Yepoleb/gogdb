@@ -286,10 +286,10 @@ def insert_manifest_v1(session, manifests_v1):
     depotclasses = [
         model.DepotFileV1, model.DepotDirectoryV1, model.DepotLinkV1
     ]
-    depotitems = {cls.__name__: [] for cls in depotclasses}
 
     for manifest_id, api_manifest in manifests_v1.items():
         manifest = db_manifests_v1.get(manifest_id)
+        depotitems = {cls.__name__: [] for cls in depotclasses}
 
         if manifest is None:
             manifest = model.DepotManifestV1(manifest_id=manifest_id)
@@ -334,10 +334,13 @@ def insert_manifest_v1(session, manifests_v1):
             for api_link in api_manifest.links
         ]
 
-    if any(classitems for classitems in depotitems.values()):
-        logger.debug("Inserting V1 depot items")
+        if any(classitems for classitems in depotitems.values()):
+            logger.debug("Inserting V1 depot items")
         for cls in depotclasses:
-            converted_items = [dict(item) for item in depotitems[cls.__name__]]
+            classitems = depotitems[cls.__name__]
+            if not classitems:
+                continue
+            converted_items = [dict(item) for item in classitems]
             converted_items.sort(key=lambda x: x["path"])
             session.bulk_insert_mappings(
                 cls, converted_items, return_defaults=False,
@@ -360,10 +363,10 @@ def insert_manifest_v2(session, manifests_v2):
     depotclasses = [
         model.DepotFileV2, model.DepotDirectoryV2, model.DepotLinkV2
     ]
-    depotitems = {cls.__name__: [] for cls in depotclasses}
 
     for manifest_id, api_manifest in manifests_v2.items():
         manifest = db_manifests_v2.get(manifest_id)
+        depotitems = {cls.__name__: [] for cls in depotclasses}
 
         if manifest is None:
             manifest = model.DepotManifestV2(manifest_id=manifest_id)
@@ -409,10 +412,13 @@ def insert_manifest_v2(session, manifests_v2):
             for api_link in api_manifest.links
         ]
 
-    if any(classitems for classitems in depotitems.values()):
-        logger.debug("Inserting V2 depot items")
+        if any(classitems for classitems in depotitems.values()):
+            logger.debug("Inserting V2 depot items")
         for cls in depotclasses:
-            converted_items = [dict(item) for item in depotitems[cls.__name__]]
+            classitems = depotitems[cls.__name__]
+            if not classitems:
+                continue
+            converted_items = [dict(item) for item in classitems]
             converted_items.sort(key=lambda x: x["path"])
             session.bulk_insert_mappings(
                 cls, converted_items, return_defaults=False,
