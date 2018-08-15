@@ -25,6 +25,7 @@ GALAXY_EXPANDED = [
     "downloads", "description", "screenshots", "videos", "changelog"]
 ALLOWED_CHARS = set(string.ascii_lowercase + string.digits)
 DL_WORKER_COUNT = 8
+DB_QUEUE_LEN = 20
 LOCALE = ("US", "USD", "en-US")
 
 
@@ -181,7 +182,7 @@ dl_queue = queue.Queue()
 # Queue for passing downloaded products back to main thread
 db_queue = queue.Queue()
 
-db_semaphore = threading.Semaphore(20)
+db_semaphore = threading.Semaphore(DB_QUEUE_LEN)
 
 slug_map = {row[0]: None for row in g_session.query(model.Product.id)}
 for prod in search_products:
