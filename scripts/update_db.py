@@ -63,8 +63,7 @@ def safe_do(func, errormsg, *args, **kwargs):
     try:
         func(*args, **kwargs)
     except (requests.HTTPError, gogapi.GogError) as e:
-        if not hasattr(e, "response") or e.response.status_code != 404:
-            logger.warning(errormsg, repr(e))
+        logger.warning(errormsg, repr(e))
     except gogapi.NotAuthorizedError:
         logger.warning(errormsg, "Not Authorized")
     except Exception as e:
