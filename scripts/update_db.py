@@ -59,11 +59,15 @@ def normalize_title(title):
 
 # API download worker
 
-def safe_do(func, errormsg, *args, **kwargs):
+def safe_do(func, errormsg, *args, ignore404=False, **kwargs):
     try:
         func(*args, **kwargs)
     except (requests.HTTPError, gogapi.GogError) as e:
-        logger.warning(errormsg, repr(e))
+        if ignore404 and hasattr(e, "response") and \
+                e.response.status_code == 404:
+            pass
+        else:
+            logger.warning(errormsg, repr(e))
     except gogapi.NotAuthorizedError:
         logger.warning(errormsg, "Not Authorized")
     except Exception as e:
@@ -86,7 +90,8 @@ def download_worker(token, dl_queue, db_queue, db_semaphore, existing):
         safe_do(
             lambda prod: prod.update_galaxy(expand=GALAXY_EXPANDED),
             "Failed to load api data for {}: %s".format(product.id),
-            product)
+            product,
+            ignore404=True)
 
         if slug is not None:
             safe_do(
