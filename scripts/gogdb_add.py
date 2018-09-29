@@ -28,3 +28,5 @@ def main():
         db.session.add(prod)
 
     db.session.commit()
+
+main()
