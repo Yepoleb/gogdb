@@ -1,3 +1,12 @@
 User-agent: *
 Disallow: /gogdata/
 Disallow: /meta/
+
+User-agent: BLEXBot
+Disallow: /
+
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: / 
