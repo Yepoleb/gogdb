@@ -180,7 +180,7 @@ if os.environ.get("DEBUG_SQL"):
 # Load products and add them to the queue
 logger.info("Loading catalog")
 search_products = list(
-    g_api.search(mediaType="game", sort="bestselling", limit=50) \
+    g_api.search(mediaType="game", sort="bestselling", limit=48) \
         .iter_products()
 )
 logger.info("Catalog contains %s products", len(search_products))
