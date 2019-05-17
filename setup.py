@@ -42,7 +42,7 @@ setup(
     install_requires=requires,
     entry_points={
         "console_scripts": [
-            "gogdb-init = gogdb.scripts.gogdb_init:main"
+            "gogdb-init = gogdb.scripts.gogdb_init:main",
             "gogdb-add = gogdb.scripts.gogdb_add:main"
         ],
     }
