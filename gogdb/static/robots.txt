@@ -9,4 +9,10 @@ User-agent: AhrefsBot
 Disallow: /
 
 User-agent: SemrushBot
-Disallow: / 
+Disallow: /
+
+User-agent: dotbot
+Disallow: /
+
+User-agent: VelenPublicWebCrawler
+Disallow: /
