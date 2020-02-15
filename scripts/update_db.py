@@ -21,7 +21,7 @@ from gogdb import db, model
 import changelog
 
 
-IMAGE_RE = re.compile(r".+gog.com/([0-9a-f]+).*")
+IMAGE_RE = re.compile(r".*\.com/([0-9a-f]+).")
 GALAXY_EXPANDED = [
     "downloads", "description", "screenshots", "videos", "changelog"]
 ALLOWED_CHARS = set(string.ascii_lowercase + string.digits)
