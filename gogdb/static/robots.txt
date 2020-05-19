@@ -16,3 +16,6 @@ Disallow: /
 
 User-agent: VelenPublicWebCrawler
 Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
