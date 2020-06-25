@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name GOG DB Integration
 // @description Add a GOG DB button to the GOG store
-// @version 0.31
+// @version 0.4
 // @author Yepoleb
 // @license CC0
 // @namespace https://gogdb.org
@@ -25,6 +25,6 @@ var separator_element = document.createElement("hr");
 separator_element.className = "details__separator";
 
 var card_element = document.getElementsByClassName("table__row details__row")[0];
-var parent_card = card_element.parentNode;
-parent_card.insertBefore(button_element, card_element);
-parent_card.insertBefore(separator_element, card_element);
+var card_parent = card_element.parentNode;
+card_parent.insertBefore(button_element, card_element);
+card_parent.insertBefore(separator_element, card_element);
