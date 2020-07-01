@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name GOG DB Integration
-// @description Add a GOG DB button to the GOG store
-// @version 0.3
+// @description Add a GOG DB link to the GOG store
+// @version 0.4
 // @author Yepoleb
 // @license CC0
 // @namespace https://gogdb.org
@@ -12,19 +12,17 @@
 // ==/UserScript==
 
 
-var product_id = unsafeWindow.gogData.gameProductData.id;
+var product_id = unsafeWindow.productcardData.cardProductId;
 
-var button_element = document.createElement("a");
-button_element.innerHTML = '<img src="https://www.gogdb.org/static/img/gogdb_trans.svg" alt="" style="height: 15px; margin-right: 0.5em" referrerpolicy="no-referrer">GOG Database';
-button_element.setAttribute("href", "https://www.gogdb.org/product/" + product_id);
-button_element.className = "wishlist-btn";
-button_element.setAttribute("style", "display: flex; flex-direction: row; justify-content: center; align-items: center");
-button_element.setAttribute("target", "_blank");
+var gogdb_element = document.createElement("a");
+gogdb_element.textContent = "GOG Database";
+gogdb_element.setAttribute("href", "https://www.gogdb.org/product/" + product_id);
+gogdb_element.className = "details__link";
+gogdb_element.setAttribute("target", "_blank");
 
-var separator_element = document.createElement("div");
-separator_element.setAttribute("style", "border-top: 1px solid rgba(0,0,0,.08); margin-top: 10px;");
+var separator_element = document.createTextNode(", ");
 
-var card_element = document.getElementsByClassName("socials")[0].parentNode;
-card_element.appendChild(separator_element);
-card_element.appendChild(button_element);
-
+var links_xpath = "//div[@class='details__category table__row-label' and contains(text(),'Links:')]/following-sibling::div";
+var links_element = document.evaluate(links_xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+links_element.appendChild(separator_element);
+links_element.appendChild(gogdb_element);
