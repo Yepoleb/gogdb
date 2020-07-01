@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name GOG DB Integration
 // @description Add a GOG DB link to the GOG store
-// @version 0.4
+// @version 0.5
 // @author Yepoleb
 // @license CC0
 // @namespace https://gogdb.org
