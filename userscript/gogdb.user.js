@@ -22,7 +22,7 @@ gogdb_element.setAttribute("target", "_blank");
 
 var separator_element = document.createTextNode(", ");
 
-var links_xpath = "//div[@class='details__category table__row-label' and contains(text(),'Links:')]/following-sibling::div";
+var links_xpath = "//div[@class='details table table--without-border']/div[6]/div[2]";
 var links_element = document.evaluate(links_xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
 links_element.appendChild(separator_element);
 links_element.appendChild(gogdb_element);
