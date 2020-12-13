@@ -74,12 +74,11 @@ def safe_do(func, errormsg, *args, ignore404=False, **kwargs):
         logger.error(errormsg, repr(e))
         raise
 
-def download_worker(token, dl_queue, db_queue, db_semaphore, existing):
+def download_worker(token, dl_queue, db_queue, existing):
     api = gogapi.GogApi(token)
     api.set_locale(*LOCALE)
 
     while True:
-        db_semaphore.acquire(timeout=600)
         try:
             prod_id, slug = dl_queue.get(block=False)
         except queue.Empty:
@@ -93,11 +92,11 @@ def download_worker(token, dl_queue, db_queue, db_semaphore, existing):
             product,
             ignore404=True)
 
-        if slug is not None:
-            safe_do(
-                lambda prod: prod.update_web(),
-                "Failed to load gogData for {}: %s".format(product.id),
-                product)
+        #if slug is not None:
+        #    safe_do(
+        #        lambda prod: prod.update_web(),
+        #        "Failed to load gogData for {}: %s".format(product.id),
+        #        product)
 
         builds = []
         if product.has("content_systems"):
@@ -141,7 +140,7 @@ def download_worker(token, dl_queue, db_queue, db_semaphore, existing):
 
         dl_result = {
             "prod": product, "builds": builds, "manifests": manifests}
-        db_queue.put(dl_result)
+        db_queue.put(dl_result, timeout=60)
         dl_queue.task_done()
 
 
@@ -187,9 +186,7 @@ logger.info("Catalog contains %s products", len(search_products))
 # Queue for passing search to download workers
 dl_queue = queue.Queue()
 # Queue for passing downloaded products back to main thread
-db_queue = queue.Queue()
-
-db_semaphore = threading.Semaphore(DB_QUEUE_LEN)
+db_queue = queue.Queue(DB_QUEUE_LEN)
 
 slug_map = {row[0]: None for row in g_session.query(model.Product.id)}
 for prod in search_products:
@@ -220,7 +217,7 @@ dl_threads = []
 for i in range(DL_WORKER_COUNT):
     t = threading.Thread(
         target=download_worker,
-        args=(token, dl_queue, db_queue, db_semaphore, existing))
+        args=(token, dl_queue, db_queue, existing))
     t.start()
     dl_threads.append(t)
 
@@ -593,8 +590,11 @@ def insert_repo_v2(api_repo, manifest_v2_ids):
 
 
 for counter in range(products_count):
-    dl_result = db_queue.get(timeout=60)
-    db_semaphore.release()
+    try:
+        dl_result = db_queue.get(timeout=60)
+    except queue.Empty:
+        logger.error("Waiting for download result timed out")
+        break
     api_prod = dl_result["prod"]
     prod_session = session_factory()
 
