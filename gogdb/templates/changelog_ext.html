@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% from "changelog_format.html" import format_record %}
+{% from "mod_changelog_format.html" import format_record %}
 
 {% set title %}Extended Changelog{% endset %}
 
@@ -22,10 +22,10 @@
 {% for recordgroup in changes %}
 <div class="shadow">
   <div class="changelog-title">
-    <a href="{{ url_for('product_info', prod_id=recordgroup[0].prod_id) }}#changelog" class="hoveronly">
-      <b>{{ recordgroup[0].product.title | default("Unknown", true) }}</b><!--
- --></a>
-    - {{ recordgroup[0].prod_id }}
+    <a href="{{ prod_url(recordgroup[0].id) }}#changelog" class="hoveronly">
+      <b>{{ recordgroup[0].title | default("Unknown", true) }}</b>
+      - {{ recordgroup[0].id }}
+    </a>
   </div>
 <table class="changelog-table rowborder">
   {% for record in recordgroup %}
@@ -43,10 +43,10 @@
       {% endif %}
     </td>
     <td class="col-change-desc">
-      {{ format_record(record) }}
+      {{ format_record(record.record) }}
     </td>
     <td class="col-change-date">
-      {{ record.timestamp.strftime("%Y-%m-%d") }}
+      {{ record.timestamp | datetime_day }}
     </td>
   </tr>
   {% endfor %}

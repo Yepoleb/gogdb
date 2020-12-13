@@ -1,36 +1,38 @@
-import flask
-import sqlalchemy
+import datetime
 
-from gogdb import app, db, model
-from gogdb.model import ChangeRecord
+import flask
+
+import gogdb.core.model as model
 from gogdb.views.pagination import calc_pageinfo
+from gogdb.application.datasources import get_indexdb
 
 ITEMS_PER_PAGE = 100
 
 
-@app.route("/changelog")
 def changelog():
     page = int(flask.request.args.get("page", "1"))
 
+    cur = get_indexdb().cursor()
     # Get total number of entries
-    total_entries = db.session.query(
-        ChangeRecord.timestamp # just a placeholder
-    ).group_by(
-        ChangeRecord.timestamp, ChangeRecord.type_prim, ChangeRecord.prod_id
-    ).count()
+    cur.execute("SELECT COUNT(*) FROM changelog_summary;")
+    total_entries = cur.fetchone()[0]
 
     page_info = calc_pageinfo(page, total_entries, ITEMS_PER_PAGE)
 
-    changes = db.session.query(
-        ChangeRecord.timestamp, ChangeRecord.type_prim, ChangeRecord.prod_id,
-        sqlalchemy.sql.functions.max(model.Product.title).label("title")
-    ).join(
-        model.Product
-    ).group_by(
-        ChangeRecord.timestamp, ChangeRecord.type_prim, ChangeRecord.prod_id
-    ).order_by(
-        ChangeRecord.timestamp.desc()
-    ).offset(page_info["from"]).limit(ITEMS_PER_PAGE)
+    cur.execute(
+        "SELECT * FROM changelog_summary ORDER BY timestamp DESC LIMIT ? OFFSET ?;",
+        (ITEMS_PER_PAGE, page_info["from"])
+    )
+
+    changelog_summaries = []
+    for summary_res in cur:
+        summary = model.IndexChangelogSummary(
+            product_id = summary_res["product_id"],
+            product_title = summary_res["product_title"],
+            timestamp = datetime.datetime.fromtimestamp(summary_res["timestamp"], datetime.timezone.utc),
+            categories = summary_res["categories"].split(",")
+        )
+        changelog_summaries.append(summary)
 
     page_info["prev_link"] = flask.url_for(
         "changelog", page=page_info["page"] - 1)
@@ -38,5 +40,5 @@ def changelog():
         "changelog", page=page_info["page"] + 1)
 
     return flask.render_template(
-        "changelog.html", changes=changes, page_info=page_info)
+        "changelog.html", changes=changelog_summaries, page_info=page_info)
 

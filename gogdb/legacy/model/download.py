@@ -2,11 +2,10 @@ import sqlalchemy as sql
 from sqlalchemy import orm
 from sqlalchemy import Column
 
-from gogdb import db
-from gogapi import names
+from legacy.database import Base
 
 
-class DlFile(db.Model):
+class DlFile(Base):
     __tablename__ = "files"
     __table_args__ = (sql.UniqueConstraint("download_id", "slug"),)
 
@@ -23,7 +22,7 @@ class DlFile(db.Model):
             self.download_id, self.slug, self.size)
 
 
-class Download(db.Model):
+class Download(Base):
     __tablename__ = "downloads"
     __table_args__ = (sql.UniqueConstraint("prod_id", "slug"),)
 
@@ -44,22 +43,6 @@ class Download(db.Model):
     files = orm.relationship(
         "DlFile", back_populates="download", lazy="joined",
         cascade="all, delete-orphan", order_by="DlFile.slug")
-
-    @property
-    def type_name(self):
-        return names.DL_TYPES.get(self.type, self.type)
-
-    @property
-    def os_name(self):
-        return names.SYSTEMS.get(self.os, self.os)
-
-    @property
-    def language_name(self):
-        return names.IETF_CODES.get(self.language, self.language)
-
-    @property
-    def bonus_type_name(self):
-        return names.BONUS_TYPES.get(self.bonus_type, self.bonus_type)
 
     @property
     def total_size(self):

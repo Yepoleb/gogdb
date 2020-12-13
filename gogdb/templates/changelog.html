@@ -16,22 +16,21 @@
 </div>
 
 <table class="shadow rowborder">
-  {% for record in changes %}
+  {% for summary in changes %}
   <tr>
     <td class="col-change-id">
-      <a href="{{ url_for('product_info', prod_id=record.prod_id) }}#changelog">
-        {{ record.prod_id }}
+      <a href="{{ prod_url(summary.product_id) }}#changelog">
+        {{ summary.product_id }}
       </a>
     </td>
     <td class="col-change-name">
-      {% if record.type_prim == "product" %}
-        Product changed - <b>{{ record.title | default("Unknown", true) }}</b>
-      {% elif record.type_prim == "download" %}
-        Downloads changed - <b>{{ record.title }}</b>
-      {% endif %}
+      <span class="changelog-productname">{{ summary.product_title | default("Unknown", true) }}</span>
+      {% for category in summary.categories %}
+      <span class="change-bubble change-bubble-{{ category }}">{{ category | capitalize }}</span>
+      {% endfor %}
     </td>
     <td class="col-change-date">
-      {{ record.timestamp.strftime("%Y-%m-%d") }}
+      {{ summary.timestamp | datetime_day }}
     </td>
   </tr>
   {% endfor %}

@@ -1,7 +1,6 @@
 import flask_assets
 
-from gogdb import app
-from gogdb.assets.rcssmin import RCSSMin
+from gogdb.application.rcssmin_webassets import RCSSMin
 
 
 css_all = flask_assets.Bundle(
@@ -22,10 +21,12 @@ js_prodinfo = flask_assets.Bundle(
     filters="rjsmin",
     output="js/product.%(version)s.js")
 
-assets_env = flask_assets.Environment(app)
-assets_env.register("css-all", css_all)
-assets_env.register("fonts-all", fonts_all)
-assets_env.register("js-prodinfo", js_prodinfo)
 
-assets_env.config["RCSSMIN_KEEP_BANG_COMMENTS"] = True
-assets_env.config["RJSMIN_KEEP_BANG_COMMENTS"] = True
+def add_assets(app):
+    assets_env = flask_assets.Environment(app)
+    assets_env.register("css-all", css_all)
+    assets_env.register("fonts-all", fonts_all)
+    assets_env.register("js-prodinfo", js_prodinfo)
+
+    assets_env.config["RCSSMIN_KEEP_BANG_COMMENTS"] = True
+    assets_env.config["RJSMIN_KEEP_BANG_COMMENTS"] = True

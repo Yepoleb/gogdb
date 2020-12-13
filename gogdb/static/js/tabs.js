@@ -38,7 +38,21 @@ function switchTab(url) {
     }
 }
 
+function tabLinkClicked(event) {
+    event.preventDefault();
+    window.location.replace(event.target.href);
+}
+
+function registerEvents() {
+    var tabLinks = document.getElementsByClassName("tabs-item");
+    for (var i = 0; i < tabLinks.length; i++) {
+        var tabLink = tabLinks[i];
+        tabLink.addEventListener("click", tabLinkClicked, false);
+    }
+}
+
 function initTabs() {
+    registerEvents();
     switchTab(location.href);
 }
 

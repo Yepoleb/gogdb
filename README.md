@@ -2,6 +2,8 @@
 
 Website that collects data on GOG games.
 
+**Documentation is outdated while the repository is migrated to a new version!**
+
 # Deployment Instructions
 
 Commands are prefixed with `$` or `#` depending if they can be run as a regular

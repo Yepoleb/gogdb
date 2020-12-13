@@ -2,14 +2,11 @@ import sqlalchemy as sql
 from sqlalchemy import orm
 from sqlalchemy import Column
 
-from arrow import arrow
-
-from gogdb import db
-from gogapi import names
-from gogdb.model.common import get_systems_list, set_systems_list
+from legacy.database import Base
+from legacy.model.common import get_systems_list, set_systems_list
 
 
-class Product(db.Model):
+class Product(Base):
     __tablename__ = "products"
 
     id = Column(sql.Integer, primary_key=True, autoincrement=False)
@@ -94,10 +91,6 @@ class Product(db.Model):
         "ChangeRecord", back_populates="product", cascade="all, delete-orphan",
         order_by="desc(ChangeRecord.id)")
 
-    @property
-    def product_type_name(self):
-        return names.PROD_TYPES.get(self.product_type, self.product_type)
-
     cs_systems = property(
         lambda self: get_systems_list(self, "cs_"),
         lambda self, v: set_systems_list(self, "cs_", v)
@@ -160,7 +153,7 @@ class Product(db.Model):
         return "<Product(id={}, slug='{}')>".format(self.id, self.slug)
 
 
-class Language(db.Model):
+class Language(Base):
     __tablename__ = "languages"
 
     prod_id = Column(
@@ -169,17 +162,12 @@ class Language(db.Model):
 
     product = orm.relationship("Product", back_populates="languages")
 
-    @property
-    def name(self):
-        # Fall back to isocode if a name isn't defined
-        return names.IETF_CODES.get(self.isocode, self.isocode)
-
     def __repr__(self):
         return "<Language(prod_id={}, isocode='{}')>".format(
             self.prod_id, self.isocode)
 
 
-class Feature(db.Model):
+class Feature(Base):
     __tablename__ = "features"
 
     prod_id = Column(
@@ -188,16 +176,12 @@ class Feature(db.Model):
 
     product = orm.relationship("Product", back_populates="features")
 
-    @property
-    def name(self):
-        return names.FEATURES.get(self.slug, self.slug)
-
     def __repr__(self):
         return "<Feature(prod_id={}, slug='{}')>".format(
             self.prod_id, self.slug)
 
 
-class Genre(db.Model):
+class Genre(Base):
     __tablename__ = "genres"
 
     prod_id = Column(
@@ -206,16 +190,12 @@ class Genre(db.Model):
 
     product = orm.relationship("Product", back_populates="genres")
 
-    @property
-    def name(self):
-        return names.GENRES.get(self.slug, self.slug)
-
     def __repr__(self):
         return "<Genre(prod_id={}, slug='{}')>".format(
             self.prod_id, self.slug)
 
 
-class Screenshot(db.Model):
+class Screenshot(Base):
     __tablename__ = "screenshots"
 
     prod_id = Column(
@@ -229,7 +209,7 @@ class Screenshot(db.Model):
             self.prod_id, self.image_id)
 
 
-class Video(db.Model):
+class Video(Base):
     __tablename__ = "videos"
 
     prod_id = Column(
@@ -243,7 +223,7 @@ class Video(db.Model):
             self.prod_id, self.video_id)
 
 
-class Company(db.Model):
+class Company(Base):
     __tablename__ = "companies"
 
     slug = Column(sql.String(120), primary_key=True)

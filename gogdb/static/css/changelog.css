@@ -49,3 +49,35 @@
 .changelog-table tr:first-child {
   border-top: none;
 }
+
+.change-bubble-product {
+  border-color: #78387b;
+  background-color: #78387b4a;
+}
+
+.change-bubble-download {
+  border-color: #eca125;
+  background-color: #eca1254a;
+}
+
+.change-bubble-build {
+  border-color: #80ab00;
+  background-color: #80ab004a;
+}
+
+.change-bubble-property {
+  border-color: #094a77;
+  background-color: #094a774a;
+}
+
+.change-bubble {
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 100px;
+  padding: 4px 7px;
+}
+
+.changelog-productname {
+  font-weight: bold;
+  margin-right: 5px;
+}

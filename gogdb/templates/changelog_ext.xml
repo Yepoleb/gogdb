@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-{% from "changelog_format.html" import format_record %}
+{% from "mod_changelog_format.html" import format_record %}
 
 <feed xmlns="http://www.w3.org/2005/Atom">
 
@@ -16,10 +16,10 @@
 
   {% for recordgroup in changes %}
   <entry>
-    <id>tag:www.gogdb.org,2018-04-16:{{ recordgroup[0].prod_id ~ ((recordgroup[0].timestamp.timestamp() * 1000000) | int) }}</id>
-    <title>{{ recordgroup[0].product.title | default("Unknown", true) }} - {{ recordgroup[0].prod_id }}</title>
+    <id>tag:www.gogdb.org,2018-04-16:{{ recordgroup[0].id ~ ((recordgroup[0].timestamp.timestamp() * 1000000) | int) }}</id>
+    <title>{{ recordgroup[0].title | default("Unknown", true) }} - {{ recordgroup[0].id }}</title>
     <updated>{{ recordgroup[0].timestamp.replace(microsecond=0).isoformat() }}Z</updated>
-    <link rel="alternate" href="{{ url_for('product_info', prod_id=recordgroup[0].prod_id) }}#changelog"/>
+    <link rel="alternate" href="{{ prod_url(recordgroup[0].id) }}#changelog"/>
     <content type="html">
       {% filter forceescape %}
       <table>
@@ -35,10 +35,10 @@
           {% endif %}
         </td>
         <td>
-          {{ format_record(record) }}
+          {{ format_record(record.record) }}
         </td>
         <td>
-          {{ record.timestamp.strftime("%Y-%m-%d") }}
+          {{ record.timestamp | datetime_day }}
         </td>
       </tr>
       {% endfor %}

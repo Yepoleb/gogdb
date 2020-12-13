@@ -6,10 +6,9 @@ requires = [
     "flask",
     "jinja2",
 
-    # database
+    # legacy
     "SQLAlchemy",
     "psycopg2",
-    "Flask-SQLAlchemy",
 
     # assets
     "webassets",
@@ -18,7 +17,8 @@ requires = [
     "Flask-Assets",
 
     # util
-    "arrow",
+    "aiohttp",
+    "python-dateutil",
     "requests"
 ]
 
@@ -36,7 +36,7 @@ setup(
     author_email="gabriel@yepoleb.at",
     url="https://www.gogdb.org",
     keywords="web flask",
-    packages=find_packages(),
+    packages=["gogdb"],
     include_package_data=True,
     zip_safe=False,
     install_requires=requires,

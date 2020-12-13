@@ -1,6 +1,5 @@
 # Config files
 config-development.py
-config-production.py
 
 # Root level scripts
 /*.sh
@@ -10,10 +9,6 @@ __pycache__/
 *.py[cod]
 *.egg
 *.egg-info
-
-# Environment
-env/
-venv/
 
 # Generated assets
 gogdb/generated/

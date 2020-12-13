@@ -111,6 +111,10 @@ table {
   width: 100%;
 }
 
+pre {
+  overflow-x: auto;
+}
+
 .shadow {
   box-shadow: 0 1px 5px rgba(0,0,0,.15);
 }

@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% set title %}More Information{% endset %}
+
+{% block content %}
+<h1>More Information</h1>
+
+<div class="textbox shadow">
+  <h2 id="gogdbapi">Is there a GOG DB API?</h2>
+  <p>
+    All data stored is exposed at <a href="/data">/data</a>
+    and can be requested using plain HTTP.
+    GOG DB uses plain JSON files, sometimes gziped, to store data and an
+    SQLite index for faster load times and they're all in that directory. If
+    you want to operate on the full dataset, either use the index file or
+    download a dump from <a href="/backups_v3">/backups_v3</a>.
+    100 small requests already generate a
+    lot more server load than a single big one, so please use the backup
+    downloads whenever possible. There is no documentation, read the source
+    code to figure out what something means or ask me directly.
+  </p>
+
+  <h2 id="scraping">Can I scrape the website for data?</h2>
+  <p>
+    Please don't! All the collected data is available in machine readable
+    JSON format, see "Is there a GOG DB API?".
+    There is no hidden data that is only accessible
+    through the website, so you would only be wasting server resources.
+  </p>
+
+  <h2>Which APIs does GOG DB monitor?</h2>
+  <p>
+    GOG DB uses the following GOG APIs calls to collect its data:
+  </p>
+<pre>https://www.gog.com/games/ajax/filtered?mediaType=game&amp;page={page_num}&amp;sort=popularity
+https://api.gog.com/products/prices?ids={ids_str}&amp;countryCode={country_code}
+https://api.gog.com/products/{prod_id}?locale=en_US&amp;expand=downloads,screenshots,videos,changelog
+https://api.gog.com/v2/games/{prod_id}?locale=en-US
+https://content-system.gog.com/products/{prod_id}/os/{system}/builds?generation=2
+https://cdn.gog.com/content-system/v1/manifests/{prod_id}/{system}/{legacy_build_id}/repository.json
+https://cdn.gog.com/content-system/v2/meta/{meta_id}</pre>
+
+  <h2>Can you help me with GOG related programming?</h2>
+  <p>
+    Probably, feel free to contact me and tell me what you're trying to achieve
+    and I will try my best to help.
+  </p>
+
+  <h2>Contact</h2>
+  <p>
+    If you found bugs or want to request a feature, you can contact me on
+    <a href="https://discordapp.com/">Discord</a> (Yepoleb#6459),
+    <a href="https://steamcommunity.com/id/yepoleb">Steam</a>
+    or post them in the
+    <a href="https://www.gog.com/forum/general/gog_database_a_website_that_collects_data_on_gog_games">GOG community topic</a>.
+  </p>
+
+  <h2>Source code</h2>
+  <p>
+    Source code is hosted on
+    <a href="https://github.com/Yepoleb/gogdb">Github</a>.
+  </p>
+</div>
+{% endblock content %}

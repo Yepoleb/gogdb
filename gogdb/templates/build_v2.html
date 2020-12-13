@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% set title %}{{ build.product.title }} - Build {{ build.build_id }}{% endset %}
+{% set title %}{{ product.title }} - Build {{ build.id }}{% endset %}
 
 {% block content %}
 <h1>{{ title }}</h1>
@@ -9,18 +9,32 @@
 <div class="shadow">
   <table class="cellborder">
     <tr>
-      <td>Install Directory</td>
-      <td>{{ repo.install_directory }}/</td>
+      <td>Build ID</td>
+      <td>{{ build.id }}</td>
     </tr>
     <tr>
-      <td>Root Product ID</td>
-      <td>
-        {{ repo.base_prod_id | prod_url }}
-      </td>
+      <td>Install directory</td>
+      <td class="mono">{{ repo.install_directory }}/</td>
+    </tr>
+    <tr>
+      <td>Root product ID</td>
+      <td>{{ repo.base_product_id | prod_anchor }}</td>
+    </tr>
+    <tr>
+      <td>Build pubished</td>
+      <td>{{ build.date_published | datetime_minute }}</td>
     </tr>
     <tr>
       <td>OS</td>
-      <td>{{ repo.os | os_icon }}</td>
+      <td>{{ repo.platform | os_icon }}</td>
+    </tr>
+    <tr>
+      <td>Branch</td>
+      <td>{{ build.branch | default("Not set", true) }}</td>
+    </tr>
+    <tr>
+      <td>Version</td>
+      <td>{{ build.version }}</td>
     </tr>
     <tr>
       <td>URL</td>
@@ -42,13 +56,17 @@
       <td class="mono">{{ repo.client_id }}</td>
     </tr>
     <tr>
-      <td>Client Secret</td>
+      <td>Client secret</td>
       <td class="mono">{{ repo.client_secret }}</td>
     </tr>
     {% endif %}
     <tr>
       <td>Dependencies</td>
       <td>{{ repo.dependencies | join(", ") | default("None", true) }}</td>
+    </tr>
+    <tr>
+      <td>Script interpreter</td>
+      <td>{{ repo.script_interpreter }}</td>
     </tr>
     <tr>
       <td>Generation</td>
@@ -75,61 +93,27 @@
 </div>
 {% endif %}
 
-{% if repo.redists %}
-<h2>Redistributables</h2>
-<div class="shadow">
-  <table class="cellborder">
-    <tr>
-      <th>Name</th>
-      <th>Executable</th>
-      <th>Arguments</th>
-    </tr>
-    {% for redist in repo.redists %}
-    <tr>
-      <td>{{ redist.redist }}</td>
-      <td>{{ redist.executable }}</td>
-      <td>{{ redist.argument }}</td>
-    </tr>
-    {% endfor %}
-  </table>
-</div>
-{% endif %}
-
 <h2>Products</h2>
 <div class="shadow">
   <table class="cellborder">
     <tr>
-      <th>Product ID</th>
       <th>Name</th>
+      <th>Product ID</th>
+      <th>Script</th>
+      <th>Temp executable</th>
+      <th>Temp arguments</th>
     </tr>
     {% for prod in repo.products %}
     <tr>
-      <td>{{ prod.prod_id | prod_url }}</td>
-      <td class="col-prod-name">{{ prod.name }}</td>
-    </tr>
-    {% endfor %}
-  </table>
-</div>
-
-{% if repo.scripted_prods %}
-<h2>Scripts</h2>
-<div class="shadow">
-  <table class="cellborder">
-    <tr>
-      <th>Product ID</th>
-      <th>Script</th>
-      <th>Temp Executable</th>
-    </tr>
-    {% for prod in repo.scripted_prods %}
-    <tr>
-      <td>{{ prod.prod_id | prod_url }}</td>
+      <td>{{ prod.name }}</td>
+      <td>{{ prod.product_id | prod_anchor }}</td>
       <td>{{ prod.script | default("", true) }}</td>
-      <td>{{ prod.temp_executable }}</td>
+      <td>{{ prod.temp_executable | default("", true) }}</td>
+      <td>{{ prod.temp_arguments | default("", true) }}</td>
     </tr>
     {% endfor %}
   </table>
 </div>
-{% endif %}
 
 <h2>Depots</h2>
 <div class="shadow">
@@ -139,21 +123,33 @@
       <th>Product ID</th>
       <th>Size</th>
       <th>Bitness</th>
-      <th>GOG Depot</th>
-      <th>Is Offline</th>
+      <th>Attribute</th>
       <th>Manifest ID</th>
     </tr>
     {% for depot in repo.depots %}
     <tr>
       <td>{{ depot.languages | join(", ") }}</td>
-      <td>{{ depot.prod_id | prod_url }}</td>
-      <td>{{ depot.size | filesizeformat }}</td>
-      <td>{{ depot.bitness | join(", ") | default("Any", true) }}</td>
-      <td>{{ depot.is_gog_depot | yes_no }}</td>
-      <td>{{ depot.is_offline | yes_no }}</td>
-      <td class="mono"><a href="{{ url_for('manifest', manifest_id=depot.manifest.manifest_id) }}">{{ depot.manifest.manifest_id }}</a></td>
+      <td>{{ depot.product_id | prod_anchor }}</td>
+      <td class="nobreak">{{ depot.size | filesizeformat }}</td>
+      <td>{{ depot.bitness | default("Any", true) }}</td>
+      {% if depot.is_gog_depot %}
+      <td>GOG</td>
+      {% else %}
+      <td></td>
+      {% endif %}
+      <td class="mono"><a href="{{ url_for('manifest', manifest_id=depot.manifest_id) }}">{{ depot.manifest_id }}</a></td>
     </tr>
     {% endfor %}
+    {% if repo.offline_depot %}
+    <tr>
+      <td>{{ repo.offline_depot.languages | join(", ") }}</td>
+      <td>{{ repo.offline_depot.product_id | prod_anchor }}</td>
+      <td>{{ repo.offline_depot.size | filesizeformat }}</td>
+      <td>{{ repo.offline_depot.bitness | default("Any", true) }}</td>
+      <td>Offline</td>
+      <td class="mono"><a href="{{ url_for('manifest', manifest_id=repo.offline_depot.manifest_id) }}">{{ repo.offline_depot.manifest_id }}</a></td>
+    </tr>
+    {% endif %}
   </table>
 </div>
 

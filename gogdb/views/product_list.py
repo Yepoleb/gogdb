@@ -2,62 +2,59 @@ import string
 import datetime
 
 import flask
-import sqlalchemy
-from sqlalchemy import orm
 
-from gogdb import app, db, model
+import gogdb.core.model as model
 from gogdb.views.pagination import calc_pageinfo
+from gogdb.core.normalization import normalize_search, decompress_systems
+from gogdb.application.datasources import get_indexdb
 
 
 PRODUCTS_PER_PAGE = 20
 
-ALLOWED_CHARS = set(string.ascii_lowercase + string.digits + ' ')
 
-
-
-def normalize_search(title):
-    return "".join(filter(lambda c: c in ALLOWED_CHARS, title.lower()))
-
-
-@app.route("/products")
 def product_list():
     page = int(flask.request.args.get("page", "1"))
     search = flask.request.args.get("search", "").strip()
-    search_norm = normalize_search(search)
-    search_words = search_norm.split()
+    # Filter illegal characters and resulting empty strings
+    search_words = list(filter(None, (normalize_search(word) for word in search.split())))
 
-    if not search_words:
-        # Predict page count
-        num_products = db.session.query(
-            sqlalchemy.func.count(model.Product.id)
-            ).one()[0]
-        page_info = calc_pageinfo(page, num_products, PRODUCTS_PER_PAGE)
+    cur = get_indexdb().cursor()
+    if len(search) == 10 and search.isdecimal():
+        return flask.redirect(flask.url_for("product_info", prod_id=search), 303)
 
-        products = db.session.query(model.Product) \
-            .order_by(
-                (model.Product.release_date >
-                sqlalchemy.sql.functions.now()).asc()) \
-            .order_by(
-                sqlalchemy.sql.functions.coalesce(
-                    model.Product.release_date,
-                    datetime.date(1, 1, 1)).desc()) \
-            .offset(page_info["from"]).limit(PRODUCTS_PER_PAGE)
-
-    else:
-        query = db.session.query(model.Product) \
-            .order_by(
-                sqlalchemy.sql.functions.char_length(model.Product.title))
-
+    elif search_words:
+        query_filters = []
         # Add a filter for each search word
         for word in search_words:
-            word_cond = model.Product.title_norm.like("%{}%".format(word))
-            if word.isdecimal():
-                word_cond |= (model.Product.id == int(word))
-            query = query.filter(word_cond)
+            # Should not be injectable because words are filtered
+            word_cond = "search_title LIKE '%{}%'".format(word)
+            query_filters.append(word_cond)
+        filter_string = "WHERE " + " AND ".join(query_filters)
+        order_string = "sale_rank DESC, LENGTH(title) ASC"
+    else:
+        filter_string = ""
+        order_string = "sale_rank DESC"
 
-        products = query.all()
-        page_info = calc_pageinfo(page, len(products), PRODUCTS_PER_PAGE)
-        products = products[page_info["from"]:page_info["to"]]
+    cur.execute("SELECT COUNT(*) FROM products {};".format(filter_string))
+    num_products = cur.fetchone()[0]
+    page_info = calc_pageinfo(page, num_products, PRODUCTS_PER_PAGE)
+
+    cur.execute(
+        "SELECT * FROM products {} ORDER BY {} LIMIT ? OFFSET ?;".format(filter_string, order_string),
+        (PRODUCTS_PER_PAGE, page_info["from"])
+    )
+    products = []
+    for prod_res in cur:
+        idx_prod = model.IndexProduct(
+            id = prod_res["product_id"],
+            title = prod_res["title"],
+            image_logo = prod_res["image_logo"],
+            type = prod_res["product_type"],
+            comp_systems = decompress_systems(prod_res["comp_systems"]),
+            sale_rank = prod_res["sale_rank"],
+            search_title = prod_res["search_title"]
+        )
+        products.append(idx_prod)
 
     if search:
         page_info["prev_link"] = flask.url_for(

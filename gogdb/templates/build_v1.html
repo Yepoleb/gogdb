@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% set title %}{{ build.product.title }} - Build {{ build.build_id }}{% endset %}
+{% set title %}{{ product.title }} - Build {{ build.id }}{% endset %}
 
 {% block content %}
 <h1>{{ title }}</h1>
@@ -13,17 +13,23 @@
       <td>{{ repo.name }}</td>
     </tr>
     <tr>
-      <td>Root Product ID</td>
-      <td>
-        {{ repo.base_prod_id | prod_url }}
-      </td>
+      <td>Build ID</td>
+      <td>{{ build.id }}</td>
     </tr>
     <tr>
-      <td>Install Directory</td>
-      <td>{{ repo.install_directory }}/</td>
+      <td>Root product ID</td>
+      <td>{{ repo.root_game_id | prod_anchor }}</td>
     </tr>
     <tr>
-      <td>Timestamp</td>
+      <td>Install directory</td>
+      <td class="mono">{{ repo.install_directory }}/</td>
+    </tr>
+    <tr>
+      <td>Build pubished</td>
+      <td>{{ build.date_published | datetime_minute }}</td>
+    </tr>
+    <tr>
+      <td>Repository timestamp</td>
       <td>{{ repo.timestamp }}</td>
     </tr>
     <tr>
@@ -31,15 +37,23 @@
       <td>{{ build.os | os_icon }}</td>
     </tr>
     <tr>
+      <td>Branch</td>
+      <td>{{ build.branch | default("Not set", true) }}</td>
+    </tr>
+    <tr>
+      <td>Version</td>
+      <td>{{ build.version }}</td>
+    </tr>
+    <tr>
       <td>URL</td>
       <td>
         {% if build.os == "windows" %}
-        <a href="https://cdn.gog.com/content-system/v1/manifests/{{ build.prod_id }}/windows/{{ build.legacy_build_id }}/repository.json">
-          https://cdn.gog.com/content-system/v1/manifests/{{ build.prod_id }}/windows/{{ build.legacy_build_id }}/repository.json
+        <a href="https://cdn.gog.com/content-system/v1/manifests/{{ product.id }}/windows/{{ build.legacy_build_id }}/repository.json">
+          https://cdn.gog.com/content-system/v1/manifests/{{ product.id }}/windows/{{ build.legacy_build_id }}/repository.json
         </a>
-        {% elif build.os == "mac" %}
-        <a href="https://cdn.gog.com/content-system/v1/manifests/{{ build.prod_id }}/osx/{{ build.legacy_build_id }}/repository.json">
-          https://cdn.gog.com/content-system/v1/manifests/{{ build.prod_id }}/osx/{{ build.legacy_build_id }}/repository.json
+        {% elif build.os == "osx" %}
+        <a href="https://cdn.gog.com/content-system/v1/manifests/{{ product.id }}/osx/{{ build.legacy_build_id }}/repository.json">
+          https://cdn.gog.com/content-system/v1/manifests/{{ product.id }}/osx/{{ build.legacy_build_id }}/repository.json
         </a>
         {% endif %}
       </td>
@@ -59,12 +73,14 @@
       <th>Name</th>
       <th>Executable</th>
       <th>Arguments</th>
+      <th>Target directory</th>
     </tr>
     {% for redist in repo.redists %}
     <tr>
       <td>{{ redist.redist }}</td>
       <td>{{ redist.executable | default("", True) }}</td>
       <td>{{ redist.argument | default("", True) }}</td>
+      <td>{{ redist.target_dir | default("", True) }}</td>
     </tr>
     {% endfor %}
   </table>
@@ -83,10 +99,10 @@
     </tr>
     {% for cmd in repo.support_commands %}
     <tr>
-      <td>{{ cmd.lang }}</td>
+      <td>{{ cmd.language }}</td>
       <td>{{ cmd.executable }}</td>
-      <td>{{ cmd.prod_id | prod_url }}</td>
-      <td>{{ cmd.os | os_icon }}</td>
+      <td>{{ cmd.product_id | prod_anchor }}</td>
+      <td>{{ cmd.system | os_icon }}</td>
     </tr>
     {% endfor %}
   </table>
@@ -100,12 +116,14 @@
       <th>Product ID</th>
       <th>Name</th>
       <th>Dependency</th>
+      <th>Standalone</th>
     </tr>
     {% for prod in repo.products %}
     <tr>
-      <td>{{ prod.prod_id | prod_url }}</td>
+      <td>{{ prod.product_id | prod_anchor }}</td>
       <td>{{ prod.name }}</td>
       <td>{{ prod.dependency | default("", true) }}</td>
+      <td>{{ prod.standalone | yes_no }}</td>
     </tr>
     {% endfor %}
   </table>
@@ -124,14 +142,14 @@
     {% for depot in repo.depots %}
     <tr>
       <td>{{ depot.languages | join(", ") | default("N/A", True) }}</td>
-      <td>{{ depot.prod_ids | join(", ") }}</td>
+      <td>{{ depot.game_ids | join(", ") }}</td>
       {% if depot.size is not none %}
       <td>{{ depot.size | filesizeformat }}</td>
       {% else %}
       <td>N/A</td>
       {% endif %}
-      <td>{{ depot.systems | os_icons }}</td>
-      <td class="mono"><a href="{{ url_for('manifest', manifest_id=depot.manifest.manifest_id) }}">{{ depot.manifest.manifest_id }}</a></td>
+      <td>{{ depot.system | os_icon }}</td>
+      <td class="mono"><a href="{{ url_for('manifest', manifest_id=depot.manifest_id) }}">{{ depot.manifest_id }}</a></td>
     </tr>
     {% endfor %}
   </table>

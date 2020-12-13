@@ -1,0 +1,139 @@
+#!/usr/bin/python3
+import json
+import sqlite3
+import dataclasses
+import os
+import collections
+
+import flask
+
+from gogdb.core.normalization import normalize_search, compress_systems
+import gogdb.core.storage as storage
+import gogdb.core.model as model
+
+
+
+config = flask.Config()
+config.from_envvar("GOGDB_CONFIG")
+db = storage.Storage(config["STORAGE_PATH"])
+ids = db.ids.load()
+
+changelog_index_path = db.path_indexdb()
+changelog_index_path.parent.mkdir(exist_ok=True)
+need_create = not changelog_index_path.exists()
+conn = sqlite3.connect(changelog_index_path, isolation_level=None)
+cur = conn.cursor()
+if need_create:
+    cur.execute("""CREATE TABLE products (
+        product_id INTEGER,
+        title TEXT,
+        image_logo TEXT,
+        product_type TEXT,
+        comp_systems TEXT,
+        sale_rank INTEGER,
+        search_title TEXT
+    );""")
+    cur.execute("""CREATE TABLE changelog (
+        product_id INTEGER,
+        product_title TEXT,
+        timestamp REAL,
+        action TEXT,
+        category TEXT,
+        dl_type TEXT,
+        bonus_type TEXT,
+        property_name TEXT,
+        serialized_record TEXT
+    );""")
+    cur.execute("""CREATE TABLE changelog_summary (
+        product_id INTEGER,
+        product_title TEXT,
+        timestamp REAL,
+        categories TEXT
+    );""")
+    cur.execute("CREATE INDEX idx_products_sale_rank ON products (sale_rank)")
+    cur.execute("CREATE INDEX idx_changelog_timestamp ON changelog (timestamp)")
+    cur.execute("CREATE INDEX idx_summary_timestamp ON changelog_summary (timestamp)")
+cur.execute("BEGIN TRANSACTION;")
+cur.execute("DELETE FROM products;")
+cur.execute("DELETE FROM changelog;")
+cur.execute("DELETE FROM changelog_summary;")
+
+
+for prod_id in ids:
+    print("Adding", prod_id)
+    prod = db.product.load(prod_id)
+    if prod is None:
+        print("Skipped", prod_id)
+        continue
+    cur.execute(
+        "INSERT INTO products VALUES (?, ?, ?, ?, ?, ?, ?)",
+        (
+            prod.id,
+            prod.title,
+            prod.image_logo,
+            prod.type,
+            compress_systems(prod.comp_systems),
+            prod.sale_rank,
+            normalize_search(prod.title)
+        )
+    )
+
+    changelog = db.changelog.load(prod_id)
+    if changelog is None:
+        print("No changelog", prod_id)
+        continue
+
+    summaries = collections.defaultdict(set)
+    for changerec in changelog:
+        idx_change = model.IndexChange(
+            id = prod.id,
+            title = prod.title,
+            timestamp = changerec.timestamp,
+            action = changerec.action,
+            category = changerec.category,
+            record = changerec
+        )
+        if changerec.category == "download":
+            idx_change.dl_type = changerec.download_record.dl_type
+            if changerec.download_record.dl_new_bonus is not None:
+                idx_change.bonus_type = changerec.download_record.dl_new_bonus.bonus_type
+            if changerec.download_record.dl_old_bonus is not None:
+                # Just set it potentially twice because it has to be the same value anyway
+                idx_change.bonus_type = changerec.download_record.dl_old_bonus.bonus_type
+        elif changerec.category == "property":
+            idx_change.property_name = changerec.property_record.property_name
+
+        cur.execute(
+            "INSERT INTO changelog VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (
+                idx_change.id,
+                idx_change.title,
+                idx_change.timestamp.timestamp(),
+                idx_change.action,
+                idx_change.category,
+                idx_change.dl_type,
+                idx_change.bonus_type,
+                idx_change.property_name,
+                json.dumps(idx_change.record, sort_keys=True, ensure_ascii=False, default=storage.json_encoder)
+            )
+        )
+
+        summaries[changerec.timestamp].add(changerec.category)
+
+    for timestamp, category_set in summaries.items():
+        category_str = ",".join(sorted(category_set))
+        cur.execute(
+            "INSERT INTO changelog_summary VALUES (?, ?, ?, ?)",
+            (
+                prod.id,
+                prod.title,
+                timestamp.timestamp(),
+                category_str
+            )
+        )
+
+
+cur.execute("END TRANSACTION;")
+cur.close()
+conn.commit()
+conn.close()

@@ -2,12 +2,10 @@ import sqlalchemy as sql
 from sqlalchemy import orm
 from sqlalchemy import Column
 
-from arrow import arrow
-
-from gogdb import db
+from legacy.database import Base
 
 
-class ChangeRecord(db.Model):
+class ChangeRecord(Base):
     __tablename__ = "changerecords"
 
     id = Column(sql.Integer, primary_key=True, autoincrement=True)

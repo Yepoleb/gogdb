@@ -1,7 +1,6 @@
 import sqlalchemy
-import flask_sqlalchemy
-
-from gogdb import app
+import sqlalchemy.orm
+import sqlalchemy.ext.declarative
 
 
 NAMING_CONVENTION = {
@@ -13,4 +12,5 @@ NAMING_CONVENTION = {
 }
 
 metadata = sqlalchemy.MetaData(naming_convention=NAMING_CONVENTION)
-db = flask_sqlalchemy.SQLAlchemy(app, metadata=metadata)
+Base = sqlalchemy.ext.declarative.declarative_base(metadata=metadata)
+

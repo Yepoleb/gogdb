@@ -1,21 +1,25 @@
 import flask
 
-from gogdb import app, db, model
+from gogdb.application.datasources import get_storagedb
+import gogdb.core.buildloader as buildloader
 
 
-@app.route("/product/<int:prod_id>/build/<int:build_id>")
 def build(prod_id, build_id):
-    db_build = db.session.query(model.Build) \
-        .filter(model.Build.prod_id == prod_id) \
-        .filter(model.Build.build_id == build_id) \
-        .one_or_none()
-
-    if db_build is None:
+    storagedb = get_storagedb()
+    product = storagedb.product.load(prod_id)
+    if product is None:
+        flask.abort(404)
+    repository_raw = storagedb.repository.load(prod_id, build_id)
+    if repository_raw is None:
         flask.abort(404)
 
-    if db_build.generation == 1:
+    build_data = [b for b in product.builds if b.id == build_id][0]
+
+    if build_data.generation == 1:
+        repository = buildloader.load_repository_v1(repository_raw)
         return flask.render_template(
-            "build_v1.html", build=db_build, repo=db_build.repo_v1)
+            "build_v1.html", product=product, build=build_data, repo=repository)
     else:
+        repository = buildloader.load_repository_v2(repository_raw)
         return flask.render_template(
-            "build_v2.html", build=db_build, repo=db_build.repo_v2)
+            "build_v2.html", product=product, build=build_data, repo=repository)

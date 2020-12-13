@@ -2,8 +2,8 @@ import sqlalchemy as sql
 from sqlalchemy import orm
 from sqlalchemy import Column
 
-from gogdb import db
-from gogdb.model.common import get_systems_list, set_systems_list
+from legacy.database import Base
+from legacy.model.common import get_systems_list, set_systems_list
 
 
 
@@ -24,7 +24,7 @@ def set_fileflags(self, value):
             setattr(self, "f_" + flagname, False)
 
 
-class Build(db.Model):
+class Build(Base):
     __tablename__ = "build"
 
     id = Column(sql.Integer, primary_key=True, autoincrement=True)
@@ -84,7 +84,7 @@ class Build(db.Model):
             return "<Build(id={!r}, prod_id={!r}, meta_id={!r})>" \
                 .format(self.id, self.prod_id, self.meta_id)
 
-class BuildTag(db.Model):
+class BuildTag(Base):
     __tablename__ = "buildtag"
 
     build_id = Column(
@@ -94,7 +94,7 @@ class BuildTag(db.Model):
 
 ### V1
 
-class RepositoryV1(db.Model):
+class RepositoryV1(Base):
     __tablename__ = "repository_v1"
 
     id = Column(sql.Integer, primary_key=True, autoincrement=True)
@@ -113,7 +113,7 @@ class RepositoryV1(db.Model):
         "RepositoryProdV1", cascade="all, delete-orphan")
     build = orm.relationship("Build", back_populates="repo_v1")
 
-class RedistV1(db.Model):
+class RedistV1(Base):
     __tablename__ = "redist_v1"
 
     id = Column(sql.Integer, primary_key=True, autoincrement=True)
@@ -124,7 +124,7 @@ class RedistV1(db.Model):
     executable = Column(sql.String(1024), nullable=True)
     argument = Column(sql.String(120), nullable=True)
 
-class SupportCmdV1(db.Model):
+class SupportCmdV1(Base):
     __tablename__ = "supportcmd_v1"
 
     id = Column(sql.Integer, primary_key=True, autoincrement=True)
@@ -136,7 +136,7 @@ class SupportCmdV1(db.Model):
     os = Column(sql.String(20), nullable=False)
     lang = Column(sql.String(20), primary_key=True)
 
-class DepotV1(db.Model):
+class DepotV1(Base):
     __tablename__ = "depot_v1"
 
     id = Column(sql.Integer, primary_key=True, autoincrement=True)
@@ -171,14 +171,14 @@ class DepotV1(db.Model):
     def prod_ids(self, value):
         self.prod_ids_rel = [DepotProdV1(prod_id=prod_id) for prod_id in value]
 
-class DepotLangV1(db.Model):
+class DepotLangV1(Base):
     __tablename__ = "depotlang_v1"
 
     depot_id = Column(
         sql.Integer, sql.ForeignKey("depot_v1.id"), primary_key=True)
     lang = Column(sql.String(20), primary_key=True)
 
-class DepotManifestV1(db.Model):
+class DepotManifestV1(Base):
     __tablename__ = "depotmanifest_v1"
 
     id = Column(sql.Integer, primary_key=True, autoincrement=True)
@@ -196,14 +196,14 @@ class DepotManifestV1(db.Model):
         "DepotLinkV1", order_by="DepotLinkV1.path",
         cascade="all, delete-orphan")
 
-class DepotProdV1(db.Model):
+class DepotProdV1(Base):
     __tablename__ = "depotprod_v1"
 
     depot_id = Column(
         sql.Integer, sql.ForeignKey("depot_v1.id"), primary_key=True)
     prod_id = Column(sql.Integer, primary_key=True)
 
-class DepotFileV1(db.Model):
+class DepotFileV1(Base):
     __tablename__ = "depotfile_v1"
 
     id = Column(sql.Integer, primary_key=True, autoincrement=True)
@@ -228,7 +228,7 @@ class DepotFileV1(db.Model):
         for fieldname in fields:
             yield (fieldname, getattr(self, fieldname))
 
-class DepotDirectoryV1(db.Model):
+class DepotDirectoryV1(Base):
     __tablename__ = "depotdir_v1"
 
     id = Column(sql.Integer, primary_key=True, autoincrement=True)
@@ -253,7 +253,7 @@ class DepotDirectoryV1(db.Model):
         for fieldname in ["manifest_id", "path", "f_support"]:
             yield (fieldname, getattr(self, fieldname))
 
-class DepotLinkV1(db.Model):
+class DepotLinkV1(Base):
     __tablename__ = "depotlink_v1"
 
     id = Column(sql.Integer, primary_key=True, autoincrement=True)
@@ -268,7 +268,7 @@ class DepotLinkV1(db.Model):
         for fieldname in ["manifest_id", "path", "target", "is_directory"]:
             yield (fieldname, getattr(self, fieldname))
 
-class RepositoryProdV1(db.Model):
+class RepositoryProdV1(Base):
     __tablename__ = "repositoryprod_v1"
 
     id = Column(sql.Integer, primary_key=True, autoincrement=True)
@@ -282,7 +282,7 @@ class RepositoryProdV1(db.Model):
 
 ### V2
 
-class RepositoryV2(db.Model):
+class RepositoryV2(Base):
     __tablename__ = "repository_v2"
 
     id = Column(sql.Integer, primary_key=True, autoincrement=True)
@@ -328,7 +328,7 @@ class RepositoryV2(db.Model):
             repoprod for repoprod in self.products
             if repoprod.script or repoprod.temp_executable]
 
-class CloudSaveV2(db.Model):
+class CloudSaveV2(Base):
     __tablename__ = "cloudsave_v2"
 
     id = Column(sql.Integer, primary_key=True, autoincrement=True)
@@ -338,7 +338,7 @@ class CloudSaveV2(db.Model):
     location = Column(sql.String(1024), nullable=False)
     name = Column(sql.String(1024), nullable=False)
 
-class DependencyV2(db.Model):
+class DependencyV2(Base):
     __tablename__ = "dependency_v2"
 
     repo_id = Column(
@@ -346,7 +346,7 @@ class DependencyV2(db.Model):
         primary_key=True)
     name = Column(sql.String(100), primary_key=True)
 
-class RepositoryProdV2(db.Model):
+class RepositoryProdV2(Base):
     __tablename__ = "repositoryprod_v2"
 
     id = Column(sql.Integer, primary_key=True, autoincrement=True)
@@ -358,7 +358,7 @@ class RepositoryProdV2(db.Model):
     script = Column(sql.String(100), nullable=True)
     temp_executable = Column(sql.String(1024), nullable=False)
 
-class RepositoryTagV2(db.Model):
+class RepositoryTagV2(Base):
     __tablename__ = "repositorytag_v2"
 
     repo_id = Column(
@@ -366,7 +366,7 @@ class RepositoryTagV2(db.Model):
         primary_key=True)
     name = Column(sql.String(100), primary_key=True)
 
-class DepotV2(db.Model):
+class DepotV2(Base):
     __tablename__ = "depot_v2"
 
     id = Column(sql.Integer, primary_key=True, autoincrement=True)
@@ -417,14 +417,14 @@ class DepotV2(db.Model):
         if "64" in values: self.bitness_64 = True
         if "!64" in values: self.bitness_64 = False
 
-class DepotLangV2(db.Model):
+class DepotLangV2(Base):
     __tablename__ = "depotlang_v2"
 
     depot_id = Column(
         sql.Integer, sql.ForeignKey("depot_v2.id"), primary_key=True)
     lang = Column(sql.String(20), primary_key=True)
 
-class DepotManifestV2(db.Model):
+class DepotManifestV2(Base):
     __tablename__ = "depotmanifest_v2"
 
     id = Column(sql.Integer, primary_key=True, autoincrement=True)
@@ -438,7 +438,7 @@ class DepotManifestV2(db.Model):
     links = orm.relationship(
         "DepotLinkV2", cascade="all, delete-orphan")
 
-class DepotFileV2(db.Model):
+class DepotFileV2(Base):
     __tablename__ = "depotfile_v2"
 
     id = Column(sql.Integer, primary_key=True, autoincrement=True)
@@ -463,7 +463,7 @@ class DepotFileV2(db.Model):
         for fieldname in fields:
             yield (fieldname, getattr(self, fieldname))
 
-class DepotDirectoryV2(db.Model):
+class DepotDirectoryV2(Base):
     __tablename__ = "depotdir_v2"
 
     id = Column(sql.Integer, primary_key=True, autoincrement=True)
@@ -476,7 +476,7 @@ class DepotDirectoryV2(db.Model):
         for fieldname in ["manifest_id", "path"]:
             yield (fieldname, getattr(self, fieldname))
 
-class DepotLinkV2(db.Model):
+class DepotLinkV2(Base):
     __tablename__ = "depotlink_v2"
 
     id = Column(sql.Integer, primary_key=True, autoincrement=True)
