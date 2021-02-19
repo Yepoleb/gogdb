@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name GOG DB Integration
 // @description Add a GOG DB link to the GOG store
-// @version 0.5
+// @version 0.6
 // @author Yepoleb
 // @license CC0
 // @namespace https://gogdb.org
@@ -22,7 +22,7 @@ gogdb_element.setAttribute("target", "_blank");
 
 var separator_element = document.createTextNode(", ");
 
-var links_xpath = "//div[@class='details table table--without-border']/div[6]/div[2]";
-var links_element = document.evaluate(links_xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+var links_xpath = "//a[@class='details__link' and contains(@href, 'gog.com/forum')]";
+var links_element = document.evaluate(links_xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.parentNode;
 links_element.appendChild(separator_element);
 links_element.appendChild(gogdb_element);
