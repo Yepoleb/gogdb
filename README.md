@@ -2,6 +2,8 @@
 
 Website that collects data on GOG games.
 
+**This is the legacy branch!**
+
 # Deployment Instructions
 
 Commands are prefixed with `$` or `#` depending if they can be run as a regular
