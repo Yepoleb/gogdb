@@ -1,4 +1,4 @@
-from pyramid.path import AssetResolver
+#pyramid legacy code
 
 TIME_WEEK = 604800
 TIME_YEAR = 31536000
