@@ -357,6 +357,9 @@ def main():
     db = storage.Storage(config["STORAGE_PATH"])
 
     tasks = sys.argv[1:]
+    if not tasks:
+        print("Updater missing task argument: [all, download, index]")
+        exit(1)
     if "all" in tasks:
         tasks = ["download", "index"]
     if "download" in tasks:
