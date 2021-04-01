@@ -5,17 +5,17 @@ export FLASK_ENV=development
 export PYTHONPATH="."
 export GOGDB_CONFIG=~/Coden/py/gogdb2/config-development.py
 
-case $1 in
+script_name="$1"
+shift
+
+case "$script_name" in
 flask)
     flask run
     ;;
-gen_index)
-    python3 gogdb/scripts/gen_index.py
-    ;;
-update_db)
-    python3 gogdb/scripts/update_db.py
+updater)
+    python3 gogdb/updater/updater.py "$@"
     ;;
 *)
-    echo "Missing script name [flask, gen_index, update_db]"
+    echo "Missing script name [flask, updater]"
     ;;
 esac

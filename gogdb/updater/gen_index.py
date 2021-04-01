@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 import json
 import sqlite3
 import dataclasses
@@ -13,17 +12,7 @@ import gogdb.core.model as model
 
 
 
-config = flask.Config()
-config.from_envvar("GOGDB_CONFIG")
-db = storage.Storage(config["STORAGE_PATH"])
-ids = db.ids.load()
-
-changelog_index_path = db.path_indexdb()
-changelog_index_path.parent.mkdir(exist_ok=True)
-need_create = not changelog_index_path.exists()
-conn = sqlite3.connect(changelog_index_path, isolation_level=None)
-cur = conn.cursor()
-if need_create:
+def init_db(cur):
     cur.execute("""CREATE TABLE products (
         product_id INTEGER,
         title TEXT,
@@ -53,18 +42,8 @@ if need_create:
     cur.execute("CREATE INDEX idx_products_sale_rank ON products (sale_rank)")
     cur.execute("CREATE INDEX idx_changelog_timestamp ON changelog (timestamp)")
     cur.execute("CREATE INDEX idx_summary_timestamp ON changelog_summary (timestamp)")
-cur.execute("BEGIN TRANSACTION;")
-cur.execute("DELETE FROM products;")
-cur.execute("DELETE FROM changelog;")
-cur.execute("DELETE FROM changelog_summary;")
 
-
-for prod_id in ids:
-    print("Adding", prod_id)
-    prod = db.product.load(prod_id)
-    if prod is None:
-        print("Skipped", prod_id)
-        continue
+def index_product(prod, cur):
     cur.execute(
         "INSERT INTO products VALUES (?, ?, ?, ?, ?, ?, ?)",
         (
@@ -78,11 +57,7 @@ for prod_id in ids:
         )
     )
 
-    changelog = db.changelog.load(prod_id)
-    if changelog is None:
-        print("No changelog", prod_id)
-        continue
-
+def index_changelog(prod, changelog, cur):
     summaries = collections.defaultdict(set)
     for changerec in changelog:
         idx_change = model.IndexChange(
@@ -114,7 +89,9 @@ for prod_id in ids:
                 idx_change.dl_type,
                 idx_change.bonus_type,
                 idx_change.property_name,
-                json.dumps(idx_change.record, sort_keys=True, ensure_ascii=False, default=storage.json_encoder)
+                json.dumps(
+                    idx_change.record, sort_keys=True, ensure_ascii=False,
+                    default=storage.json_encoder)
             )
         )
 
@@ -132,8 +109,37 @@ for prod_id in ids:
             )
         )
 
+def index_main(db):
+    ids = db.ids.load()
 
-cur.execute("END TRANSACTION;")
-cur.close()
-conn.commit()
-conn.close()
+    changelog_index_path = db.path_indexdb()
+    changelog_index_path.parent.mkdir(exist_ok=True)
+    need_create = not changelog_index_path.exists()
+    conn = sqlite3.connect(changelog_index_path, isolation_level=None)
+    cur = conn.cursor()
+    if need_create:
+        init_db(cur)
+
+    cur.execute("BEGIN TRANSACTION;")
+    cur.execute("DELETE FROM products;")
+    cur.execute("DELETE FROM changelog;")
+    cur.execute("DELETE FROM changelog_summary;")
+
+    for prod_id in ids:
+        print("Adding", prod_id)
+        prod = db.product.load(prod_id)
+        if prod is None:
+            print("Skipped", prod_id)
+            continue
+        index_product(prod, cur)
+
+        changelog = db.changelog.load(prod_id)
+        if changelog is None:
+            print("No changelog", prod_id)
+            continue
+        index_changelog(prod, changelog, cur)
+
+    cur.execute("END TRANSACTION;")
+    cur.close()
+    conn.commit()
+    conn.close()
