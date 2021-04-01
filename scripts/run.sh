@@ -10,10 +10,13 @@ shift
 
 case "$script_name" in
 flask)
-    flask run
+    flask run "$@"
     ;;
 updater)
     python3 gogdb/updater/updater.py "$@"
+    ;;
+token)
+    python3 gogdb/updater/gogtoken.py "$@"
     ;;
 *)
     echo "Missing script name [flask, updater]"
