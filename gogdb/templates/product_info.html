@@ -45,7 +45,7 @@
       </tr>
       <tr>
         <td>Last updated</td>
-        <td>{{ product.last_updated | datetime_minute }}</td>
+        <td>{{ product.last_updated | datetime_minute | nodata }}</td>
       </tr>
     </table>
   </div>
@@ -169,7 +169,7 @@
     </tr>
     <tr>
       <td>Added to DB on</td>
-      <td>{{ product.added_on | datetime_day }}</td>
+      <td>{{ product.added_on | datetime_day | nodata }}</td>
     </tr>
   </table>
 
