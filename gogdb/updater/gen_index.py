@@ -3,6 +3,7 @@ import sqlite3
 import dataclasses
 import os
 import collections
+import logging
 
 import flask
 
@@ -11,6 +12,8 @@ import gogdb.core.storage as storage
 import gogdb.core.model as model
 
 
+
+logger = logging.getLogger("UpdateDB.Index")
 
 def init_db(cur):
     cur.execute("""CREATE TABLE products (
@@ -42,6 +45,10 @@ def init_db(cur):
     cur.execute("CREATE INDEX idx_products_sale_rank ON products (sale_rank)")
     cur.execute("CREATE INDEX idx_changelog_timestamp ON changelog (timestamp)")
     cur.execute("CREATE INDEX idx_summary_timestamp ON changelog_summary (timestamp)")
+
+def count_rows(cur, table_name):
+    cur.execute(f"SELECT COUNT(*) FROM {table_name};")
+    return cur.fetchone()[0]
 
 def index_product(prod, cur):
     cur.execute(
@@ -111,6 +118,7 @@ def index_changelog(prod, changelog, cur):
 
 def index_main(db):
     ids = db.ids.load()
+    print(f"Starting indexer with {len(ids)} IDs")
 
     changelog_index_path = db.path_indexdb()
     changelog_index_path.parent.mkdir(exist_ok=True)
@@ -126,20 +134,25 @@ def index_main(db):
     cur.execute("DELETE FROM changelog_summary;")
 
     for prod_id in ids:
-        print("Adding", prod_id)
+        logger.info(f"Adding {prod_id}")
         prod = db.product.load(prod_id)
         if prod is None:
-            print("Skipped", prod_id)
+            logger.info("Skipped", prod_id)
             continue
         index_product(prod, cur)
 
         changelog = db.changelog.load(prod_id)
         if changelog is None:
-            print("No changelog", prod_id)
+            logger.info(f"No changelog {prod_id}")
             continue
         index_changelog(prod, changelog, cur)
 
     cur.execute("END TRANSACTION;")
+
+    print("Indexed {} products, {} changelog entries, {} changelog summaries".format(
+        count_rows(cur, "products"), count_rows(cur, "changelog"), count_rows(cur, "changelog_summary")
+    ))
+
     cur.close()
     conn.commit()
     conn.close()

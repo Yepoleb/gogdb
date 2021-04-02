@@ -65,7 +65,7 @@ class GogSession:
             retries -= 1
         return resp
 
-    async def get_json(self, name, url, path, caching=CACHE_NONE, decompress=False, **kwargs):
+    async def get_json(self, name, url, path, caching=CACHE_NONE, decompress=False, expect_404=False, **kwargs):
         logger.debug("Requesting %r", url)
         if caching & CACHE_LOAD:
             try:
@@ -84,7 +84,11 @@ class GogSession:
             logger.error("Failed to load %s: %r", name, e)
             return
         if resp.status >= 400:
-            logger.error("Request for %s returned %s", name, resp.status)
+            # Treat 404s as info because they are so common
+            if resp.status == 404 and expect_404:
+                logger.info("Request for %s returned %s", name, resp.status)
+            else:
+                logger.error("Request for %s returned %s", name, resp.status)
             await resp.read()
             return
         try:
@@ -119,7 +123,8 @@ class GogSession:
             f"api v0 {prod_id}",
             url=f"https://api.gog.com/products/{prod_id}?locale=en_US&expand=downloads,expanded_dlcs,description,screenshots,videos,related_products,changelog",
             path=self.storage_path / f"raw/prod_v0/{prod_id}_v0.json",
-            caching=self.config.get("CACHE_PRODUCT_V0", CACHE_NONE)
+            caching=self.config.get("CACHE_PRODUCT_V0", CACHE_NONE),
+            expect_404=True
         )
 
     async def fetch_product_v2(self, prod_id):
@@ -127,7 +132,8 @@ class GogSession:
             f"api v2 {prod_id}",
             url=f"https://api.gog.com/v2/games/{prod_id}?locale=en-US",
             path=self.storage_path / f"raw/prod_v2/{prod_id}_v2.json",
-            caching=self.config.get("CACHE_PRODUCT_V2", CACHE_NONE)
+            caching=self.config.get("CACHE_PRODUCT_V2", CACHE_NONE),
+            expect_404=True
         )
 
     async def fetch_builds(self, prod_id, system):

@@ -225,6 +225,8 @@ async def product_worker(session, qman, db):
                 if build.generation == 1:
                     if repo is None:
                         repo = await session.fetch_repo_v1(build.link, prod.id, build.id)
+                        if repo is None:
+                            continue
                         db.repository.save(repo, prod.id, build.id)
                     for depot in repo["product"]["depots"]:
                         if "manifest" not in depot:
@@ -233,17 +235,23 @@ async def product_worker(session, qman, db):
                         mf_url = build.link.rsplit("/", 1)[0] + "/" + mf_filename
                         if not db.manifest_v1.has(mf_filename):
                             manifest = await session.fetch_manifest_v1(mf_filename, mf_url)
+                            if manifest is None:
+                                continue
                             db.manifest_v1.save(manifest, mf_filename)
                         else:
                             logger.debug(f"Not redownloading manifest v1 {mf_filename}")
                 else:
                     if repo is None:
                         repo = await session.fetch_repo_v2(build.link, prod.id, build.id)
+                        if repo is None:
+                            continue
                         db.repository.save(repo, prod.id, build.id)
                     for depot in repo["depots"] + [repo["offlineDepot"]]:
                         mf_id = depot["manifest"]
                         if not db.manifest_v2.has(mf_id):
                             manifest = await session.fetch_manifest_v2(mf_id)
+                            if manifest is None:
+                                continue
                             db.manifest_v2.save(manifest, mf_id)
                         else:
                             logger.debug(f"Not redownloading manifest v2 {mf_id}")
@@ -320,6 +328,7 @@ async def download_main(db, config):
     ids = db.ids.load()
     ids.sort(key=scramble_number)
     assert ids
+    print(f"Starting downloader with {len(ids)} IDs")
     qman.schedule_products(ids)
 
     store_list_task = asyncio.create_task(
@@ -342,15 +351,15 @@ async def download_main(db, config):
     logger.info("Setting popularities")
     popularity_order = store_list_task.result()
     set_storedata(db, popularity_order, ids)
+    print(f"Requested {len(ids)} products")
 
     await session.close()
     await asyncio.sleep(0.250) # Wait for aiohttp to close connections
 
 def main():
     logging.basicConfig()
-    logger.setLevel(logging.INFO)
+    #logger.setLevel(logging.INFO)
     #logger.setLevel(logging.DEBUG)
-    logging.getLogger("aiohttp.client").setLevel(logging.DEBUG)
 
     config = flask.Config(".")
     config.from_envvar("GOGDB_CONFIG")
