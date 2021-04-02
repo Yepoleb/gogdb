@@ -1,14 +1,14 @@
 import sys
 import datetime
-import sqlalchemy
 import copy
 import itertools
 
-import gogdb.legacy.model as legacy_model
+import sqlalchemy
 
+import gogdb.legacy.model as legacy_model
 import gogdb.core.storage
 import gogdb.core.model as new_model
-from gogdb.core.normalization import normalize_system, normalize_language
+from gogdb.core.normalization import normalize_system
 import gogdb.core.changelogger as changelogger
 
 
@@ -55,7 +55,7 @@ def convert_softwaredl(l_dl, prod_id):
 
 def normalize_system_list(systems):
     if systems is None:
-        return None
+        return []
     else:
         return [normalize_system(s) for s in systems]
 

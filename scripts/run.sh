@@ -18,6 +18,9 @@ updater)
 token)
     python3 gogdb/updater/gogtoken.py "$@"
     ;;
+exporter)
+    python3 gogdb/legacy/exporter.py "$@"
+    ;;
 *)
     echo "Missing script name [flask, updater]"
     ;;

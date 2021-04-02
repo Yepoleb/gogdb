@@ -2,7 +2,7 @@ import sqlalchemy as sql
 from sqlalchemy import orm
 from sqlalchemy import Column
 
-from legacy.database import Base
+from gogdb.legacy.database import Base
 
 
 class PriceRecord(Base):

@@ -2,8 +2,8 @@ import sqlalchemy as sql
 from sqlalchemy import orm
 from sqlalchemy import Column
 
-from legacy.database import Base
-from legacy.model.common import get_systems_list, set_systems_list
+from gogdb.legacy.database import Base
+from gogdb.legacy.model.common import get_systems_list, set_systems_list
 
 
 class Product(Base):
