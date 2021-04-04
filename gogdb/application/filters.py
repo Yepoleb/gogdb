@@ -44,6 +44,8 @@ def os_name(system):
     return {"windows": "Windows", "osx": "Mac", "linux": "Linux"}[system]
 
 def os_names(systems):
+    if not systems:
+        return "None"
     return ", ".join(os_name(s) for s in systems)
 
 def comma_attr(objects, attr_name):
