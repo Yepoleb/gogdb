@@ -1,4 +1,5 @@
 STORAGE_PATH = "/home/user/gogdb/"
+NUM_PRODUCT_TASKS = 4
 
 DEBUG = True
 
