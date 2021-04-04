@@ -36,6 +36,7 @@ def extract_properties_v0(prod, v0_cont):
     for cs_name in ["windows", "osx", "linux"]:
         if v0_cont["content_system_compatibility"][cs_name]:
             prod.cs_systems.append(normalize_system(cs_name))
+    prod.cs_systems.sort(reverse=True)
 
     prod.store_date = parse_datetime(v0_cont["release_date"])
     prod.is_in_development = v0_cont["in_development"]["active"]
@@ -138,6 +139,7 @@ def extract_properties_v2(prod, v2_cont):
         normalize_system(support_entry["operatingSystem"]["name"])
         for support_entry in v2_embed["supportedOperatingSystems"]
     ]
+    prod.comp_systems.sort(reverse=True)
     prod.is_using_dosbox = v2_cont["isUsingDosBox"]
 
     prod.developers = [x["name"] for x in v2_embed["developers"]]

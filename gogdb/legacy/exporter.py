@@ -4,6 +4,7 @@ import copy
 import itertools
 
 import sqlalchemy
+import flask
 
 import gogdb.legacy.model as legacy_model
 import gogdb.core.storage
@@ -57,7 +58,9 @@ def normalize_system_list(systems):
     if systems is None:
         return []
     else:
-        return [normalize_system(s) for s in systems]
+        # Sort in the order W, M, L so the changelog script works
+        # Should have used a set for this property :(
+        return sorted([normalize_system(s) for s in systems], reverse=True)
 
 def date_to_datetime(d):
     if d is None:
@@ -263,8 +266,9 @@ def convert_changelog(l_prod):
             action_type = l_change.action_type
             if action_type == "add product":
                 prod_changelogger.prod_added()
-            elif action_type == "change product.access":
-                cur_productstate.access = int(l_change.old)
+            # I decided to not convert this entry because it's 99% false positives
+            #elif action_type == "change product.access":
+            #    cur_productstate.access = int(l_change.old)
             elif action_type == "change product.cs":
                 pass
             elif action_type == "change product.os":
@@ -315,15 +319,17 @@ def convert_prices(l_prod):
     return price_log
 
 def main():
-    if len(sys.argv) < 3:
-        print("Usage: exporter postgresql://<sqlalchemy_conn> <storage_path>")
+    if len(sys.argv) < 2:
+        print("Usage: exporter postgresql://<sqlalchemy_conn>")
         return 1
 
     engine = sqlalchemy.create_engine(sys.argv[1])
     Sessionmaker = sqlalchemy.orm.sessionmaker(bind=engine)
     l_session = Sessionmaker()
 
-    n_db = gogdb.core.storage.Storage(sys.argv[2])
+    config = flask.Config(".")
+    config.from_envvar("GOGDB_CONFIG")
+    n_db = gogdb.core.storage.Storage(config["STORAGE_PATH"])
 
     exported_ids = set()
 
