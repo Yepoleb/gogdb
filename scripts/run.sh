@@ -22,6 +22,6 @@ exporter)
     python3 gogdb/legacy/exporter.py "$@"
     ;;
 *)
-    echo "Missing script name [flask, updater]"
+    echo "Missing script name [flask, updater, token, exporter]"
     ;;
 esac
