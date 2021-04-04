@@ -107,7 +107,7 @@ class Storage:
         return self.storage_path / "ids.json"
 
     def path_token(self):
-        return self.storage_path / "token.json"
+        return self.storage_path / "secret/token.json"
 
     def path_product(self, product_id):
         return self.storage_path / f"products/{product_id}/product.json"
