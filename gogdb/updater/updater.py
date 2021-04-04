@@ -327,7 +327,6 @@ async def download_main(db, config):
 
     ids = db.ids.load()
     ids.sort(key=scramble_number)
-    assert ids
     print(f"Starting downloader with {len(ids)} IDs")
     qman.schedule_products(ids)
 
@@ -357,13 +356,12 @@ async def download_main(db, config):
     await asyncio.sleep(0.250) # Wait for aiohttp to close connections
 
 def main():
-    logging.basicConfig()
-    #logger.setLevel(logging.INFO)
-    #logger.setLevel(logging.DEBUG)
-
     config = flask.Config(".")
     config.from_envvar("GOGDB_CONFIG")
     db = storage.Storage(config["STORAGE_PATH"])
+
+    logging.basicConfig()
+    logger.setLevel(config.get("UPDATER_LOGLEVEL", logging.NOTSET))
 
     tasks = sys.argv[1:]
     if not tasks:
