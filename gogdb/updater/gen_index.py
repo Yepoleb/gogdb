@@ -137,7 +137,7 @@ def index_main(db):
         logger.info(f"Adding {prod_id}")
         prod = db.product.load(prod_id)
         if prod is None:
-            logger.info("Skipped", prod_id)
+            logger.info(f"Skipped {prod_id}")
             continue
         index_product(prod, cur)
 
