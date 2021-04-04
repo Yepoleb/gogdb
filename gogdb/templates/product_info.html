@@ -461,7 +461,7 @@
       <th>Gen</th>
       <th>Repository ID</th>
     </tr>
-    {% for build in product.builds %}
+    {% for build in product.builds | reverse %}
     <tr>
       <td><a href="{{ url_for('build', prod_id=product.id, build_id=build.id) }}">{{ build.id }}</a></td>
       <td>{{ build.os | os_icon }}</td>
