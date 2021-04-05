@@ -326,6 +326,8 @@ async def download_main(db, config):
     qman = QueueManager()
 
     ids = db.ids.load()
+    if ids is None:
+        ids = []
     ids.sort(key=scramble_number)
     print(f"Starting downloader with {len(ids)} IDs")
     qman.schedule_products(ids)
