@@ -267,8 +267,9 @@ def convert_changelog(l_prod):
             if action_type == "add product":
                 prod_changelogger.prod_added()
             # I decided to not convert this entry because it's 99% false positives
-            #elif action_type == "change product.access":
-            #    cur_productstate.access = int(l_change.old)
+            elif action_type == "change product.access":
+                #cur_productstate.access = int(l_change.old)
+                pass
             elif action_type == "change product.cs":
                 pass
             elif action_type == "change product.os":
