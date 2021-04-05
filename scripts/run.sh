@@ -3,7 +3,8 @@
 export FLASK_APP=gogdb.application
 export FLASK_ENV=development
 export PYTHONPATH="."
-export GOGDB_CONFIG=`realpath 'config-development.py'`
+GOGDB_CONFIG=`realpath "${GOGDB_CONFIG:-config-development.py}"`
+export GOGDB_CONFIG
 
 script_name="$1"
 shift
