@@ -7,6 +7,10 @@ def get_origin(t):
     """Typing function defined here for compatibility with Python 3.7"""
     return getattr(t, "__origin__", None)
 
+def get_args(t):
+    """Typing function defined here for compatibility with Python 3.7"""
+    return getattr(t, "__args__", None)
+
 annotations_cache = {}
 def class_from_json(cls, data):
     if data is None:
