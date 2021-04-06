@@ -35,7 +35,7 @@ def class_from_json(cls, data):
             setattr(inst, field_name, field_inst)
         return inst
     elif get_origin(cls) is list:
-        list_element_type = typing.get_args(cls)[0]
+        list_element_type = get_args(cls)[0]
         return [
             class_from_json(list_element_type, list_element) for
             list_element in data]
