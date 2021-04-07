@@ -231,15 +231,15 @@ async def product_worker(session, qman, db):
                     for depot in repo["product"]["depots"]:
                         if "manifest" not in depot:
                             continue
-                        mf_filename = depot["manifest"]
-                        mf_url = build.link.rsplit("/", 1)[0] + "/" + mf_filename
-                        if not db.manifest_v1.has(mf_filename):
-                            manifest = await session.fetch_manifest_v1(mf_filename, mf_url)
+                        mf_id = depot["manifest"].split(".")[0]
+                        mf_url = build.link.rsplit("/", 1)[0] + "/" + depot["manifest"]
+                        if not db.manifest_v1.has(mf_id):
+                            manifest = await session.fetch_manifest_v1(mf_id, mf_url)
                             if manifest is None:
                                 continue
-                            db.manifest_v1.save(manifest, mf_filename)
+                            db.manifest_v1.save(manifest, mf_id)
                         else:
-                            logger.debug(f"Not redownloading manifest v1 {mf_filename}")
+                            logger.debug(f"Not redownloading manifest v1 {mf_id}")
                 else:
                     if repo is None:
                         repo = await session.fetch_repo_v2(build.link, prod.id, build.id)

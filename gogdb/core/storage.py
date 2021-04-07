@@ -142,8 +142,8 @@ class Storage:
     def make_changelog(json_data):
         return [class_from_json(model.ChangeRecord, entry) for entry in json_data]
 
-    def path_manifest_v1(self, mf_name):
-        return self.storage_path / f"manifests_v1/{mf_name[0:2]}/{mf_name[2:4]}/{mf_name}.gz"
+    def path_manifest_v1(self, manifest_id):
+        return self.storage_path / f"manifests_v1/{manifest_id[0:2]}/{manifest_id[2:4]}/{manifest_id}.json.gz"
 
     def path_manifest_v2(self, manifest_id):
         return self.storage_path / f"manifests_v2/{manifest_id[0:2]}/{manifest_id[2:4]}/{manifest_id}.json.gz"
