@@ -1,0 +1,12 @@
+[Unit]
+Description=GOG DB Backup
+After=network.target
+OnFailure=email-notify@%i.service
+
+[Service]
+User=gogdb
+Group=gogdb
+
+ExecStart=/bin/sh /usr/local/share/gogdb/scripts/backup.sh
+RuntimeMaxSec=1h
+
