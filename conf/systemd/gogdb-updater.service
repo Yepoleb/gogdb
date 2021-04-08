@@ -14,6 +14,3 @@ Environment="GOGDB_CONFIG=/etc/gogdb/config-production.py"
 ExecStart=/usr/bin/python3 /usr/local/share/gogdb/gogdb/updater/updater.py all
 RuntimeMaxSec=1h
 
-[Install]
-WantedBy=multi-user.target
-
