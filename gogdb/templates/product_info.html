@@ -330,6 +330,14 @@
         {% endif %}
       </td>
     </tr>
+    <tr>
+      <td class="table-prop">GOG DB data</td>
+      <td>
+        <span class="force-overflow">
+          <a href="{{ '/data/products/{}'.format(product.id) }}">{{ "https://www.gogdb.org/data/products/{}".format(product.id) }}</a>
+        </span>
+      </td>
+    </tr>
   </table>
 
   {% if product.sale_rank > 0 %}
