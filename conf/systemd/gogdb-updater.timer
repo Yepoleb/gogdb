@@ -1,0 +1,10 @@
+[Unit]
+Description=GOG DB Updater Timer
+
+[Timer]
+OnCalendar=00/2:45:00
+AccuracySec=10min
+
+[Install]
+WantedBy=timers.target
+

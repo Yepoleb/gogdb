@@ -1,0 +1,19 @@
+[Unit]
+Description=GOG DB Updater
+After=network.target
+OnFailure=email-notify@%i.service
+
+[Service]
+WorkingDirectory=/usr/local/share/gogdb
+
+User=gogdb
+Group=gogdb
+
+Environment="PYTHONPATH=/usr/local/share/gogdb"
+Environment="GOGDB_CONFIG=/etc/gogdb/config-production.py"
+ExecStart=/usr/bin/python3 /usr/local/share/gogdb/gogdb/updater/updater.py all
+RuntimeMaxSec=1h
+
+[Install]
+WantedBy=multi-user.target
+

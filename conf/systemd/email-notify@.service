@@ -1,0 +1,6 @@
+[Unit]
+Description=Send failure notify email
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash -c '/bin/systemctl status %i | /usr/bin/mail -s "[systemd] %i failure notification" root@localhost'
