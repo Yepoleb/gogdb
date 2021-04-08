@@ -169,6 +169,10 @@ a.hoverlight:hover {
   display: none;
 }
 
+.mono {
+  font-family: "Roboto Mono", monospace;
+}
+
 .search-bar {
   display: flex;
 }
