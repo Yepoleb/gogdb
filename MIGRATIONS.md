@@ -1,5 +1,7 @@
 # Database Migrations
 
+Read top to bottom.
+
 ## cec5ebc
 
 Remove the `searchindex` table and add a product column instead.
@@ -88,3 +90,8 @@ Rename availability to access.
 ## 675db34
 
     ALTER TABLE languages ALTER COLUMN isocode TYPE VARCHAR(20);
+    
+## JSON based
+
+    export GOGDB_CONFIG=/etc/gogdb/config-production.py # New config
+    scripts/run.sh exporter 'postgresql://user:pwd@localhost:5432/gogdb'
