@@ -1,0 +1,16 @@
+[Unit]
+Description=GOG DB
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/usr/local/share/gogdb
+Environment="GOGDB_CONFIG=/etc/gogdb/config-production.py"
+ExecStart=/usr/bin/gunicorn3 -w 4 -b 127.0.0.1:8001 gogdb.application:app
+ExecReload=/bin/kill -s HUP $MAINPID
+KillMode=mixed
+
+[Install]
+WantedBy=multi-user.target
+
