@@ -2,64 +2,45 @@
 
 Website that collects data on GOG games.
 
-**Documentation is outdated while the repository is migrated to a new version!**
-
 # Deployment Instructions
 
-Commands are prefixed with `$` or `#` depending if they can be run as a regular
-user or must be run as root. They are specific to Debian/Ubuntu, Apache2 and
-uWSGI. If you want to use a different web or app server search for deploying
-Flask applications.
+All commands need to be run as root. They are specific to Debian Buster, Apache2 and
+Gunicorn. If you want to use a different web or app server search for deploying
+Flask applications on it.
 
 ## Application
 
-Install git and Python virtualenv
-
-    # apt install git python3-venv
-
-Install gcc and python headers if you want faster assets building (optional)
-
-    # apt install gcc python3-dev
-
 Clone the application
 
+    # cd /usr/local/share
     # git clone https://github.com/Yepoleb/gogdb.git
-    $ cd gogdb
+    # cd gogdb
 
-Create virtual environment
+Create system user for the updater
 
-    # python3 -m venv venv
+    # adduser --system --home /var/lib/gogdb/ --shell /bin/bash --no-create-home --group --disabled-login --gecos 'GOG DB' gogdb
 
-Install application into virtualenv
+Create a login token for the updater to use
 
-    # venv/bin/pip install setuptools wheel --upgrade
-    # venv/bin/pip install -r requirements.txt
+    # scripts/run.sh token token.json
+    # mkdir -p /var/lib/gogdb/storage/secret/
+    # mv token.json /var/lib/gogdb/storage/secret/token.json
 
-Install PostgreSQL and create database
+Set access rights
 
-    # apt install postgres
-    # sudo -u postgres psql
-    postgres=# CREATE USER gogdb WITH PASSWORD '12345678';
-    postgres=# CREATE DATABASE gogdb WITH OWNER = gogdb;
-    postgres=# \q
+    # chown -R gogdb:gogdb /var/lib/gogdb/storage/
+    # chmod g-rwx,o-rwx -R /var/lib/gogdb/storage/secret/
 
-Copy the example config and set database password
+Copy the example config and set the storage path
 
-    # cp example-production.py production.py
-    # editor production.py
+    # mkdir /etc/gogdb
+    # cp example-production.py /etc/gogdb/config-production.py
+    # editor /etc/gogdb/config-production.py
 
-Set up environment
+Build assets. Both commands have to be run in a root shell because sudo resets the environment variables
 
-    $ export FLASK_APP=gogdb
-    $ export GOGDB_CONFIG=../config-development.py
-
-Initialize database
-
-    $ venv/bin/gogdb-init
-
-Build assets
-
-    # venv/bin/flask assets build
+    # export GOGDB_CONFIG=/etc/gogdb/config-production.py
+    # scripts/run.sh assets
 
 ## Apache2
 
@@ -72,64 +53,67 @@ Install Apache2
 
 Copy the config
 
-    # cp doc/apache2/gogdb.conf /etc/apache2/conf-available/
+    # cp conf/apache2/gogdb.conf /etc/apache2/sites-available/
 
 Enable required modules
 
-    # a2enmod proxy_uwsgi
+    # a2enmod proxy
     # a2enmod expires
 
-Enable config
+Enable the site
 
-    # a2enconf gogdb
+    # a2ensite gogdb
 
 Restart Apache2
 
     # systemctl restart apache2
 
-## uWSGI
+## Gunicorn
 
-uWSGI provides the environment the application needs to run.
+Gunicorn is the default application server for GOG DB
 
-Install uWSGI, its Python 3 plugin and the Apache module
+Install Gunicorn
 
-    # apt install uwsgi uwsgi-plugin-python3 libapache2-mod-proxy-uwsgi
+    # apt install gunicorn3
 
-Copy the config
+Copy the systemd service file
 
-    # cp doc/uwsgi/gogdb.ini /etc/uwsgi/apps-available/
+    # cp conf/systemd/gogdb.service /etc/systemd/system/
 
-Enable the config
+Start service
 
-    # ln -s /etc/uwsgi/apps-available/gogdb.ini /etc/uwsgi/apps-enabled/gogdb.ini
-
-Restart uWSGI
-
-    # systemctl restart uwsgi
+    # systemctl daemon-reload
+    # systemctl enable gogdb
+    # systemctl start gogdb
 
 ## Scripts
 
 Scripts insert the data into the database and keep it up to date. They are
 also used to build the search index.
 
-Create the log directory and make it writable
+Copy the systemd email notify service to receive failed task notifications
 
-    # mkdir -p /var/log/gogdb
-    # chown www-data:www-data /var/log/gogdb
+    # cp conf/systemd/email-notify@.service /etc/systemd/system/
 
-Change the `CONFIG_FILE` variable inside `/scripts/update.sh` to the
-`production.ini` or symlink it to `development.ini`.
+Copy the systemd services for the updater
 
-    # edit scripts/update.sh
+    # cp conf/systemd/gogdb-updater.* /etc/systemd/system/
+    
+Enable the timer
 
-or
+    # systemctl daemon-reload
+    # systemctl enable gogdb-updater.timer
+    # systemctl start gogdb-updater.timer
 
-    # ln -s production.ini development.ini
+Copy the systemd services for the backup
 
-Copy the cron and logrotate configs
+    # cp conf/systemd/gogdb-backup.* /etc/systemd/system/
+    
+Enable the timer
 
-    # cp doc/cron/gogdb /etc/cron.d/
-    # cp doc/logrotate/gogdb /etc/logrotate.d/
+    # systemctl daemon-reload
+    # systemctl enable gogdb-backup.timer
+    # systemctl start gogdb-backup.timer
 
 # Database Migrations
 
