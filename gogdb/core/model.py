@@ -102,9 +102,12 @@ class SoftwareDownload(Download):
         return (self.name, self.os, self.language.code)
 
     def is_same(self, other):
-        for attr_name in ["name", "total_size", "files", "os", "language", "version"]:
+        for attr_name in ["name", "total_size", "files", "os", "version"]:
             if getattr(self, attr_name) != getattr(other, attr_name):
                 return False
+        # Languages should only be compared on the language codes, the name does not matter
+        if self.language.code != other.language.code:
+            return False
         return True
 
 @defaultdataclass
