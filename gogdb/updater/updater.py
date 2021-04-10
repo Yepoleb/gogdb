@@ -262,7 +262,8 @@ async def product_worker(session, qman, db):
                 prod_changelogger.property("title")
                 prod_changelogger.property("comp_systems")
                 prod_changelogger.property("is_pre_order")
-                prod_changelogger.property("changelog")
+                # Disabled because it can't be detected reliably
+                #prod_changelogger.property("changelog")
                 prod_changelogger.downloads("bonus")
                 prod_changelogger.downloads("installer")
                 prod_changelogger.downloads("langpack")
@@ -272,7 +273,9 @@ async def product_worker(session, qman, db):
 
         if prod.has_content():
             if old_prod:
-                prod_changelogger.property("access")
+                # Disabled because it can't be detected reliably
+                #prod_changelogger.property("access")
+                pass
             else:
                 prod_changelogger.prod_added()
         changelog += prod_changelogger.entries
