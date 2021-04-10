@@ -25,6 +25,9 @@ token)
 exporter)
     python3 gogdb/legacy/exporter.py "$@"
     ;;
+cleanup)
+    python3 gogdb/tools/cleanup.py "$@"
+    ;;
 *)
     echo "Missing script name [flask, assets, updater, token, exporter]"
     ;;
