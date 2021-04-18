@@ -1,4 +1,7 @@
+import shutil
+
 import flask
+
 from gogdb.core.storage import Storage
 
 """
@@ -19,6 +22,20 @@ def valid_changelog_entry(entry):
 
     return True
 
+def fix_changelog_1(db, prod_id):
+    changelog = db.changelog.load(prod_id)
+    if changelog is None:
+        continue
+    changelog = [c for c in changelog if valid_changelog_entry(c)]
+    db.changelog.save(changelog, prod_id)
+
+def fix_product_empty(db, prod_id):
+    product = db.product.load(prod_id)
+    if product.title is None or product.type is None:
+        print(prod_id, "is empty")
+        product_path = db.path_product(prod_id)
+        product_path.rename(product_path.with_name("product_removed.json"))
+
 def main():
     config = flask.Config(".")
     config.from_envvar("GOGDB_CONFIG")
@@ -26,10 +43,7 @@ def main():
     ids = db.ids.load()
     for prod_id in ids:
         print("Processing", prod_id)
-        changelog = db.changelog.load(prod_id)
-        if changelog is None:
-            continue
-        changelog = [c for c in changelog if valid_changelog_entry(c)]
-        db.changelog.save(changelog, prod_id)
+        fix_product_empty(db, prod_id)
+
 
 main()
