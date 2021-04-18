@@ -25,7 +25,7 @@ def valid_changelog_entry(entry):
 def fix_changelog_1(db, prod_id):
     changelog = db.changelog.load(prod_id)
     if changelog is None:
-        continue
+        return
     changelog = [c for c in changelog if valid_changelog_entry(c)]
     db.changelog.save(changelog, prod_id)
 
