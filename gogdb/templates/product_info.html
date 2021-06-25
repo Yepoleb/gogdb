@@ -118,11 +118,17 @@
     </tr>
     {% endfor %}
   </table>
-  {% else %}
-  <div class="textbox shadow">
-    No price data available.
-  </div>
   {% endif %}
+  <div class="textbox shadow">
+    {% if not priceframes %}
+    No price data available.
+    {% endif %}
+    {% if has_old_prices %}
+    To view up to date price data click <a href="{{ prod_url(product.id) }}">here</a>.
+    {% else %}
+    To view old (pre 2019) price data click <a href="{{ prod_url(product.id) }}?old=1">here</a>.
+    {% endif %}
+  </div>
 </div>
 
 <div id="tab-details" class="tab">

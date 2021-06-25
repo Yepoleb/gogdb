@@ -27,12 +27,18 @@ def product_info(prod_id):
     if product is None:
         flask.abort(404)
 
-    pricehistory = storagedb.prices.load(prod_id)
-    changelog = storagedb.changelog.load(prod_id)
+    # Allow loading pre 2019 prices
+    if flask.request.args.get("old"):
+        pricehistory = storagedb.prices_old.load(prod_id)
+        has_old_prices = True
+    else:
+        pricehistory = storagedb.prices.load(prod_id)
+        has_old_prices = False
     if pricehistory:
         cur_history = pricehistory["US"]["USD"]
     else:
         cur_history = []
+    changelog = storagedb.changelog.load(prod_id)
 
     history_chart = {"labels": [], "values": [], "max": 0}
     if cur_history:
@@ -105,5 +111,6 @@ def product_info(prod_id):
         referenced_products=referenced_products,
         pricehistory=history_chart,
         priceframes=priceframes,
+        has_old_prices=has_old_prices,
         changelog=changelog
     )

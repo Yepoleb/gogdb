@@ -96,6 +96,7 @@ class Storage:
         self.product = StorageItem(self.path_product, self.make_product)
         self.repository = StorageItem(self.path_repository)
         self.prices = StorageItem(self.path_prices, self.make_prices)
+        self.prices_old = StorageItem(self.path_prices_old, self.make_prices)
         self.changelog = StorageItem(self.path_changelog, self.make_changelog)
         self.manifest_v1 = StorageItem(self.path_manifest_v1, compressed=True)
         self.manifest_v2 = StorageItem(self.path_manifest_v2, compressed=True)
@@ -121,6 +122,9 @@ class Storage:
 
     def path_prices(self, product_id):
         return self.storage_path / f"products/{product_id}/prices.json"
+
+    def path_prices_old(self, product_id):
+        return self.storage_path / f"products/{product_id}/prices_pre2019.json"
 
     @staticmethod
     def make_prices(json_data):

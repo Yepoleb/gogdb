@@ -1,6 +1,7 @@
 User-agent: *
 Disallow: /data/
 Disallow: /meta/
+Disallow: /product/*?old=
 
 User-agent: BLEXBot
 Disallow: /
