@@ -31,6 +31,8 @@ def fix_changelog_1(db, prod_id):
 
 def fix_product_empty(db, prod_id):
     product = db.product.load(prod_id)
+    if product is None:
+        return
     if product.title is None or product.type is None:
         print(prod_id, "is empty")
         product_path = db.path_product(prod_id)
