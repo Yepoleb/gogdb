@@ -28,11 +28,16 @@ def format_size(num, unit='B'):
 
 def add_tree_item(tree, item):
     parts = pathlib.PureWindowsPath(item.path).parts
-    head = parts[:-1]
-    tail = parts[-1]
+    head = parts[:-1] # Everything leading up to the last item in the path
+    tail = parts[-1] # Last item of the path
     cur_level = tree
+    # Walk down the tree one path component at a time
     for part in head:
+        # Handle malformed manifests where links are inside links
+        if getattr(cur_level, "type", None) == "link":
+            return
         if part not in cur_level:
+            # Directory does not yet exist, create it
             cur_level[part] = {}
         cur_level = cur_level[part]
     if item.type == "file":
