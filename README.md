@@ -115,6 +115,14 @@ Enable the timer
     # systemctl enable gogdb-backup.timer
     # systemctl start gogdb-backup.timer
 
+## Development
+
+1. Create a storage directory
+2. Adapt `config-development.py` from `example-development.py`
+3. Generate a token as described in the application setup process
+
+The `scripts/run.sh` script is a convenient way to run the components of GOG DB with development defaults.
+
 # Database Migrations
 
 See [MIGRATIONS.md](MIGRATIONS.md)
