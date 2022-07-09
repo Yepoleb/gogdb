@@ -51,7 +51,7 @@ def fix_price_jitter(db, prod_id):
                 is_rollback = (
                     currency_log[i].same_price(currency_log[i-2])
                     and currency_log[i-1].price_base is None
-                    and (currency_log[i].date - currency_log[i-1].date) < datetime.timedelta(hours=8)
+                    and (currency_log[i].date - currency_log[i-1].date) < datetime.timedelta(hours=24)
                 )
                 if is_rollback:
                     del currency_log[i]

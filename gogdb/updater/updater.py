@@ -121,7 +121,7 @@ def update_prices(db, prod_id, price_by_currency_id):
                 len(currency_log) >= 2
                 and record.same_price(currency_log[-2])
                 and last_price.price_base is None
-                and (record.date - last_price.date) < datetime.timedelta(hours=8)
+                and (record.date - last_price.date) < datetime.timedelta(hours=24)
             )
             if is_rollback:
                 # Remove the last not-for-sale entry
