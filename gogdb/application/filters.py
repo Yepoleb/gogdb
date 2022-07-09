@@ -117,6 +117,9 @@ def videoid(video):
     if video.provider == "youtube":
         return video.thumbnail_url.split("/")[4]
 
+def affiliate(url):
+    return url.replace("www.gog.com", "af.gog.com") + "?as=1721879312"
+
 def add_filters(app):
     app.add_template_filter(yes_no)
     app.add_template_filter(os_icon)
@@ -137,3 +140,4 @@ def add_filters(app):
     app.add_template_filter(makeanchor)
     app.add_template_filter(nodata)
     app.add_template_filter(videoid)
+    app.add_template_filter(affiliate)

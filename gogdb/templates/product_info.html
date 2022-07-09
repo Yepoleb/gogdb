@@ -56,7 +56,7 @@
     <img id="product-logo" class="shadow" src="{{ url_for('static', filename='img/no_logo_1600x900.svg') }}" alt="">
     {% endif %}
     {% if product.sale_rank > 0 %}
-    <a id="store-button" class="btn-gog" href="{{ product.link_store }}">
+    <a id="store-button" class="btn-gog" href="{{ product.link_store | affiliate }}">
       Store Page
     </a>
     {% endif %}
