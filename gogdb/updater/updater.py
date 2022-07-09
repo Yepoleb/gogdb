@@ -115,6 +115,17 @@ def update_prices(db, prod_id, price_by_currency_id):
         currency_log = price_log[currency_id[0]][currency_id[1]]
         if currency_log:
             last_price = currency_log[-1]
+            # Rollback means the last not-for-sale entry is invalid because the old price
+            # came back within a short time
+            is_rollback = (
+                len(currency_log) >= 2
+                and record.same_price(currency_log[-2])
+                and last_price.price_base is None
+                and (record.date - last_price.date) < datetime.timedelta(hours=8)
+            )
+            if is_rollback:
+                # Remove the last not-for-sale entry
+                currency_log.pop()
             if not record.same_price(last_price):
                 currency_log.append(record)
         else:

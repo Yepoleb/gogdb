@@ -1,4 +1,5 @@
 import shutil
+import datetime
 
 import flask
 
@@ -37,6 +38,25 @@ def fix_product_empty(db, prod_id):
         print(prod_id, "is empty")
         product_path = db.path_product(prod_id)
         product_path.rename(product_path.with_name("product_removed.json"))
+
+def fix_price_jitter(db, prod_id)
+    price_log = db.prices.load(prod_id)
+    for currency_id in [("US", "USD")]:
+        currency_log = price_log[currency_id[0]][currency_id[1]]
+        i = 0
+        while i < len(currency_log):
+            if i >= 2:
+                is_rollback = (
+                    currency_log[i].same_price(currency_log[i-2])
+                    and currency_log[i-1].price_base is None
+                    and (currency_log[i].date - currency_log[i-1].date) < datetime.timedelta(hours=8)
+                )
+                if is_rollback:
+                    del currency_log[i]
+                    del currency_log[i-1]
+                    i -= 2
+            i += 1
+    db.prices.save(price_log, prod_id)
 
 def main():
     config = flask.Config(".")
