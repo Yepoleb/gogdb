@@ -39,8 +39,10 @@ def fix_product_empty(db, prod_id):
         product_path = db.path_product(prod_id)
         product_path.rename(product_path.with_name("product_removed.json"))
 
-def fix_price_jitter(db, prod_id)
+def fix_price_jitter(db, prod_id):
     price_log = db.prices.load(prod_id)
+    if price_log is None:
+        return
     for currency_id in [("US", "USD")]:
         currency_log = price_log[currency_id[0]][currency_id[1]]
         i = 0
@@ -65,7 +67,7 @@ def main():
     ids = db.ids.load()
     for prod_id in ids:
         print("Processing", prod_id)
-        fix_product_empty(db, prod_id)
+        fix_price_jitter(db, prod_id)
 
 
 main()

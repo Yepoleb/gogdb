@@ -29,6 +29,6 @@ cleanup)
     python3 gogdb/tools/cleanup.py "$@"
     ;;
 *)
-    echo "Missing script name [flask, assets, updater, token, exporter]"
+    echo "Missing script name [flask, assets, updater, token, exporter, cleanup]"
     ;;
 esac
