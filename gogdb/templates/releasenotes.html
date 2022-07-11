@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% set title %}{{ product.title }} - Release Notes{% endset %}
+
+{% block content %}
+<h1>Release Notes for {{ product.title }}</h1>
+
+<div class="textbox shadow">
+{{ sanitized_html }}
+</div>
+
+{% endblock content %}

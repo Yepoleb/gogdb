@@ -19,7 +19,8 @@ requires = [
     # util
     "aiohttp",
     "python-dateutil",
-    "requests"
+    "requests",
+    "bleach"
 ]
 
 setup(
