@@ -1,5 +1,6 @@
 import jinja2
 import flask
+import re
 
 import gogdb.core.names as names
 
@@ -120,6 +121,9 @@ def videoid(video):
 def affiliate(url):
     return url.replace("www.gog.com", "af.gog.com") + "?as=1721879312"
 
+def unlocalize(url):
+    return re.sub("gog.com/../", "gog.com/", url)
+
 def add_filters(app):
     app.add_template_filter(yes_no)
     app.add_template_filter(os_icon)
@@ -141,3 +145,4 @@ def add_filters(app):
     app.add_template_filter(nodata)
     app.add_template_filter(videoid)
     app.add_template_filter(affiliate)
+    app.add_template_filter(unlocalize)
