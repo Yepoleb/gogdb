@@ -180,14 +180,14 @@ async def prices_worker(session, qman, db):
             update_prices(db, prod_id, price_by_currency_id)
 
 
-async def product_worker(session, qman, db):
+async def product_worker(session, qman, db, worker_number):
     while True:
         try:
             prod_id = await qman.get_from_products()
         except QueueExhausted:
             logger.debug("Received queue exhausted for products")
             break
-        logger.info("Downloading %s", prod_id)
+        logger.info(f"Worker {worker_number} Downloading {prod_id}")
 
         timestamp = datetime.datetime.now(datetime.timezone.utc)
         prod = db.product.load(prod_id)
@@ -299,6 +299,7 @@ async def product_worker(session, qman, db):
             db.changelog.save(changelog, prod.id)
 
         qman.products_queue.task_done()
+    logger.info(f"Worker {worker_number} done")
 
 
 def set_storedata(db, popularity_order, all_ids):
@@ -349,9 +350,11 @@ async def download_main(db, config):
 
     store_list_task = asyncio.create_task(
         store_list_worker(session, qman))
+    num_product_tasks = config.get("NUM_PRODUCT_TASKS", 1)
+    logger.info(f"Creating {num_product_tasks} product workers")
     product_tasks = [
-        asyncio.create_task(product_worker(session, qman, db))
-        for i in range(config.get("NUM_PRODUCT_TASKS", 1))
+        asyncio.create_task(product_worker(session, qman, db, i))
+        for i in range(num_product_tasks)
     ]
     prices_task = asyncio.create_task(
         prices_worker(session, qman, db))

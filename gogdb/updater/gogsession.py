@@ -28,7 +28,7 @@ class GogSession:
         self.db = db
         self.config = config
         self.storage_path = pathlib.Path(config["STORAGE_PATH"])
-        aio_connector = aiohttp.TCPConnector(limit=10, limit_per_host=4)
+        aio_connector = aiohttp.TCPConnector(limit=100, limit_per_host=10)
         headers = {"User-Agent": USER_AGENT}
         self.aio_session = aiohttp.ClientSession(
             connector=aio_connector, headers=headers)
