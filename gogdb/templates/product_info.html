@@ -195,6 +195,10 @@
       <td>{{ product.is_pre_order | yes_no }}</td>
     </tr>
     <tr>
+      <td>Age rating</td>
+      <td>{{ product.age_rating | default("No rating", true) }}</td>
+    </tr>
+    <tr>
       <td>Is in development</td>
       <td>{{ product.is_in_development | yes_no }}</td>
     </tr>

@@ -223,6 +223,7 @@ class Product:
     store_date: datetime.datetime
     is_in_development: bool
     is_pre_order: bool
+    age_rating: int
     sale_rank: int = 0
 
     image_logo: str

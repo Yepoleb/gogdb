@@ -147,6 +147,8 @@ def extract_properties_v2(prod, v2_cont):
     prod.copyright = v2_cont["copyrights"] or None
 
     prod.global_date = parse_datetime(v2_embed["product"].get("globalReleaseDate"))
+    if "gogRating" in v2_embed and v2_embed["gogRating"] is not None:
+        prod.age_rating = v2_embed["gogRating"].get("ageRating")
     if "galaxyBackgroundImage" in v2_links:
         prod.image_galaxy_background = extract_imageid(v2_links["galaxyBackgroundImage"]["href"])
     prod.image_boxart = extract_imageid(v2_links["boxArtImage"]["href"])

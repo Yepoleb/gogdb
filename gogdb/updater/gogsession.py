@@ -121,7 +121,7 @@ class GogSession:
     async def fetch_product_v0(self, prod_id):
         return await self.get_json(
             f"api v0 {prod_id}",
-            url=f"https://api.gog.com/products/{prod_id}?locale=en_US&expand=downloads,expanded_dlcs,description,screenshots,videos,related_products,changelog",
+            url=f"https://api.gog.com/products/{prod_id}?expand=downloads,expanded_dlcs,description,screenshots,videos,related_products,changelog&locale=en-US",
             path=self.storage_path / f"raw/prod_v0/{prod_id}_v0.json",
             caching=self.config.get("CACHE_PRODUCT_V0", CACHE_NONE),
             expect_404=True

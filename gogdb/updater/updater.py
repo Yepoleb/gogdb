@@ -127,7 +127,7 @@ def update_prices(db, prod_id, price_by_currency_id):
                 # Remove the last not-for-sale entry
                 logger.warning(f"Price rollback for {prod_id}")
                 currency_log.pop()
-            if not record.same_price(last_price):
+            elif not record.same_price(last_price):
                 currency_log.append(record)
         else:
             currency_log.append(record)
