@@ -4,6 +4,7 @@ import logging
 import datetime
 import copy
 import sys
+import decimal
 
 import flask
 
@@ -17,6 +18,9 @@ from gogdb.updater.gen_index import index_main
 
 logger = logging.getLogger("UpdateDB")
 
+def eprint(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
+
 def scramble_number(value):
     return (value * 16205650284070698839) & 0xFFFFFFFF
 
@@ -26,27 +30,20 @@ class QueueExhausted(Exception):
 
 class QueueManager:
     def __init__(self):
-        self.prices_queue = asyncio.Queue()
-        self.scheduled_prices = set()
-        # No more prices may get added after this event is set
-        self.prices_exhausted = asyncio.Event()
         self.products_queue = asyncio.Queue()
         self.scheduled_products = set()
         # No more products may get added after this event is set
         self.products_exhausted = asyncio.Event()
 
-    def schedule_product(self, prod_id, store=False):
+    def schedule_product(self, prod_id):
         assert type(prod_id) is int
         if prod_id not in self.scheduled_products:
             self.scheduled_products.add(prod_id)
             self.products_queue.put_nowait(prod_id)
-        if store and prod_id not in self.scheduled_prices:
-            self.scheduled_prices.add(prod_id)
-            self.prices_queue.put_nowait(prod_id)
 
-    def schedule_products(self, prod_ids, store=False):
+    def schedule_products(self, prod_ids):
         for prod_id in prod_ids:
-            self.schedule_product(prod_id, store)
+            self.schedule_product(prod_id)
 
     async def _get_from_queue(self, queue, exhausted_event):
         queue_task = asyncio.create_task(queue.get())
@@ -68,116 +65,136 @@ class QueueManager:
         return await self._get_from_queue(
             self.products_queue, self.products_exhausted)
 
-    async def get_from_prices(self):
-        return await self._get_from_queue(
-            self.prices_queue, self.prices_exhausted)
-
     def products_done(self):
         self.products_queue.task_done()
 
-    def prices_done(self):
-        self.prices_queue.task_done()
 
+@model.defaultdataclass
+class CatalogEntry:
+    id: int
+    price_base: decimal.Decimal
+    price_final: decimal.Decimal
+    rating: int
+    state: str
+    position: int  # This will be filled out by default
+    pos_bestselling: int = 0 # This is only set after manually merging both results
+    pos_trending: int = 0 # See above
 
-async def store_list_worker(session, qman):
+async def get_catalog(session, params):
     current_page = 1
     total_pages = 1
-    ordered_ids = []
+    position = 0
+    collected_products = []
     while current_page <= total_pages:
-        content = await session.fetch_store_page(current_page)
+        page = await session.fetch_catalog(params, current_page)
         logger.info("Downloaded store page %s", current_page)
-        if content is None:
-            break
-        total_pages = content["totalPages"]
-        page_ids = [prod["id"] for prod in content["products"]]
-        qman.schedule_products(page_ids, store=True)
-        ordered_ids += page_ids
+        total_pages = page["pages"]
+        for cat_prod in page["products"]:
+            cat_entry = CatalogEntry()
+            cat_entry.id = int(cat_prod["id"])
+            if cat_prod["price"] is not None:
+                cat_entry.price_base = decimal.Decimal(cat_prod["price"]["baseMoney"]["amount"])
+                cat_entry.price_final = decimal.Decimal(cat_prod["price"]["finalMoney"]["amount"])
+            cat_entry.rating = cat_prod["reviewsRating"]
+            cat_entry.state = cat_prod["productState"]
+            cat_entry.position = position
+            position += 1
+            collected_products.append(cat_entry)
         current_page += 1
-    return ordered_ids
+    return collected_products
 
+async def catalog_worker(session, qman, db):
+    default_params = {
+        "order": "asc:title",
+        "productType": "in:game,pack,dlc,extras",
+        "countryCode": "US",
+        "locale": "en-US",
+        "currencyCode": "USD"
+    }
+    bestselling_params = default_params.copy()
+    bestselling_params["order"] = "desc:bestselling"
+    trending_params = default_params.copy()
+    trending_params["order"] = "desc:trending"
 
-def update_prices(db, prod_id, price_by_currency_id):
+    # Do a first pass sorted by title because bestselling moves around too much
+    title_res = await get_catalog(session, default_params)
+    catalog_ids = [cat_entry.id for cat_entry in title_res]
+    qman.schedule_products(catalog_ids)
+
+    bestselling_res = await get_catalog(session, bestselling_params)
+    trending_res = await get_catalog(session, trending_params)
+    bestselling_by_id = {cat_entry.id: cat_entry for cat_entry in bestselling_res}
+    trending_by_id = {cat_entry.id: cat_entry for cat_entry in trending_res}
+    merged_res = title_res
+    for cat_entry in merged_res:
+        bestselling_entry = bestselling_by_id.get(cat_entry.id)
+        if bestselling_entry:
+            cat_entry.pos_bestselling = bestselling_entry.position
+        trending_entry = trending_by_id.get(cat_entry.id)
+        if trending_entry:
+            cat_entry.pos_trending = trending_entry.position
+
+    now = datetime.datetime.now(datetime.timezone.utc)
+    all_ids = qman.scheduled_products.copy()
+    title_by_id = {cat_entry.id: cat_entry for cat_entry in title_res}
+    for prod_id in all_ids:
+        # Work on the bestselling entries because that is already dictionary indexed
+        cat_entry = title_by_id.get(prod_id)
+        if cat_entry is not None:
+            update_price(
+                db,
+                prod_id = prod_id,
+                country = "US",
+                currency = "USD",
+                price_base = cat_entry.price_base,
+                price_final = cat_entry.price_final,
+                now = now
+            )
+        else:
+            update_price(
+                db,
+                prod_id = prod_id,
+                country = "US",
+                currency = "USD",
+                price_base = None,
+                price_final = None,
+                now = now
+            )
+    return merged_res
+
+def update_price(db, prod_id, country, currency, price_base, price_final, now):
     price_log = db.prices.load(prod_id)
     if price_log is None:
         price_log = {"US": {"USD": []}}
+    currency_log = price_log["US"]["USD"]
 
-    date = datetime.datetime.now(datetime.timezone.utc)
+    record = model.PriceRecord(
+        currency = currency,
+        date = now
+    )
+    record.price_base_decimal = price_base
+    record.price_final_decimal = price_final
 
-    for currency_id in [("US", "USD")]:
-        record = price_by_currency_id.get(currency_id)
-        if not record:
-            record = model.PriceRecord(
-                price_base = None,
-                price_final = None,
-                currency = currency_id[1]
-            )
-        record.date = date
-        currency_log = price_log[currency_id[0]][currency_id[1]]
-        if currency_log:
-            last_price = currency_log[-1]
-            # Rollback means the last not-for-sale entry is invalid because the old price
-            # came back within a short time
-            is_rollback = (
-                len(currency_log) >= 2
-                and record.same_price(currency_log[-2])
-                and last_price.price_base is None
-                and (record.date - last_price.date) < datetime.timedelta(hours=24)
-            )
-            if is_rollback:
-                # Remove the last not-for-sale entry
-                logger.warning(f"Price rollback for {prod_id}")
-                currency_log.pop()
-            elif not record.same_price(last_price):
-                currency_log.append(record)
-        else:
+    if currency_log:
+        last_price = currency_log[-1]
+        # Rollback means the last not-for-sale entry is invalid because the old price
+        # came back within a short time
+        is_rollback = (
+            len(currency_log) >= 2
+            and record.same_price(currency_log[-2])
+            and last_price.price_base is None
+            and (record.date - last_price.date) < datetime.timedelta(hours=4)
+        )
+        if is_rollback:
+            # Remove the last not-for-sale entry
+            logger.warning(f"Price rollback for {prod_id}")
+            currency_log.pop()
+        elif not record.same_price(last_price):
             currency_log.append(record)
+    else:
+        currency_log.append(record)
 
     db.prices.save(price_log, prod_id)
-
-async def prices_worker(session, qman, db):
-    while True:
-        chunk = []
-        while len(chunk) < 100:
-            try:
-                prod_id = await qman.get_from_prices()
-            except QueueExhausted:
-                logger.debug("Prices queue exhausted for products")
-                break
-            chunk.append(prod_id)
-
-        if not chunk:
-            break
-
-        logger.info(f"Fetching prices for {chunk}")
-
-        chunk_date = datetime.datetime.now(datetime.timezone.utc)
-
-        content = await session.fetch_prices(chunk, "US")
-        if not content:
-            logger.error(f"Failed to fetch prices for {chunk}")
-
-        items_by_id = {
-            product_item["_embedded"]["product"]["id"]: product_item
-            for product_item in content["_embedded"]["items"]
-        }
-
-        for prod_id in chunk:
-            product_item = items_by_id.get(prod_id)
-
-            if product_item:
-                price_by_currency_id = {}
-                for currency_item in product_item["_embedded"]["prices"]:
-                    record = model.PriceRecord(
-                        price_base = int(currency_item["basePrice"].split()[0]),
-                        price_final = int(currency_item["finalPrice"].split()[0]),
-                        currency = currency_item["currency"]["code"],
-                    )
-                    price_by_currency_id[("US", record.currency)] = record
-
-            else:
-                price_by_currency_id = {}
-
-            update_prices(db, prod_id, price_by_currency_id)
 
 
 async def product_worker(session, qman, db, worker_number):
@@ -302,20 +319,14 @@ async def product_worker(session, qman, db, worker_number):
     logger.info(f"Worker {worker_number} done")
 
 
-def set_storedata(db, popularity_order, all_ids):
-    popularity_by_id = {
-        prod_id: rank_0_based + 1
-        for rank_0_based, prod_id in enumerate(reversed(popularity_order))
-    }
-    for prod_id in all_ids:
-        prod = db.product.load(prod_id)
+def set_storedata(db, catalog_res):
+    num_entries = len(catalog_res)
+    for cat_entry in catalog_res:
+        prod = db.product.load(cat_entry.id)
         if not prod:
             continue
-        prod.sale_rank = popularity_by_id.get(prod_id, 0)
-        db.product.save(prod, prod_id)
-        if prod.sale_rank == 0:
-            # The product is not for sale, so we need to set its price to unavailable now
-            update_prices(db, prod_id, {})
+        prod.sale_rank = 1 + num_entries - cat_entry.pos_bestselling
+        db.product.save(prod, cat_entry.id)
 
 
 async def wait_or_raise(waiting, raising):
@@ -345,32 +356,27 @@ async def download_main(db, config):
     if ids is None:
         ids = []
     ids.sort(key=scramble_number)
-    print(f"Starting downloader with {len(ids)} IDs")
+    eprint(f"Starting downloader with {len(ids)} IDs")
     qman.schedule_products(ids)
 
-    store_list_task = asyncio.create_task(
-        store_list_worker(session, qman))
+    catalog_task = asyncio.create_task(catalog_worker(session, qman, db))
     num_product_tasks = config.get("NUM_PRODUCT_TASKS", 1)
     logger.info(f"Creating {num_product_tasks} product workers")
     product_tasks = [
         asyncio.create_task(product_worker(session, qman, db, i))
         for i in range(num_product_tasks)
     ]
-    prices_task = asyncio.create_task(
-        prices_worker(session, qman, db))
-    await wait_or_raise({store_list_task}, {*product_tasks, prices_task})
+    await wait_or_raise({catalog_task}, {*product_tasks})
     qman.products_exhausted.set()
-    await wait_or_raise({*product_tasks}, {prices_task})
-    qman.prices_exhausted.set()
-    await prices_task
+    await asyncio.gather(*product_tasks, return_exceptions=False)
 
     ids = list(qman.scheduled_products)
     db.ids.save(ids)
 
-    logger.info("Setting popularities")
-    popularity_order = store_list_task.result()
-    set_storedata(db, popularity_order, ids)
-    print(f"Requested {len(ids)} products")
+    logger.info("Setting catalog data")
+    catalog_results = catalog_task.result()
+    set_storedata(db, catalog_results)
+    eprint(f"Requested {len(ids)} products")
 
     await session.close()
     await asyncio.sleep(0.250) # Wait for aiohttp to close connections
@@ -382,10 +388,11 @@ def main():
 
     logging.basicConfig()
     logger.setLevel(config.get("UPDATER_LOGLEVEL", logging.NOTSET))
+    logging.getLogger("UpdateDB.session").setLevel(config.get("SESSION_LOGLEVEL", logging.NOTSET))
 
     tasks = sys.argv[1:]
     if not tasks:
-        print("Updater missing task argument: [all, download, index]")
+        eprint("Updater missing task argument: [all, download, index]")
         exit(1)
     if "all" in tasks:
         tasks = ["download", "index"]

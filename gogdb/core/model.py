@@ -166,11 +166,25 @@ class PriceRecord:
             return None
         return decimal.Decimal(self.price_base) / 100
 
+    @price_base_decimal.setter
+    def price_base_decimal(self, value):
+        if value is None:
+            self.price_base = None
+        else:
+            self.price_base = int(value * 100)
+
     @property
     def price_final_decimal(self):
         if self.price_final is None:
             return None
         return decimal.Decimal(self.price_final) / 100
+
+    @price_final_decimal.setter
+    def price_final_decimal(self, value):
+        if value is None:
+            self.price_final = None
+        else:
+            self.price_final = int(value * 100)
 
     def same_price(self, other):
         return (

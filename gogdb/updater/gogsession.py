@@ -3,6 +3,8 @@ import logging
 import json
 import zlib
 import os
+import traceback
+import asyncio
 
 import aiohttp
 
@@ -55,10 +57,17 @@ class GogSession:
         headers["Authorization"] = "Bearer " + self.token.access_token
         kwargs["headers"] = headers
         # Set default timeout
-        kwargs["timeout"] = kwargs.get("timeout", 10)
+        kwargs["timeout"] = aiohttp.ClientTimeout(total=kwargs.get("timeout", 10))
         retries = REQUEST_RETRIES
         while retries > 0:
-            resp = await self.aio_session.get(*args, **kwargs)
+            try:
+                resp = await self.aio_session.get(*args, **kwargs)
+            except asyncio.TimeoutError:
+                retries -= 1
+                if retries > 0:
+                    continue
+                else:
+                    raise
             if resp.status < 500:
                 break
             await resp.read()
@@ -70,7 +79,7 @@ class GogSession:
         if caching & CACHE_LOAD:
             try:
                 with open(path, "r") as load_file:
-                    logger.debug("Served from cache %r", url)
+                    logger.debug("Served from cache %s", path)
                     return json.load(load_file)
             except (FileNotFoundError, json.decoder.JSONDecodeError):
                 if caching == CACHE_LOAD:
@@ -81,7 +90,7 @@ class GogSession:
         try:
             resp = await self.retry_get(url, **kwargs)
         except Exception as e:
-            logger.error("Failed to load %s: %r", name, e)
+            logger.error("Failed to load %s: %s", name, traceback.format_exception_only(e)[-1].strip())
             return
         if resp.status >= 400:
             # Treat 404s as info because they are so common
@@ -180,20 +189,15 @@ class GogSession:
             decompress=True
         )
 
-    async def fetch_store_page(self, page_num):
+    async def fetch_catalog(self, params, page_num):
+        page_params = params.copy()
+        page_params["page"] = page_num
+        page_params["limit"] = 48
+        cache_id = '_'.join(str(v) for v in page_params.values())
         return await self.get_json(
-            f"store page {page_num}",
-            url=f"https://www.gog.com/games/ajax/filtered?mediaType=game&page={page_num}&sort=popularity",
-            path=self.storage_path / f"raw/store/page_{page_num}.json",
-            caching=self.config.get("CACHE_STORE", CACHE_NONE)
-        )
-
-    async def fetch_prices(self, chunk, country_code):
-        ids_str = ",".join(str(c) for c in chunk)
-        cache_id = sum(chunk)
-        return await self.get_json(
-            f"prices for {chunk}",
-            url=f"https://api.gog.com/products/prices?ids={ids_str}&countryCode={country_code}",
-            path=self.storage_path / f"raw/prices/prices_{chunk[0]}_{cache_id}_{country_code}.json",
-            caching=self.config.get("CACHE_PRICES", CACHE_NONE)
+            f"catalog page {page_num}",
+            url="https://catalog.gog.com/v1/catalog",
+            params=page_params,
+            path=self.storage_path / f"raw/catalog/page_{cache_id}.json",
+            caching=self.config.get("CACHE_CATALOG", CACHE_NONE)
         )
