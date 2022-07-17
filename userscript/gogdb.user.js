@@ -1,13 +1,14 @@
 // ==UserScript==
 // @name GOG DB Integration
 // @description Add a GOG DB link to the GOG store
-// @version 0.6
+// @version 0.7
 // @author Yepoleb
 // @license CC0
 // @namespace https://gogdb.org
 // @icon https://www.gogdb.org/static/img/sizes/gogdb_48x48.png
 // @run-at document-end
 // @match https://www.gog.com/game/*
+// @match https://www.gog.com/*/game/*
 // @grant unsafeWindow
 // ==/UserScript==
 
