@@ -4,6 +4,7 @@ import datetime
 import flask
 
 from gogdb.core.storage import Storage
+import gogdb.core.dataclsloader
 
 """
 Removes invalid database entries
@@ -60,6 +61,16 @@ def fix_price_jitter(db, prod_id):
             i += 1
     db.prices.save(price_log, prod_id)
 
+def remove_extra_fields(db, prod_id):
+    gogdb.core.dataclsloader.ignore_extra_fields = True
+    try:
+        product = db.product.load(prod_id)
+        if product is None:
+            return
+        db.product.save(product, prod_id)
+    finally:
+        gogdb.core.dataclsloader.ignore_extra_fields = False
+
 def main():
     config = flask.Config(".")
     config.from_envvar("GOGDB_CONFIG")
@@ -67,7 +78,8 @@ def main():
     ids = db.ids.load()
     for prod_id in ids:
         print("Processing", prod_id)
-        fix_price_jitter(db, prod_id)
+        #fix_price_jitter(db, prod_id)
+        remove_extra_fields(db, prod_id)
 
 
 main()

@@ -226,7 +226,7 @@ class Product:
     tags: List[Tag]
     cs_systems: List[str]
     comp_systems: List[str]
-    #dl_systems: List[str]
+    #dl_systems: List[str]  # never used in V2
     is_using_dosbox: bool
 
     developers: List[str]
@@ -236,9 +236,14 @@ class Product:
     global_date: datetime.datetime
     store_date: datetime.datetime
     is_in_development: bool
-    is_pre_order: bool
+    #is_pre_order: bool  # deprecated in favor of store_state
     age_rating: int
-    sale_rank: int = 0
+
+    user_rating: int
+    store_state: str
+    rank_bestselling: int
+    rank_trending: int
+    #sale_rank: int = 0  # deprecated
 
     image_logo: str
     image_background: str

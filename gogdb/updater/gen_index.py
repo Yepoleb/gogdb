@@ -50,7 +50,11 @@ def count_rows(cur, table_name):
     cur.execute(f"SELECT COUNT(*) FROM {table_name};")
     return cur.fetchone()[0]
 
-def index_product(prod, cur):
+def index_product(prod, cur, num_ids):
+    if prod.rank_bestselling is not None:
+        sale_rank = num_ids - prod.rank_bestselling + 1
+    else:
+        sale_rank = 0
     cur.execute(
         "INSERT INTO products VALUES (?, ?, ?, ?, ?, ?, ?)",
         (
@@ -59,7 +63,7 @@ def index_product(prod, cur):
             prod.image_logo,
             prod.type,
             compress_systems(prod.comp_systems),
-            prod.sale_rank,
+            sale_rank,
             normalize_search(prod.title)
         )
     )
@@ -133,13 +137,14 @@ def index_main(db):
     cur.execute("DELETE FROM changelog;")
     cur.execute("DELETE FROM changelog_summary;")
 
+    num_ids = len(ids)
     for prod_id in ids:
         logger.info(f"Adding {prod_id}")
         prod = db.product.load(prod_id)
         if prod is None:
             logger.info(f"Skipped {prod_id}")
             continue
-        index_product(prod, cur)
+        index_product(prod, cur, num_ids)
 
         changelog = db.changelog.load(prod_id)
         if changelog is None:

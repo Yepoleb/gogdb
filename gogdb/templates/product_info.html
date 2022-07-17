@@ -33,7 +33,7 @@
       </tr>
       <tr>
         <td>In store</td>
-        <td>{{ (product.sale_rank > 0) | yes_no }}</td>
+        <td>{{ product.store_state | yes_no }}</td>
       </tr>
       <tr>
         <td>Developers</td>
@@ -55,7 +55,7 @@
     {% else %}
     <img id="product-logo" class="shadow" src="{{ url_for('static', filename='img/no_logo_1600x900.svg') }}" alt="">
     {% endif %}
-    {% if product.sale_rank > 0 %}
+    {% if product.store_state %}
     <a id="store-button" class="btn-gog" href="{{ product.link_store | unlocalize | affiliate }}">
       Store Page
     </a>
@@ -191,8 +191,8 @@
       <td>{{ product.store_date | datetime_day | nodata }}</td>
     </tr>
     <tr>
-      <td>Pre-order</td>
-      <td>{{ product.is_pre_order | yes_no }}</td>
+      <td>Store state</td>
+      <td>{{ product.store_state }}</td>
     </tr>
     <tr>
       <td>Age rating</td>
@@ -205,7 +205,7 @@
     <tr>
       <td class="table-prop">Store link</td>
       <td>
-        {% if product.sale_rank > 0 %}
+        {% if product.store_state %}
         <span class="force-overflow">
           {{ product.link_store | unlocalize | makeanchor }}
         </span>
@@ -350,7 +350,7 @@
     </tr>
   </table>
 
-  {% if product.sale_rank > 0 %}
+  {% if product.store_state %}
   <h2>Third Party Sites</h2>
   <table class="shadow cellborder">
     <tr>

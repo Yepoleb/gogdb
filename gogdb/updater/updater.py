@@ -319,14 +319,25 @@ async def product_worker(session, qman, db, worker_number):
     logger.info(f"Worker {worker_number} done")
 
 
-def set_storedata(db, catalog_res):
+def set_storedata(db, catalog_res, all_ids):
     num_entries = len(catalog_res)
-    for cat_entry in catalog_res:
-        prod = db.product.load(cat_entry.id)
+    catalog_by_id = {cat_entry.id: cat_entry for cat_entry in catalog_res}
+    for prod_id in all_ids:
+        prod = db.product.load(prod_id)
         if not prod:
             continue
-        prod.sale_rank = 1 + num_entries - cat_entry.pos_bestselling
-        db.product.save(prod, cat_entry.id)
+        cat_entry = catalog_by_id.get(prod_id)
+        if cat_entry:
+            prod.user_rating = cat_entry.rating
+            prod.store_state = cat_entry.state
+            prod.rank_bestselling = cat_entry.pos_bestselling
+            prod.rank_trending = cat_entry.pos_trending
+        else:
+            prod.user_rating = None
+            prod.store_state = None
+            prod.rank_bestselling = None
+            prod.rank_trending = None
+        db.product.save(prod, prod_id)
 
 
 async def wait_or_raise(waiting, raising):
@@ -375,7 +386,7 @@ async def download_main(db, config):
 
     logger.info("Setting catalog data")
     catalog_results = catalog_task.result()
-    set_storedata(db, catalog_results)
+    set_storedata(db, catalog_results, ids)
     eprint(f"Requested {len(ids)} products")
 
     await session.close()

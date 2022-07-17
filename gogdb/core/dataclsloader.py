@@ -3,6 +3,10 @@ import typing
 import datetime
 
 
+
+# Flag only intended to be temporarily set for database migrations
+ignore_extra_fields = False
+
 def get_origin(t):
     """Typing function defined here for compatibility with Python 3.7"""
     return getattr(t, "__origin__", None)
@@ -26,8 +30,13 @@ def class_from_json(cls, data):
             try:
                 field_type = annotations[field_name]
             except KeyError:
-                raise KeyError("Invalid field {!r} in json. Valid fields for type {}: {!r}".format(
-                    field_name, cls, list(annotations.keys())))
+                if ignore_extra_fields:
+                    continue
+                else:
+                    raise KeyError(
+                        "Invalid field {!r} in json. Valid fields for type {}: {!r}".format(
+                        field_name, cls, list(annotations.keys()))
+                    )
             try:
                 field_inst = class_from_json(field_type, field_value)
             except TypeError:
