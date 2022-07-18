@@ -71,15 +71,15 @@ def print_tree(dirtree, cur_indent="", **kwargs):
         if type(child) is dict:
             print_tree(child, cur_indent + lower_indent, **kwargs)
 
-def manifest(manifest_id):
+async def manifest(manifest_id):
     storagedb = get_storagedb()
     if "-" in manifest_id:
-        manifest_data = storagedb.manifest_v1.load(manifest_id)
+        manifest_data = await storagedb.manifest_v1.load(manifest_id)
         if manifest_data is None:
             flask.abort(404)
         manifest = buildloader.load_manifest_v1(manifest_data)
     else:
-        manifest_data = storagedb.manifest_v2.load(manifest_id)
+        manifest_data = await storagedb.manifest_v2.load(manifest_id)
         if manifest_data is None:
             flask.abort(404)
         manifest = buildloader.load_manifest_v2(manifest_data)

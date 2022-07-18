@@ -2,10 +2,12 @@ import dataclasses
 import json
 import datetime
 import gzip
-import os
 import pathlib
 import itertools
 import string
+
+import aiofiles
+import aiofiles.os
 
 import gogdb.core.model as model
 from gogdb.core.dataclsloader import class_from_json
@@ -40,51 +42,59 @@ class StorageItem:
         self.make_function = make_function
         self.compressed = compressed
 
-    def load(self, *args, **kwargs):
+    async def load(self, *args, **kwargs):
         # Prevent directory traversal and other funny stuff
         if not params_legal(args, kwargs):
             return None
         path = self.path_function(*args, **kwargs)
         try:
             if self.compressed:
-                fobj = gzip.open(path, "rt")
+                async with aiofiles.open(path, "rb") as fobj:
+                    content_compressed = await fobj.read()
+                file_content = gzip.decompress(content_compressed).decode("utf-8")
             else:
-                fobj = open(path, "r")
+                async with aiofiles.open(path, "r") as fobj:
+                    file_content = await fobj.read()
         except FileNotFoundError:
             return None
-        json_data = json.load(fobj)
-        fobj.close()
+        json_data = json.loads(file_content)
         if self.make_function:
             return self.make_function(json_data)
         else:
             return json_data
 
-    def save(self, instance, *args, **kwargs):
+    async def save(self, instance, *args, **kwargs):
         if not params_legal(args, kwargs):
             return None
         path = self.path_function(*args, **kwargs)
         temp_path = str(path) + ".part"
+        json_data = json.dumps(
+            instance, indent=2, sort_keys=True, ensure_ascii=False, default=json_encoder)
+        if self.compressed:
+            content_compressed = gzip.compress(json_data.encode("utf-8"))
         try:
             if self.compressed:
-                fobj = gzip.open(temp_path, "wt")
+                async with aiofiles.open(temp_path, "wb") as fobj:
+                    await fobj.write(content_compressed)
             else:
-                fobj = open(temp_path, "w")
+                async with aiofiles.open(temp_path, "w") as fobj:
+                    await fobj.write(json_data)
         except FileNotFoundError:
-            path.parent.mkdir(parents=True)
+            await aiofiles.os.makedirs(path.parent, exist_ok=True)
             # Don't want to bother with some fancy recursion, so copy & paste it is
             if self.compressed:
-                fobj = gzip.open(temp_path, "wt")
+                async with aiofiles.open(temp_path, "wb") as fobj:
+                    await fobj.write(content_compressed)
             else:
-                fobj = open(temp_path, "w")
-        json_dump(instance, fobj)
-        fobj.close()
-        os.replace(src=temp_path, dst=path)
+                async with aiofiles.open(temp_path, "w") as fobj:
+                    await fobj.write(json_data)
+        await aiofiles.os.replace(src=temp_path, dst=path)
 
-    def has(self, *args, **kwargs):
+    async def has(self, *args, **kwargs):
         if not params_legal(args, kwargs):
             return None
         path = self.path_function(*args, **kwargs)
-        return path.exists()
+        return await aiofiles.os.path.exists(path)
 
 
 class Storage:

@@ -20,25 +20,25 @@ class MockProduct:
         self.id = product_id
 
 
-def product_info(prod_id):
+async def product_info(prod_id):
     storagedb = get_storagedb()
-    product = storagedb.product.load(prod_id)
+    product = await storagedb.product.load(prod_id)
 
     if product is None:
         flask.abort(404)
 
     # Allow loading pre 2019 prices
     if flask.request.args.get("old"):
-        pricehistory = storagedb.prices_old.load(prod_id)
+        pricehistory = await storagedb.prices_old.load(prod_id)
         has_old_prices = True
     else:
-        pricehistory = storagedb.prices.load(prod_id)
+        pricehistory = await storagedb.prices.load(prod_id)
         has_old_prices = False
     if pricehistory:
         cur_history = pricehistory["US"]["USD"]
     else:
         cur_history = []
-    changelog = storagedb.changelog.load(prod_id)
+    changelog = await storagedb.changelog.load(prod_id)
 
     history_chart = {"labels": [], "values": [], "max": 0}
     if cur_history:

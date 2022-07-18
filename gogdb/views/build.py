@@ -4,12 +4,12 @@ from gogdb.application.datasources import get_storagedb
 import gogdb.core.buildloader as buildloader
 
 
-def build(prod_id, build_id):
+async def build(prod_id, build_id):
     storagedb = get_storagedb()
-    product = storagedb.product.load(prod_id)
+    product = await storagedb.product.load(prod_id)
     if product is None:
         flask.abort(404)
-    repository_raw = storagedb.repository.load(prod_id, build_id)
+    repository_raw = await storagedb.repository.load(prod_id, build_id)
     if repository_raw is None:
         flask.abort(404)
 

@@ -11,9 +11,9 @@ ALLOWED_TAGS = [
 
 ALLOWED_ATTRIBUTES = ["href", "alt", "title", "src", "start"]
 
-def releasenotes(prod_id):
+async def releasenotes(prod_id):
     storagedb = get_storagedb()
-    product = storagedb.product.load(prod_id)
+    product = await storagedb.product.load(prod_id)
 
     if product is None or not product.changelog:
         flask.abort(404)
