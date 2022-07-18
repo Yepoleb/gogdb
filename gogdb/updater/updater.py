@@ -191,7 +191,7 @@ def update_price(db, prod_id, country, currency, price_base, price_final, now):
             currency_log.pop()
         elif not record.same_price(last_price):
             currency_log.append(record)
-    else:
+    elif record.price_base is not None:
         currency_log.append(record)
 
     db.prices.save(price_log, prod_id)
