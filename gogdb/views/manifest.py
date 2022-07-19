@@ -40,6 +40,9 @@ def add_tree_item(tree, item):
             # Directory does not yet exist, create it
             cur_level[part] = {}
         cur_level = cur_level[part]
+    # Need to check again for the last element in the loop
+    if getattr(cur_level, "type", None) == "link":
+        return
     if item.type == "file":
         cur_level[tail] = item
     elif item.type == "dir":
