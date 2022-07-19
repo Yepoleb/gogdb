@@ -118,8 +118,11 @@ def videoid(video):
     if video.provider == "youtube":
         return video.thumbnail_url.split("/")[4]
 
-def affiliate(url):
-    return url.replace("www.gog.com", "af.gog.com") + "?as=1721879312"
+def affiliate(url, advertiser_id):
+    if advertiser_id:
+        return url.replace("www.gog.com", "af.gog.com") + "?as=" + str(advertiser_id)
+    else:
+        return url
 
 def unlocalize(url):
     return re.sub("gog.com/../", "gog.com/", url)
@@ -144,5 +147,7 @@ def add_filters(app):
     app.add_template_filter(makeanchor)
     app.add_template_filter(nodata)
     app.add_template_filter(videoid)
-    app.add_template_filter(affiliate)
+    app.add_template_filter(
+        lambda url: affiliate(url, app.config.get("ADVERTISER_ID")),
+        name="affiliate")
     app.add_template_filter(unlocalize)
