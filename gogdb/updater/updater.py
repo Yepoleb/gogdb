@@ -141,7 +141,7 @@ async def catalog_worker(session, qman, db):
         # Work on the bestselling entries because that is already dictionary indexed
         cat_entry = title_by_id.get(prod_id)
         if cat_entry is not None:
-            update_price(
+            await update_price(
                 db,
                 prod_id = prod_id,
                 country = "US",
@@ -151,7 +151,7 @@ async def catalog_worker(session, qman, db):
                 now = now
             )
         else:
-            update_price(
+            await update_price(
                 db,
                 prod_id = prod_id,
                 country = "US",
@@ -162,8 +162,8 @@ async def catalog_worker(session, qman, db):
             )
     return merged_res
 
-def update_price(db, prod_id, country, currency, price_base, price_final, now):
-    price_log = db.prices.load(prod_id)
+async def update_price(db, prod_id, country, currency, price_base, price_final, now):
+    price_log = await db.prices.load(prod_id)
     if price_log is None:
         price_log = {"US": {"USD": []}}
     currency_log = price_log["US"]["USD"]
@@ -194,7 +194,9 @@ def update_price(db, prod_id, country, currency, price_base, price_final, now):
     elif record.price_base is not None:
         currency_log.append(record)
 
-    db.prices.save(price_log, prod_id)
+    # Only save if it has entries
+    if price_log["US"]["USD"]:
+        await db.prices.save(price_log, prod_id)
 
 
 async def product_worker(session, qman, db, worker_number):
@@ -207,7 +209,7 @@ async def product_worker(session, qman, db, worker_number):
         logger.info(f"Worker {worker_number} Downloading {prod_id}")
 
         timestamp = datetime.datetime.now(datetime.timezone.utc)
-        prod = db.product.load(prod_id)
+        prod = await db.product.load(prod_id)
         if prod is None:
             prod = model.Product()
             prod.added_on = timestamp
@@ -215,7 +217,7 @@ async def product_worker(session, qman, db, worker_number):
         else:
             old_prod = copy.deepcopy(prod)
 
-        changelog = db.changelog.load(prod_id)
+        changelog = await db.changelog.load(prod_id)
         if changelog is None:
             changelog = []
         old_changelog_len = len(changelog)
@@ -250,23 +252,23 @@ async def product_worker(session, qman, db, worker_number):
                 dataextractors.extract_builds(prod, builds_cont, system)
 
             for build in prod.builds:
-                repo = db.repository.load(prod.id, build.id)
+                repo = await db.repository.load(prod.id, build.id)
                 if build.generation == 1:
                     if repo is None:
                         repo = await session.fetch_repo_v1(build.link, prod.id, build.id)
                         if repo is None:
                             continue
-                        db.repository.save(repo, prod.id, build.id)
+                        await db.repository.save(repo, prod.id, build.id)
                     for depot in repo["product"]["depots"]:
                         if "manifest" not in depot:
                             continue
                         mf_id = depot["manifest"].split(".")[0]
                         mf_url = build.link.rsplit("/", 1)[0] + "/" + depot["manifest"]
-                        if not db.manifest_v1.has(mf_id):
+                        if not await db.manifest_v1.has(mf_id):
                             manifest = await session.fetch_manifest_v1(mf_id, mf_url)
                             if manifest is None:
                                 continue
-                            db.manifest_v1.save(manifest, mf_id)
+                            await db.manifest_v1.save(manifest, mf_id)
                         else:
                             logger.debug(f"Not redownloading manifest v1 {mf_id}")
                 else:
@@ -274,14 +276,14 @@ async def product_worker(session, qman, db, worker_number):
                         repo = await session.fetch_repo_v2(build.link, prod.id, build.id)
                         if repo is None:
                             continue
-                        db.repository.save(repo, prod.id, build.id)
+                        await db.repository.save(repo, prod.id, build.id)
                     for depot in repo["depots"] + [repo["offlineDepot"]]:
                         mf_id = depot["manifest"]
-                        if not db.manifest_v2.has(mf_id):
+                        if not await db.manifest_v2.has(mf_id):
                             manifest = await session.fetch_manifest_v2(mf_id)
                             if manifest is None:
                                 continue
-                            db.manifest_v2.save(manifest, mf_id)
+                            await db.manifest_v2.save(manifest, mf_id)
                         else:
                             logger.debug(f"Not redownloading manifest v2 {mf_id}")
 
@@ -290,7 +292,8 @@ async def product_worker(session, qman, db, worker_number):
             if old_prod:
                 prod_changelogger.property("title")
                 prod_changelogger.property("comp_systems")
-                prod_changelogger.property("is_pre_order")
+                # deprecated, needs to be replaced with store_state
+                #prod_changelogger.property("is_pre_order")
                 # Disabled because it can't be detected reliably
                 #prod_changelogger.property("changelog")
                 prod_changelogger.downloads("bonus")
@@ -310,20 +313,20 @@ async def product_worker(session, qman, db, worker_number):
         changelog += prod_changelogger.entries
 
         if prod.has_content():
-            db.product.save(prod, prod.id)
+            await db.product.save(prod, prod.id)
 
         if len(changelog) != old_changelog_len:
-            db.changelog.save(changelog, prod.id)
+            await db.changelog.save(changelog, prod.id)
 
         qman.products_queue.task_done()
     logger.info(f"Worker {worker_number} done")
 
 
-def set_storedata(db, catalog_res, all_ids):
+async def set_storedata(db, catalog_res, all_ids):
     num_entries = len(catalog_res)
     catalog_by_id = {cat_entry.id: cat_entry for cat_entry in catalog_res}
     for prod_id in all_ids:
-        prod = db.product.load(prod_id)
+        prod = await db.product.load(prod_id)
         if not prod:
             continue
         cat_entry = catalog_by_id.get(prod_id)
@@ -337,7 +340,7 @@ def set_storedata(db, catalog_res, all_ids):
             prod.store_state = None
             prod.rank_bestselling = None
             prod.rank_trending = None
-        db.product.save(prod, prod_id)
+        await db.product.save(prod, prod_id)
 
 
 async def wait_or_raise(waiting, raising):
@@ -361,9 +364,10 @@ async def wait_or_raise(waiting, raising):
 
 async def download_main(db, config):
     session = GogSession(db, config)
+    await session.load_token()
     qman = QueueManager()
 
-    ids = db.ids.load()
+    ids = await db.ids.load()
     if ids is None:
         ids = []
     ids.sort(key=scramble_number)
@@ -382,11 +386,11 @@ async def download_main(db, config):
     await asyncio.gather(*product_tasks, return_exceptions=False)
 
     ids = list(qman.scheduled_products)
-    db.ids.save(ids)
+    await db.ids.save(ids)
 
     logger.info("Setting catalog data")
     catalog_results = catalog_task.result()
-    set_storedata(db, catalog_results, ids)
+    await set_storedata(db, catalog_results, ids)
     eprint(f"Requested {len(ids)} products")
 
     await session.close()
@@ -410,6 +414,6 @@ def main():
     if "download" in tasks:
         asyncio.run(download_main(db, config))
     if "index" in tasks:
-        index_main(db)
+        asyncio.run(index_main(db))
 
 main()

@@ -7,6 +7,7 @@ import traceback
 import asyncio
 
 import aiohttp
+import aiofiles
 
 import gogdb.core.storage as storage
 from gogdb.updater.gogtoken import GogToken
@@ -35,14 +36,14 @@ class GogSession:
         self.aio_session = aiohttp.ClientSession(
             connector=aio_connector, headers=headers)
         self.set_cookie("gog_lc", "US_USD_en-US")
-        self.load_token()
+        self.token = None # Needs to be loaded with load_token
 
-    def load_token(self):
+    async def load_token(self):
         self.token = GogToken(self.aio_session)
-        self.token.set_data(self.db.token.load())
+        self.token.set_data(await self.db.token.load())
 
-    def save_token(self):
-        self.db.token.save(self.token.get_data())
+    async def save_token(self):
+        await self.db.token.save(self.token.get_data())
 
     def set_cookie(self, name, value):
         self.aio_session.cookie_jar.update_cookies({name: value})
@@ -53,7 +54,7 @@ class GogSession:
     async def retry_get(self, *args, **kwargs):
         headers = kwargs.get("headers", {})
         if await self.token.refresh_if_expired():
-            self.save_token()
+            await self.save_token()
         headers["Authorization"] = "Bearer " + self.token.access_token
         kwargs["headers"] = headers
         # Set default timeout
@@ -121,9 +122,10 @@ class GogSession:
             path.parent.mkdir(parents=True, exist_ok=True)
             path_dst = str(path)
             path_temp = path_dst + ".part"
-            with open(path_temp, "w") as store_file:
-                storage.json_dump(content_json, store_file)
-            os.replace(path_temp, path_dst)
+            async with aiofiles.open(path_temp, "w") as store_file:
+                await store_file.write(json.dumps(
+                    content_json, indent=2, sort_keys=True, ensure_ascii=False))
+            await aiofiles.os.replace(path_temp, path_dst)
 
         return content_json
 

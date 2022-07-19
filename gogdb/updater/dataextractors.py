@@ -40,7 +40,7 @@ def extract_properties_v0(prod, v0_cont):
 
     prod.store_date = parse_datetime(v0_cont["release_date"])
     prod.is_in_development = v0_cont["in_development"]["active"]
-    prod.is_pre_order = v0_cont["is_pre_order"]
+    #prod.is_pre_order = v0_cont["is_pre_order"]  # deprecated
 
     prod.image_logo = extract_imageid(v0_cont["images"]["logo"])
     prod.image_background = extract_imageid(v0_cont["images"]["background"])

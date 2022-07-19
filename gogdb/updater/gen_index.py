@@ -120,8 +120,8 @@ def index_changelog(prod, changelog, cur):
             )
         )
 
-def index_main(db):
-    ids = db.ids.load()
+async def index_main(db):
+    ids = await db.ids.load()
     print(f"Starting indexer with {len(ids)} IDs")
 
     changelog_index_path = db.path_indexdb()
@@ -140,13 +140,13 @@ def index_main(db):
     num_ids = len(ids)
     for prod_id in ids:
         logger.info(f"Adding {prod_id}")
-        prod = db.product.load(prod_id)
+        prod = await db.product.load(prod_id)
         if prod is None:
             logger.info(f"Skipped {prod_id}")
             continue
         index_product(prod, cur, num_ids)
 
-        changelog = db.changelog.load(prod_id)
+        changelog = await db.changelog.load(prod_id)
         if changelog is None:
             logger.info(f"No changelog {prod_id}")
             continue
