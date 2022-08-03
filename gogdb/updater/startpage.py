@@ -29,7 +29,7 @@ class StartpageProcessor:
         self.db = db
 
     async def prepare(self, num_ids):
-        return
+        pass
 
     async def process(self, data):
         prod = data.product

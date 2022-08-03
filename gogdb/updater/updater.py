@@ -17,6 +17,7 @@ from gogdb.updater.gogsession import GogSession
 import gogdb.updater.dataextractors as dataextractors
 from gogdb.updater.indexdb import IndexDbProcessor
 from gogdb.updater.startpage import StartpageProcessor
+from gogdb.updater.charts import ChartsProcessor
 
 
 logger = logging.getLogger("UpdateDB")
@@ -401,6 +402,7 @@ async def download_main(db, config):
 
 @dataclass
 class ProcessorData:
+    id: int
     product: model.Product = None
     changelog: List[model.ChangeRecord] = None
     prices: List[model.PriceRecord] = None
@@ -410,7 +412,7 @@ async def processor_worker(db, ids, processors, worker_num):
     while ids:
         prod_id = ids.pop()
         logger.info(f"Worker {worker_num} processing {prod_id}")
-        processor_data = ProcessorData()
+        processor_data = ProcessorData(id=prod_id)
         if "product" in wants:
             processor_data.product = await db.product.load(prod_id)
         if "changelog" in wants:
@@ -444,10 +446,10 @@ def main():
 
     tasks = sys.argv[1:]
     if not tasks:
-        eprint("Updater missing task argument: [all, download, index, startpage]")
+        eprint("Updater missing task argument: [all, download, index, startpage, charts]")
         exit(1)
     if "all" in tasks:
-        tasks = ["download", "index", "startpage"]
+        tasks = ["download", "index", "startpage", "charts"]
     if "download" in tasks:
         asyncio.run(download_main(db, config))
 
@@ -456,6 +458,8 @@ def main():
         processors.append(IndexDbProcessor(db))
     if "startpage" in tasks:
         processors.append(StartpageProcessor(db))
+    if "charts" in tasks:
+        processors.append(ChartsProcessor(db))
 
     if processors:
         asyncio.run(processors_main(db, processors))
