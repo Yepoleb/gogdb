@@ -5,7 +5,7 @@ import os
 import collections
 import logging
 
-import flask
+import aiosqlite
 
 from gogdb.core.normalization import normalize_search, compress_systems
 import gogdb.core.storage as storage
@@ -15,8 +15,8 @@ import gogdb.core.model as model
 
 logger = logging.getLogger("UpdateDB.Index")
 
-def init_db(cur):
-    cur.execute("""CREATE TABLE products (
+async def init_db(cur):
+    await cur.execute("""CREATE TABLE products (
         product_id INTEGER,
         title TEXT,
         image_logo TEXT,
@@ -25,7 +25,7 @@ def init_db(cur):
         sale_rank INTEGER,
         search_title TEXT
     );""")
-    cur.execute("""CREATE TABLE changelog (
+    await cur.execute("""CREATE TABLE changelog (
         product_id INTEGER,
         product_title TEXT,
         timestamp REAL,
@@ -36,26 +36,26 @@ def init_db(cur):
         property_name TEXT,
         serialized_record TEXT
     );""")
-    cur.execute("""CREATE TABLE changelog_summary (
+    await cur.execute("""CREATE TABLE changelog_summary (
         product_id INTEGER,
         product_title TEXT,
         timestamp REAL,
         categories TEXT
     );""")
-    cur.execute("CREATE INDEX idx_products_sale_rank ON products (sale_rank)")
-    cur.execute("CREATE INDEX idx_changelog_timestamp ON changelog (timestamp)")
-    cur.execute("CREATE INDEX idx_summary_timestamp ON changelog_summary (timestamp)")
+    await cur.execute("CREATE INDEX idx_products_sale_rank ON products (sale_rank)")
+    await cur.execute("CREATE INDEX idx_changelog_timestamp ON changelog (timestamp)")
+    await cur.execute("CREATE INDEX idx_summary_timestamp ON changelog_summary (timestamp)")
 
-def count_rows(cur, table_name):
-    cur.execute(f"SELECT COUNT(*) FROM {table_name};")
-    return cur.fetchone()[0]
+async def count_rows(cur, table_name):
+    await cur.execute(f"SELECT COUNT(*) FROM {table_name};")
+    return (await cur.fetchone())[0]
 
-def index_product(prod, cur, num_ids):
+async def index_product(prod, cur, num_ids):
     if prod.rank_bestselling is not None:
         sale_rank = num_ids - prod.rank_bestselling + 1
     else:
         sale_rank = 0
-    cur.execute(
+    await cur.execute(
         "INSERT INTO products VALUES (?, ?, ?, ?, ?, ?, ?)",
         (
             prod.id,
@@ -68,7 +68,7 @@ def index_product(prod, cur, num_ids):
         )
     )
 
-def index_changelog(prod, changelog, cur):
+async def index_changelog(prod, changelog, cur):
     summaries = collections.defaultdict(set)
     for changerec in changelog:
         idx_change = model.IndexChange(
@@ -89,7 +89,7 @@ def index_changelog(prod, changelog, cur):
         elif changerec.category == "property":
             idx_change.property_name = changerec.property_record.property_name
 
-        cur.execute(
+        await cur.execute(
             "INSERT INTO changelog VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (
                 idx_change.id,
@@ -110,7 +110,7 @@ def index_changelog(prod, changelog, cur):
 
     for timestamp, category_set in summaries.items():
         category_str = ",".join(sorted(category_set))
-        cur.execute(
+        await cur.execute(
             "INSERT INTO changelog_summary VALUES (?, ?, ?, ?)",
             (
                 prod.id,
@@ -127,15 +127,15 @@ async def index_main(db):
     changelog_index_path = db.path_indexdb()
     changelog_index_path.parent.mkdir(exist_ok=True)
     need_create = not changelog_index_path.exists()
-    conn = sqlite3.connect(changelog_index_path, isolation_level=None)
-    cur = conn.cursor()
+    conn = await aiosqlite.connect(changelog_index_path, isolation_level=None)
+    cur = await conn.cursor()
     if need_create:
-        init_db(cur)
+        await init_db(cur)
 
-    cur.execute("BEGIN TRANSACTION;")
-    cur.execute("DELETE FROM products;")
-    cur.execute("DELETE FROM changelog;")
-    cur.execute("DELETE FROM changelog_summary;")
+    await cur.execute("BEGIN TRANSACTION;")
+    await cur.execute("DELETE FROM products;")
+    await cur.execute("DELETE FROM changelog;")
+    await cur.execute("DELETE FROM changelog_summary;")
 
     num_ids = len(ids)
     for prod_id in ids:
@@ -144,20 +144,22 @@ async def index_main(db):
         if prod is None:
             logger.info(f"Skipped {prod_id}")
             continue
-        index_product(prod, cur, num_ids)
+        await index_product(prod, cur, num_ids)
 
         changelog = await db.changelog.load(prod_id)
         if changelog is None:
             logger.info(f"No changelog {prod_id}")
             continue
-        index_changelog(prod, changelog, cur)
+        await index_changelog(prod, changelog, cur)
 
-    cur.execute("END TRANSACTION;")
+    await cur.execute("END TRANSACTION;")
 
     print("Indexed {} products, {} changelog entries, {} changelog summaries".format(
-        count_rows(cur, "products"), count_rows(cur, "changelog"), count_rows(cur, "changelog_summary")
+        await count_rows(cur, "products"),
+        await count_rows(cur, "changelog"),
+        await count_rows(cur, "changelog_summary")
     ))
 
-    cur.close()
-    conn.commit()
-    conn.close()
+    await cur.close()
+    await conn.commit()
+    await conn.close()

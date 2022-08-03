@@ -20,6 +20,7 @@ requires = [
     "aiohttp",
     "python-dateutil",
     "requests",
+    "aiosqlite",
     "bleach"
 ]
 
