@@ -120,46 +120,47 @@ async def index_changelog(prod, changelog, cur):
             )
         )
 
-async def index_main(db):
-    ids = await db.ids.load()
-    print(f"Starting indexer with {len(ids)} IDs")
+class IndexDbProcessor:
+    wants = {"product", "changelog"}
 
-    changelog_index_path = db.path_indexdb()
-    changelog_index_path.parent.mkdir(exist_ok=True)
-    need_create = not changelog_index_path.exists()
-    conn = await aiosqlite.connect(changelog_index_path, isolation_level=None)
-    cur = await conn.cursor()
-    if need_create:
-        await init_db(cur)
+    def __init__(self, db):
+        self.db = db
+        self.conn = None
+        self.cur = None
 
-    await cur.execute("BEGIN TRANSACTION;")
-    await cur.execute("DELETE FROM products;")
-    await cur.execute("DELETE FROM changelog;")
-    await cur.execute("DELETE FROM changelog_summary;")
+    async def prepare(self, num_ids):
+        self.num_ids = num_ids
+        changelog_index_path = self.db.path_indexdb()
+        changelog_index_path.parent.mkdir(exist_ok=True)
+        need_create = not changelog_index_path.exists()
+        self.conn = await aiosqlite.connect(changelog_index_path, isolation_level=None)
+        self.cur = await self.conn.cursor()
+        if need_create:
+            await init_db(self.cur)
 
-    num_ids = len(ids)
-    for prod_id in ids:
-        logger.info(f"Adding {prod_id}")
-        prod = await db.product.load(prod_id)
-        if prod is None:
-            logger.info(f"Skipped {prod_id}")
-            continue
-        await index_product(prod, cur, num_ids)
+        await self.cur.execute("BEGIN TRANSACTION;")
+        await self.cur.execute("DELETE FROM products;")
+        await self.cur.execute("DELETE FROM changelog;")
+        await self.cur.execute("DELETE FROM changelog_summary;")
 
-        changelog = await db.changelog.load(prod_id)
-        if changelog is None:
-            logger.info(f"No changelog {prod_id}")
-            continue
-        await index_changelog(prod, changelog, cur)
+    async def process(self, data):
+        if data.product is None:
+            return
+        await index_product(data.product, self.cur, self.num_ids)
 
-    await cur.execute("END TRANSACTION;")
+        if data.changelog is None:
+            return
+        await index_changelog(data.product, data.changelog, self.cur)
 
-    print("Indexed {} products, {} changelog entries, {} changelog summaries".format(
-        await count_rows(cur, "products"),
-        await count_rows(cur, "changelog"),
-        await count_rows(cur, "changelog_summary")
-    ))
+    async def finish(self):
+        await self.cur.execute("END TRANSACTION;")
 
-    await cur.close()
-    await conn.commit()
-    await conn.close()
+        print("Indexed {} products, {} changelog entries, {} changelog summaries".format(
+            await count_rows(self.cur, "products"),
+            await count_rows(self.cur, "changelog"),
+            await count_rows(self.cur, "changelog_summary")
+        ))
+
+        await self.cur.close()
+        await self.conn.commit()
+        await self.conn.close()

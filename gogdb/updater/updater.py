@@ -5,6 +5,8 @@ import datetime
 import copy
 import sys
 import decimal
+from dataclasses import dataclass
+from typing import List
 
 import flask
 
@@ -13,8 +15,8 @@ import gogdb.core.storage as storage
 from gogdb.core.changelogger import Changelogger
 from gogdb.updater.gogsession import GogSession
 import gogdb.updater.dataextractors as dataextractors
-from gogdb.updater.indexdb import index_main
-from gogdb.updater.startpage import startpage_main
+from gogdb.updater.indexdb import IndexDbProcessor
+from gogdb.updater.startpage import StartpageProcessor
 
 
 logger = logging.getLogger("UpdateDB")
@@ -397,6 +399,40 @@ async def download_main(db, config):
     await session.close()
     await asyncio.sleep(0.250) # Wait for aiohttp to close connections
 
+@dataclass
+class ProcessorData:
+    product: model.Product = None
+    changelog: List[model.ChangeRecord] = None
+    prices: List[model.PriceRecord] = None
+
+async def processor_worker(db, ids, processors, worker_num):
+    wants = set.union(*[processor.wants for processor in processors])
+    while ids:
+        prod_id = ids.pop()
+        logger.info(f"Worker {worker_num} processing {prod_id}")
+        processor_data = ProcessorData()
+        if "product" in wants:
+            processor_data.product = await db.product.load(prod_id)
+        if "changelog" in wants:
+            processor_data.changelog = await db.changelog.load(prod_id)
+        if "prices" in wants:
+            processor_data.prices = await db.prices.load(prod_id)
+        for processor in processors:
+            await processor.process(processor_data)
+
+async def processors_main(db, processors):
+    ids = await db.ids.load()
+
+    for processor in processors:
+        await processor.prepare(len(ids))
+    worker_tasks = [
+        asyncio.create_task(processor_worker(db, ids, processors, worker_num))
+        for worker_num in range(8)
+    ]
+    await asyncio.gather(*worker_tasks, return_exceptions=False)
+    for processor in processors:
+        await processor.finish()
+
 def main():
     config = flask.Config(".")
     config.from_envvar("GOGDB_CONFIG")
@@ -414,9 +450,14 @@ def main():
         tasks = ["download", "index", "startpage"]
     if "download" in tasks:
         asyncio.run(download_main(db, config))
+
+    processors = []
     if "index" in tasks:
-        asyncio.run(index_main(db))
+        processors.append(IndexDbProcessor(db))
     if "startpage" in tasks:
-        asyncio.run(startpage_main(db))
+        processors.append(StartpageProcessor(db))
+
+    if processors:
+        asyncio.run(processors_main(db, processors))
 
 main()

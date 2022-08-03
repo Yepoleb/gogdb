@@ -1,7 +1,6 @@
 import datetime
 import itertools
 import asyncio
-
 from dataclasses import dataclass
 
 import gogdb.core.model as model
@@ -22,13 +21,20 @@ class ProductSummary:
     on_sale: bool
 
 
-async def startpage_worker(db, ids, worker_num):
-    worker_results = []
-    while ids:
-        prod_id = ids.pop()
-        prod = await db.product.load(prod_id)
+class StartpageProcessor:
+    wants = {"product", "changelog", "prices"}
+
+    def __init__(self, db):
+        self.summaries = []
+        self.db = db
+
+    async def prepare(self, num_ids):
+        return
+
+    async def process(self, data):
+        prod = data.product
         if prod is None:
-            continue
+            return
 
         added_on = prod.added_on
         if added_on is None:
@@ -41,7 +47,7 @@ async def startpage_worker(db, ids, worker_num):
             rank_bestselling = 1000000
 
         last_build = FIRST_DATE
-        changelog = await db.changelog.load(prod_id)
+        changelog = data.changelog
         if changelog is not None:
             for cl_entry in reversed(changelog):
                 if cl_entry.category == "build" and cl_entry.action == "add":
@@ -50,7 +56,7 @@ async def startpage_worker(db, ids, worker_num):
 
         on_sale = False
         discount = 0
-        prices = await db.prices.load(prod_id)
+        prices = data.prices
         if prices is not None and prices["US"]["USD"]:
             cur_price = prices["US"]["USD"][-1]
             if cur_price.price_base is not None:
@@ -60,7 +66,7 @@ async def startpage_worker(db, ids, worker_num):
             discount = 0
         on_sale_sort_val = 0 if discount > 0 else 1  # on sale should sort first
 
-        worker_results.append(ProductSummary(
+        self.summaries.append(ProductSummary(
             index_prod = model.StartpageProduct(
                 id = prod.id,
                 title = prod.title,
@@ -75,28 +81,16 @@ async def startpage_worker(db, ids, worker_num):
             on_sale = on_sale_sort_val
         ))
 
-    return worker_results
-
-async def startpage_main(db):
-    ids = await db.ids.load()
-    print(f"Starting startpage generator with {len(ids)} IDs")
-    worker_tasks = [
-        asyncio.create_task(startpage_worker(db, ids, worker_num))
-        for worker_num in range(8)
-    ]
-    worker_results = await asyncio.gather(*worker_tasks, return_exceptions=False)
-
-    product_summary = list(itertools.chain.from_iterable(worker_results))
-
-    games = [p for p in product_summary if p.type == "game"]
-    list_added = sorted(games, key=lambda p: p.added_on, reverse=True)[:NUM_SUMMARY]
-    list_trending = sorted(product_summary, key=lambda p: p.rank_trending)[:NUM_SUMMARY]
-    list_builds = sorted(games, key=lambda p: p.last_build, reverse=True)[:NUM_SUMMARY]
-    list_sale = sorted(games, key=lambda p: (p.on_sale, p.rank_bestselling))[:NUM_SUMMARY]
-    startpage_obj = model.StartpageLists(
-        added = [p.index_prod for p in list_added],
-        trending = [p.index_prod for p in list_trending],
-        builds = [p.index_prod for p in list_builds],
-        sale = [p.index_prod for p in list_sale]
-    )
-    await db.startpage.save(startpage_obj)
+    async def finish(self):
+        games = [p for p in self.summaries if p.type == "game"]
+        list_added = sorted(games, key=lambda p: p.added_on, reverse=True)[:NUM_SUMMARY]
+        list_trending = sorted(self.summaries, key=lambda p: p.rank_trending)[:NUM_SUMMARY]
+        list_builds = sorted(games, key=lambda p: p.last_build, reverse=True)[:NUM_SUMMARY]
+        list_sale = sorted(games, key=lambda p: (p.on_sale, p.rank_bestselling))[:NUM_SUMMARY]
+        startpage_obj = model.StartpageLists(
+            added = [p.index_prod for p in list_added],
+            trending = [p.index_prod for p in list_trending],
+            builds = [p.index_prod for p in list_builds],
+            sale = [p.index_prod for p in list_sale]
+        )
+        await self.db.startpage.save(startpage_obj)
