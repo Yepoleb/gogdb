@@ -313,6 +313,20 @@ class IndexChangelogSummary:
     timestamp: datetime.datetime
     categories: List[str]
 
+@defaultdataclass
+class StartpageProduct:
+    id: int
+    title: str
+    image_logo: str
+    discount: int
+
+@defaultdataclass
+class StartpageLists:
+    added: List[StartpageProduct]
+    trending: List[StartpageProduct]
+    builds: List[StartpageProduct]
+    sale: List[StartpageProduct]
+
 
 ########################################
 # Generation 1

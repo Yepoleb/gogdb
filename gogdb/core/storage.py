@@ -110,6 +110,7 @@ class Storage:
         self.changelog = StorageItem(self.path_changelog, self.make_changelog)
         self.manifest_v1 = StorageItem(self.path_manifest_v1, compressed=True)
         self.manifest_v2 = StorageItem(self.path_manifest_v2, compressed=True)
+        self.startpage = StorageItem(self.path_startpage, self.make_startpage)
 
     def __repr__(self):
         return f"Storage({repr(self.storage_path)})"
@@ -161,6 +162,13 @@ class Storage:
 
     def path_manifest_v2(self, manifest_id):
         return self.storage_path / f"manifests_v2/{manifest_id[0:2]}/{manifest_id[2:4]}/{manifest_id}.json.gz"
+
+    def path_startpage(self):
+        return self.storage_path / "startpage.json"
+
+    @staticmethod
+    def make_startpage(json_data):
+        return class_from_json(model.StartpageLists, json_data)
 
     def path_indexdb(self):
         return self.storage_path / "index.sqlite3"

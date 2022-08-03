@@ -24,5 +24,41 @@
   <p>
     For technical information about this site and contact details visit the
     <a href="{{ url_for('moreinfo') }}">More Information</a> site.
+  </p>
+</div>
+
+<div class="startpage-lists-grid">
+  {% macro render_list(name, entries) %}
+  <div class="startpage-list-group">
+    <h2>{{ name }}</h2>
+    <ol class="startpage-list shadow">
+      {% for product in entries %}
+      <li>
+        <span class="startpage-entry">
+          <a href="{{ prod_url(product.id) }}">
+            {% if product.image_logo %}
+            <img class="startpage-thumb" src="{{ product.image_logo | gog_image('_196.jpg') }}" alt="">
+            {% else %}
+            <img class="startpage-thumb" src="{{ url_for('static', filename='img/no_logo_1600x900.svg') }}" alt="">
+            {% endif %}
+          </a>
+          <a href="{{ prod_url(product.id) }}" class="startpage-prodtitle hoveronly">
+            {{ product.title }}
+          </a>
+          {% if product.discount > 0 %}
+          <span class="startpage-discount">
+            -{{ product.discount }}%
+          </span>
+          {% endif %}
+        </span>
+      </li>
+      {% endfor %}
+    </ol>
+  </div>
+  {% endmacro %}
+  {{ render_list("Recently popular", startpage.trending) }}
+  {{ render_list("On sale", startpage.sale) }}
+  {{ render_list("New builds", startpage.builds) }}
+  {{ render_list("Recently added", startpage.added) }}
 </div>
 {% endblock content %}

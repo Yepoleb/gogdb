@@ -1,0 +1,45 @@
+.startpage-lists-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(375px, 1fr));
+  column-gap: 3%;
+  row-gap: 1em;
+}
+
+.startpage-list {
+  list-style: none;
+  background-color: #e1e1e1;
+  margin: 0;
+  padding: 0;
+}
+
+.startpage-entry {
+  display: flex;
+  align-items: stretch;
+}
+
+.startpage-entry > * {
+  display: inline-flex;
+  align-items: center;
+}
+
+.startpage-list li {
+  border-bottom: 1px solid #c5c5c5;
+}
+
+.startpage-list li:last-child {
+  border-bottom: none;
+}
+
+.startpage-thumb {
+  height: 60px;
+}
+
+.startpage-prodtitle {
+  flex-grow: 1;
+  padding: 0 1em;
+}
+
+.startpage-discount {
+  border-left: 4px solid #f18e00;
+  padding: 0 0.7em;
+}

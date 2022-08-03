@@ -13,7 +13,8 @@ import gogdb.core.storage as storage
 from gogdb.core.changelogger import Changelogger
 from gogdb.updater.gogsession import GogSession
 import gogdb.updater.dataextractors as dataextractors
-from gogdb.updater.gen_index import index_main
+from gogdb.updater.indexdb import index_main
+from gogdb.updater.startpage import startpage_main
 
 
 logger = logging.getLogger("UpdateDB")
@@ -407,13 +408,15 @@ def main():
 
     tasks = sys.argv[1:]
     if not tasks:
-        eprint("Updater missing task argument: [all, download, index]")
+        eprint("Updater missing task argument: [all, download, index, startpage]")
         exit(1)
     if "all" in tasks:
-        tasks = ["download", "index"]
+        tasks = ["download", "index", "startpage"]
     if "download" in tasks:
         asyncio.run(download_main(db, config))
     if "index" in tasks:
         asyncio.run(index_main(db))
+    if "startpage" in tasks:
+        asyncio.run(startpage_main(db))
 
 main()
