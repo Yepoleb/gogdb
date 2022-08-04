@@ -5,13 +5,14 @@
 
 {% set title %}{{ product.title }}{% endset %}
 
+{% block link %}
+<link rel="stylesheet" href="{{ asset_url('css/product_info.css') }}">
+<link rel="stylesheet" href="{{ asset_url('css/product_list.css') }}">
+<link rel="stylesheet" href="{{ asset_url('css/changelog.css') }}">
+{% endblock %}
 {% block js %}
-{% assets "js-prodinfo" %}
-<script type="text/javascript" src="{{ ASSET_URL }}"></script>
-{% endassets %}
-<script type="application/json" id="pricehistory-json">
-  {{ pricehistory | tojson | safe }}
-</script>
+<script type="text/javascript" src="{{ asset_url('js/tabs.js') }}"></script>
+<script type="text/javascript" src="{{ asset_url('js/tooltips.js') }}"></script>
 {% endblock js %}
 
 {% block content %}
@@ -86,8 +87,8 @@
 
   {% if priceframes %}
   {% if pricehistory.max > 0 %}
-  <div id="chart-container">
-    <canvas id="chart-canvas" class="shadow"></canvas>
+  <div id="chart-container" class="shadow">
+    <object class="chart-object" type="image/svg+xml" data="{{ url_for('charts', prod_id=product.id) }}"></object>
   </div>
   {% endif %}
   <table class="shadow cellborder">

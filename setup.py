@@ -10,17 +10,16 @@ requires = [
     "SQLAlchemy",
     "psycopg2",
 
-    # assets
-    "webassets",
-    "rcssmin",
-    "rjsmin",
-    "Flask-Assets",
+    # charts
+    "pygal",
+    "lxml",
 
     # util
     "aiohttp",
     "python-dateutil",
     "requests",
     "aiosqlite",
+    "aiofiles",
     "bleach"
 ]
 
@@ -41,11 +40,5 @@ setup(
     packages=["gogdb"],
     include_package_data=True,
     zip_safe=False,
-    install_requires=requires,
-    entry_points={
-        "console_scripts": [
-            "gogdb-init = gogdb.scripts.gogdb_init:main",
-            "gogdb-add = gogdb.scripts.gogdb_add:main"
-        ],
-    }
+    install_requires=requires
 )

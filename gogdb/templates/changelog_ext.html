@@ -5,6 +5,7 @@
 {% set title %}Extended Changelog{% endset %}
 
 {% block link %}
+<link rel="stylesheet" href="{{ asset_url('css/changelog.css') }}">
 <link rel="alternate" type="application/atom+xml" title="Atom Feed for GOG Database" href="{{ url_for('changelog_atom') }}">
 {% endblock %}
 

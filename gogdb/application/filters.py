@@ -3,6 +3,7 @@ import flask
 import re
 
 import gogdb.core.names as names
+from gogdb.application.assets import asset_url
 
 
 
@@ -127,7 +128,9 @@ def affiliate(url, advertiser_id):
 def unlocalize(url):
     return re.sub("gog.com/../", "gog.com/", url)
 
+
 def add_filters(app):
+    app.add_template_global(asset_url)
     app.add_template_filter(yes_no)
     app.add_template_filter(os_icon)
     app.add_template_filter(os_icons)

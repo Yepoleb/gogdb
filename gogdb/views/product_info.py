@@ -1,12 +1,15 @@
 import copy
 import datetime
 import itertools
+import hashlib
+import base64
 
 import flask
 
 import gogdb.core.model as model
 from gogdb.application.datasources import get_storagedb, get_indexdb
 from gogdb.core.normalization import decompress_systems
+from gogdb.updater.charts_css import CHARTS_CSS
 
 
 class MockProduct:
@@ -19,6 +22,15 @@ class MockProduct:
     def __init__(self, product_id):
         self.id = product_id
 
+
+charts_css_hasher = hashlib.sha256()
+charts_css_hasher.update(CHARTS_CSS.encode("utf-8"))
+charts_css_digest = base64.b64encode(charts_css_hasher.digest()).decode("utf-8")
+csp_header = (
+    "default-src 'self'; "
+    "img-src 'self' images.gog.com img.youtube.com; "
+    f"style-src 'self' 'sha256-{charts_css_digest}';"
+)
 
 async def product_info(prod_id):
     storagedb = get_storagedb()
@@ -105,7 +117,7 @@ async def product_info(prod_id):
         for key, ref_ids in referenced_ids.items()
     }
 
-    return flask.render_template(
+    response = flask.make_response(flask.render_template(
         "product_info.html",
         product=product,
         referenced_products=referenced_products,
@@ -113,4 +125,6 @@ async def product_info(prod_id):
         priceframes=priceframes,
         has_old_prices=has_old_prices,
         changelog=changelog
-    )
+    ))
+    response.headers["Content-Security-Policy"] = csp_header
+    return response

@@ -1,32 +1,28 @@
-import flask_assets
+import os.path
+import hashlib
 
-from gogdb.application.rcssmin_webassets import RCSSMin
-
-
-css_all = flask_assets.Bundle(
-    "css/*.css",
-    filters=[RCSSMin],
-    output="css/gogdb.%(version)s.css")
-
-fonts_all = flask_assets.Bundle(
-    "fonts/*.css",
-    filters=[RCSSMin],
-    output="css/fonts.%(version)s.css")
-
-js_prodinfo = flask_assets.Bundle(
-    "js/moment.js",
-    "js/Chart.js",
-    "js/chartconfig.js",
-    "js/tabs.js",
-    filters="rjsmin",
-    output="js/product.%(version)s.js")
+import flask
 
 
-def add_assets(app):
-    assets_env = flask_assets.Environment(app)
-    assets_env.register("css-all", css_all)
-    assets_env.register("fonts-all", fonts_all)
-    assets_env.register("js-prodinfo", js_prodinfo)
+hash_cache = {}
 
-    assets_env.config["RCSSMIN_KEEP_BANG_COMMENTS"] = True
-    assets_env.config["RJSMIN_KEEP_BANG_COMMENTS"] = True
+def asset_url(filepath):
+    """
+    Insert 8 characters of the SHA256 hash into the file path before the extension.
+    Hashes are cached until application reload.
+    """
+    app = flask.current_app
+    file_hash = hash_cache.get(filepath)
+    if file_hash is None:
+        filepath_abs = os.path.join(app.root_path, "static", filepath)
+        hasher = hashlib.sha256()
+        hasher.update(open(filepath_abs, "rb").read())
+        file_hash = hasher.hexdigest()
+        hash_cache[filepath] = file_hash
+    path_split_ext = filepath.rsplit(".", 1)
+    if len(path_split_ext) == 2:
+        path_base, path_ext = path_split_ext
+        hashed_path = f"{path_base}_{file_hash[:8]}.{path_ext}"
+    else:
+        hashed_path = f"{filepath}_{file_hash[:8]}"
+    return f"/static/{hashed_path}"

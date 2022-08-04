@@ -29,6 +29,10 @@ body {
   flex-grow: 1;
 }
 
+#page > div {
+  margin-bottom: 30px;
+}
+
 header {
   background-color: #212121;
   border-bottom: 1px solid black;

@@ -4,6 +4,10 @@
 
 {% set title %}Products{% endset %}
 
+{% block link %}
+<link rel="stylesheet" href="{{ asset_url('css/product_list.css') }}">
+{% endblock %}
+
 {% block content %}
 <h1>{{ title }}</h1>
 <form id="product-search" class="search-bar shadow" action="{{ url_for('product_list') }}">

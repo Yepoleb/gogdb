@@ -1,4 +1,4 @@
-#page > div, .tab > * {
+.tab > * {
   margin-bottom: 30px;
 }
 
@@ -26,8 +26,31 @@
 }
 
 #chart-container {
-  height: 300px;
-  background-color: #e1e1e1;
+  position: relative;
+}
+
+.chart-object {
+  display: block;
+}
+
+.tooltip {
+  display: none;
+  border: 1px solid #f18e00;
+  border-radius: 2px;
+  padding: 10px;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  pointer-events: none;
+  background: #eee;
+}
+
+.tooltip-date {
+  font-size: 14px;
+}
+
+.tooltip-price {
+  font-size: 16px;
 }
 
 .force-overflow {

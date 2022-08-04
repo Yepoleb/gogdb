@@ -173,5 +173,8 @@ class Storage:
     def path_indexdb(self):
         return self.storage_path / "index.sqlite3"
 
+    def path_charts(self):
+        return self.storage_path / "charts"
+
     def path_chart(self, product_id):
         return self.storage_path / f"charts/{product_id}.svg.gz"

@@ -7,14 +7,15 @@
     <meta property="og:site_name" content="GOG Database">
     <meta property="og:title" content="{{ title }}">
     {% for size in [16, 32, 48, 64, 128, 256] %}
-    <link rel="icon" sizes="{{ "{0}x{0}".format(size) }}" href="{{ url_for('static', filename='img/sizes/gogdb_{0}x{0}.png'.format(size)) }}" type="image/png">
+    <link rel="icon" sizes="{{ "{0}x{0}".format(size) }}" href="{{ asset_url('img/sizes/gogdb_{0}x{0}.png'.format(size)) }}" type="image/png">
     {% endfor %}
-    <link rel="icon" sizes="any" href="{{ url_for('static', filename='img/gogdb.svg') }}" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/sizes/gogdb_180x180.png') }}">
+    <link rel="icon" sizes="any" href="{{ asset_url('img/gogdb.svg') }}" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="{{ asset_url('img/sizes/gogdb_180x180.png') }}">
+    <link rel="stylesheet" href="{{ asset_url('fonts/latolatin.css') }}">
+    <link rel="stylesheet" href="{{ asset_url('fonts/roboto-mono.css') }}">
+    <link rel="stylesheet" href="{{ asset_url('fonts/font-awesome.css') }}">
+    <link rel="stylesheet" href="{{ asset_url('css/common.css') }}">
     {% block link %}{% endblock %}
-    {% assets "css-all", "fonts-all" %}
-    <link rel="stylesheet" href="{{ ASSET_URL }}">
-    {% endassets %}
     {% block js %}
     <!-- Fix FOUC in Firefox -->
     <script>;</script>
@@ -23,7 +24,7 @@
   <body>
     <header class="shadow">
       <div id="header-content">
-        <img id="header-logo" class="header-item" src="{{ url_for('static', filename='img/gogdb.svg') }}" alt="">
+        <img id="header-logo" class="header-item" src="{{ asset_url('img/gogdb.svg') }}" alt="">
         <span class="header-item">
           <a href="{{ url_for('index') }}" class="no-underline hoverlight">Home</a>
         </span>

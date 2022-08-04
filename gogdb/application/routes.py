@@ -6,12 +6,13 @@ import gogdb.views.releasenotes
 import gogdb.views.changelog
 import gogdb.views.changelog_ext
 import gogdb.views.manifest
-import gogdb.views.generated
 import gogdb.views.favicon
 import gogdb.views.legal
 import gogdb.views.meta
 import gogdb.views.robots
 import gogdb.views.moreinfo
+import gogdb.views.charts
+import gogdb.views.static
 
 
 
@@ -26,8 +27,9 @@ def add_routes(app):
     app.add_url_rule("/changelog.xml", "changelog_atom", gogdb.views.changelog_ext.changelog_atom)
     app.add_url_rule("/manifest/<manifest_id>", "manifest", gogdb.views.manifest.manifest)
     app.add_url_rule("/meta/<meta_id>", "meta", gogdb.views.meta.meta)
+    app.add_url_rule("/charts/<int:prod_id>.svg", "charts", gogdb.views.charts.charts)
     # Static pages
-    app.add_url_rule("/generated/<path:filename>", "generated", gogdb.views.generated.generated)
+    app.add_url_rule("/static/<path:filename>", "static", gogdb.views.static.static)
     app.add_url_rule("/favicon.ico", "favicon", gogdb.views.favicon.favicon)
     app.add_url_rule("/legal", "legal", gogdb.views.legal.legal)
     app.add_url_rule("/robots.txt", "robots", gogdb.views.robots.robots)

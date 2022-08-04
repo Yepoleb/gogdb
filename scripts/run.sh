@@ -13,9 +13,6 @@ case "$script_name" in
 flask)
     flask run "$@"
     ;;
-assets)
-    flask assets build "$@"
-    ;;
 updater)
     python3 gogdb/updater/updater.py "$@"
     ;;
@@ -29,6 +26,6 @@ cleanup)
     python3 gogdb/tools/cleanup.py "$@"
     ;;
 *)
-    echo "Missing script name [flask, assets, updater, token, exporter, cleanup]"
+    echo "Missing script name [flask, updater, token, exporter, cleanup]"
     ;;
 esac
