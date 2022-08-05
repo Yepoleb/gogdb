@@ -1,9 +1,0 @@
-/var/log/gogdb/gogdb.log {
-	weekly
-	rotate 7
-	compress
-	delaycompress
-	missingok
-	notifempty
-}
-
