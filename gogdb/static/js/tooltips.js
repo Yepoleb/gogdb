@@ -69,7 +69,9 @@ function initChart(chart) {
 
 window.addEventListener("load", (event) => {
     let charts = document.querySelectorAll(".chart-object");
-    for (let chart of charts) {
-        initChart(chart);
+    if (charts !== null) {
+        for (let chart of charts) {
+            initChart(chart);
+        }
     }
 });
