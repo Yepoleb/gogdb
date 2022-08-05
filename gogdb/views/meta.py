@@ -11,4 +11,4 @@ async def meta(meta_id):
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as resp:
             json_text = zlib.decompress(await resp.read(), 15).decode("utf-8")
-    return await quart.jsonify(json.loads(json_text))
+    return quart.jsonify(json.loads(json_text))
