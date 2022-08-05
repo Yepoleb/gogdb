@@ -23,3 +23,11 @@ async def get_indexdb():
 
 async def get_indexdb_cursor():
     return await (await get_indexdb()).cursor()
+
+async def teardown_indexdb(exception=None):
+    indexdb = quart.g.pop("indexdb", None)
+    if indexdb is not None:
+        await indexdb.close()
+
+def add_teardown(app):
+    app.teardown_appcontext(teardown_indexdb)

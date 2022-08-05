@@ -42,6 +42,7 @@ async def changelog_ext_page(view):
             record = class_from_json(model.ChangeRecord, record_dict)
         )
         changes.append(change)
+    await cur.close()
 
     recordgroups = []
     for groupkey, items in itertools.groupby(

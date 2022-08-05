@@ -33,6 +33,7 @@ async def changelog():
             categories = summary_res["categories"].split(",")
         )
         changelog_summaries.append(summary)
+    await cur.close()
 
     page_info["prev_link"] = quart.url_for(
         "changelog", page=page_info["page"] - 1)

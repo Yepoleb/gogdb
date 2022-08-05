@@ -55,6 +55,7 @@ async def product_list():
             search_title = prod_res["search_title"]
         )
         products.append(idx_prod)
+    await cur.close()
 
     if search:
         page_info["prev_link"] = quart.url_for(

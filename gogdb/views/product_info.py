@@ -112,6 +112,7 @@ async def product_info(prod_id):
                 search_title = prod_res["search_title"]
             )
             all_products[idx_prod.id] = idx_prod
+        await cur.close()
     referenced_products = {
         key: [all_products.get(ref_id, MockProduct(ref_id)) for ref_id in ref_ids]
         for key, ref_ids in referenced_ids.items()
