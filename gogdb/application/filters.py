@@ -1,5 +1,5 @@
 import jinja2
-import flask
+import quart
 import re
 
 import gogdb.core.names as names
@@ -66,7 +66,7 @@ def gog_meta(meta_id):
         meta_id[0:2], meta_id[2:4], meta_id)
 
 def prod_url(prod_id):
-    return "{}/product/{}".format(flask.request.script_root, prod_id)
+    return "{}/product/{}".format(quart.request.root_path, prod_id)
 
 def prod_anchor(prod_id):
     url = prod_url(prod_id=prod_id)
@@ -106,7 +106,7 @@ def datetime_minute(dt):
 def makeanchor(url):
     if not url:
         return None
-    return flask.Markup('<a href="{0}">{0}</a>'.format(flask.escape(url)))
+    return quart.Markup('<a href="{0}">{0}</a>'.format(quart.escape(url)))
 
 def nodata(value):
     """Replace a value of None or empty string with 'No data'"""

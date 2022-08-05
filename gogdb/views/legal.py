@@ -1,5 +1,5 @@
-import flask
+import quart
 
 
-def legal():
-    return flask.render_template("legal.html")
+async def legal():
+    return await quart.render_template("legal.html")

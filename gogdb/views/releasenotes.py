@@ -1,4 +1,4 @@
-import flask
+import quart
 import bleach
 
 from gogdb.application.datasources import get_storagedb
@@ -16,10 +16,10 @@ async def releasenotes(prod_id):
     product = await storagedb.product.load(prod_id)
 
     if product is None or not product.changelog:
-        flask.abort(404)
+        quart.abort(404)
 
-    sanitized_html = flask.Markup(bleach.clean(
+    sanitized_html = quart.Markup(bleach.clean(
         product.changelog, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES, strip_comments=False
     ))
 
-    return flask.render_template("releasenotes.html", product=product, sanitized_html=sanitized_html)
+    return await quart.render_template("releasenotes.html", product=product, sanitized_html=sanitized_html)

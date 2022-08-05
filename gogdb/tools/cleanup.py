@@ -2,7 +2,7 @@ import shutil
 import datetime
 import asyncio
 
-import flask
+import quart
 
 from gogdb.core.storage import Storage
 import gogdb.core.dataclsloader
@@ -103,7 +103,7 @@ async def cleanup_worker(db, ids, worker_num):
 
 
 async def main():
-    config = flask.Config(".")
+    config = quart.Config(".")
     config.from_envvar("GOGDB_CONFIG")
     db = Storage(config["STORAGE_PATH"])
     ids = await db.ids.load()

@@ -2,7 +2,7 @@ import io
 import math
 import pathlib
 
-import flask
+import quart
 
 from gogdb.application.datasources import get_storagedb
 import gogdb.core.buildloader as buildloader
@@ -79,12 +79,12 @@ async def manifest(manifest_id):
     if "-" in manifest_id:
         manifest_data = await storagedb.manifest_v1.load(manifest_id)
         if manifest_data is None:
-            flask.abort(404)
+            quart.abort(404)
         manifest = buildloader.load_manifest_v1(manifest_data)
     else:
         manifest_data = await storagedb.manifest_v2.load(manifest_id)
         if manifest_data is None:
-            flask.abort(404)
+            quart.abort(404)
         manifest = buildloader.load_manifest_v2(manifest_data)
 
     all_items = manifest.files + manifest.directories + manifest.links
@@ -96,6 +96,6 @@ async def manifest(manifest_id):
     print(".", file=output)
     print_tree(tree, file=output)
 
-    resp = flask.make_response(output.getvalue())
+    resp = await quart.make_response(output.getvalue())
     resp.headers["Content-Type"] = "text/plain; charset=utf-8"
     return resp

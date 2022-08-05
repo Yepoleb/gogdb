@@ -4,10 +4,10 @@ import itertools
 import hashlib
 import base64
 
-import flask
+import quart
 
 import gogdb.core.model as model
-from gogdb.application.datasources import get_storagedb, get_indexdb
+from gogdb.application.datasources import get_storagedb, get_indexdb_cursor
 from gogdb.core.normalization import decompress_systems
 from gogdb.updater.charts_css import CHARTS_CSS
 
@@ -37,10 +37,10 @@ async def product_info(prod_id):
     product = await storagedb.product.load(prod_id)
 
     if product is None:
-        flask.abort(404)
+        quart.abort(404)
 
     # Allow loading pre 2019 prices
-    if flask.request.args.get("old"):
+    if quart.request.args.get("old"):
         pricehistory = await storagedb.prices_old.load(prod_id)
         has_old_prices = True
     else:
@@ -95,13 +95,13 @@ async def product_info(prod_id):
     all_references = set(itertools.chain.from_iterable(referenced_ids.values()))
     all_products = {}
     if all_references:
-        cur = get_indexdb().cursor()
+        cur = await get_indexdb_cursor()
         placeholders = ", ".join(itertools.repeat("?", len(all_references)))
-        cur.execute(
+        await cur.execute(
             "SELECT * FROM products WHERE product_id IN ({})".format(placeholders),
             tuple(all_references)
         )
-        for prod_res in cur:
+        async for prod_res in cur:
             idx_prod = model.IndexProduct(
                 id = prod_res["product_id"],
                 title = prod_res["title"],
@@ -117,7 +117,7 @@ async def product_info(prod_id):
         for key, ref_ids in referenced_ids.items()
     }
 
-    response = flask.make_response(flask.render_template(
+    response = await quart.make_response(await quart.render_template(
         "product_info.html",
         product=product,
         referenced_products=referenced_products,

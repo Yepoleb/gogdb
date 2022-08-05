@@ -8,7 +8,7 @@ import decimal
 from dataclasses import dataclass
 from typing import List
 
-import flask
+import quart
 
 import gogdb.core.model as model
 import gogdb.core.storage as storage
@@ -436,7 +436,7 @@ async def processors_main(db, processors):
         await processor.finish()
 
 def main():
-    config = flask.Config(".")
+    config = quart.Config(".")
     config.from_envvar("GOGDB_CONFIG")
     db = storage.Storage(config["STORAGE_PATH"])
 

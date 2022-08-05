@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 requires = [
     # base
-    "flask",
+    "quart",
     "jinja2",
 
     # legacy
@@ -14,12 +14,13 @@ requires = [
     "pygal",
     "lxml",
 
+    # storage
+    "aiosqlite",
+    "aiofiles",
+
     # util
     "aiohttp",
     "python-dateutil",
-    "requests",
-    "aiosqlite",
-    "aiofiles",
     "bleach"
 ]
 

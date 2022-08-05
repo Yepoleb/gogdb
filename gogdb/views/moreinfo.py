@@ -1,5 +1,5 @@
-import flask
+import quart
 
 
-def moreinfo():
-    return flask.render_template("moreinfo.html")
+async def moreinfo():
+    return await quart.render_template("moreinfo.html")

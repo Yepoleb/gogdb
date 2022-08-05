@@ -1,7 +1,7 @@
 import os.path
 import hashlib
 
-import flask
+import quart
 
 
 hash_cache = {}
@@ -11,7 +11,7 @@ def asset_url(filepath):
     Insert 8 characters of the SHA256 hash into the file path before the extension.
     Hashes are cached until application reload.
     """
-    app = flask.current_app
+    app = quart.current_app
     file_hash = hash_cache.get(filepath)
     if file_hash is None:
         filepath_abs = os.path.join(app.root_path, "static", filepath)

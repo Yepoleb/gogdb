@@ -1,9 +1,9 @@
 import os
 
-import flask
+import quart
 
 
-def robots():
-    static_path = os.path.join(flask.current_app.root_path, "static")
-    return flask.send_from_directory(
+async def robots():
+    static_path = os.path.join(quart.current_app.root_path, "static")
+    return await quart.send_from_directory(
         static_path, "robots.txt", mimetype="text/plain")

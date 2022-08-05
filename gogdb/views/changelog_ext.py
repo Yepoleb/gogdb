@@ -2,33 +2,33 @@ import itertools
 import datetime
 import json
 
-import flask
+import quart
 
 import gogdb.core.model as model
 from gogdb.views.pagination import calc_pageinfo
-from gogdb.application.datasources import get_indexdb
+from gogdb.application.datasources import get_indexdb_cursor
 from gogdb.core.dataclsloader import class_from_json
 
 ITEMS_PER_PAGE = 100
 
 
-def changelog_ext_page(view):
-    page = int(flask.request.args.get("page", "1"))
+async def changelog_ext_page(view):
+    page = int(quart.request.args.get("page", "1"))
 
-    cur = get_indexdb().cursor()
+    cur = await get_indexdb_cursor()
     # Get total number of entries
-    cur.execute("SELECT COUNT(*) FROM changelog;")
-    total_entries = cur.fetchone()[0]
+    await cur.execute("SELECT COUNT(*) FROM changelog;")
+    total_entries = (await cur.fetchone())[0]
 
     page_info = calc_pageinfo(page, total_entries, ITEMS_PER_PAGE)
 
-    cur.execute(
+    await cur.execute(
         "SELECT * FROM changelog ORDER BY timestamp DESC LIMIT ? OFFSET ?;",
         (ITEMS_PER_PAGE, page_info["from"])
     )
 
     changes = []
-    for change_res in cur:
+    async for change_res in cur:
         record_dict = json.loads(change_res["serialized_record"])
         change = model.IndexChange(
             id = change_res["product_id"],
@@ -48,13 +48,13 @@ def changelog_ext_page(view):
             changes, key=lambda record: (record.timestamp, record.id)):
         recordgroups.append(list(items))
 
-    page_info["prev_link"] = flask.url_for(
+    page_info["prev_link"] = quart.url_for(
         view, page=page_info["page"] - 1)
-    page_info["next_link"] = flask.url_for(
+    page_info["next_link"] = quart.url_for(
         view, page=page_info["page"] + 1)
 
     if view == "changelog_atom":
-        response = flask.make_response(flask.render_template(
+        response = await quart.make_response(await quart.render_template(
             "changelog_ext.xml",
             changes=recordgroups,
             page_info=page_info
@@ -63,14 +63,14 @@ def changelog_ext_page(view):
         return response
 
     else:
-        return flask.render_template(
+        return await quart.render_template(
             "changelog_ext.html",
             changes=recordgroups,
             page_info=page_info
         )
 
-def changelog_atom():
-    return changelog_ext_page("changelog_atom")
+async def changelog_atom():
+    return await changelog_ext_page("changelog_atom")
 
-def changelog_ext():
-    return changelog_ext_page("changelog_ext")
+async def changelog_ext():
+    return await changelog_ext_page("changelog_ext")

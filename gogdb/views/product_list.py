@@ -1,26 +1,26 @@
 import string
 import datetime
 
-import flask
+import quart
 
 import gogdb.core.model as model
 from gogdb.views.pagination import calc_pageinfo
 from gogdb.core.normalization import normalize_search, decompress_systems
-from gogdb.application.datasources import get_indexdb
+from gogdb.application.datasources import get_indexdb_cursor
 
 
 PRODUCTS_PER_PAGE = 20
 
 
-def product_list():
-    page = int(flask.request.args.get("page", "1"))
-    search = flask.request.args.get("search", "").strip()
+async def product_list():
+    page = int(quart.request.args.get("page", "1"))
+    search = quart.request.args.get("search", "").strip()
     # Filter illegal characters and resulting empty strings
     search_words = list(filter(None, (normalize_search(word) for word in search.split())))
 
-    cur = get_indexdb().cursor()
+    cur = await get_indexdb_cursor()
     if len(search) == 10 and search.isdecimal():
-        return flask.redirect(flask.url_for("product_info", prod_id=search), 303)
+        return quart.redirect(quart.url_for("product_info", prod_id=search), 303)
 
     elif search_words:
         query_filters = []
@@ -35,16 +35,16 @@ def product_list():
         filter_string = ""
         order_string = "sale_rank DESC"
 
-    cur.execute("SELECT COUNT(*) FROM products {};".format(filter_string))
-    num_products = cur.fetchone()[0]
+    await cur.execute("SELECT COUNT(*) FROM products {};".format(filter_string))
+    num_products = (await cur.fetchone())[0]
     page_info = calc_pageinfo(page, num_products, PRODUCTS_PER_PAGE)
 
-    cur.execute(
+    await cur.execute(
         "SELECT * FROM products {} ORDER BY {} LIMIT ? OFFSET ?;".format(filter_string, order_string),
         (PRODUCTS_PER_PAGE, page_info["from"])
     )
     products = []
-    for prod_res in cur:
+    async for prod_res in cur:
         idx_prod = model.IndexProduct(
             id = prod_res["product_id"],
             title = prod_res["title"],
@@ -57,17 +57,17 @@ def product_list():
         products.append(idx_prod)
 
     if search:
-        page_info["prev_link"] = flask.url_for(
+        page_info["prev_link"] = quart.url_for(
             "product_list", page=page_info["page"] - 1, search=search)
-        page_info["next_link"] = flask.url_for(
+        page_info["next_link"] = quart.url_for(
             "product_list", page=page_info["page"] + 1, search=search)
     else:
-        page_info["prev_link"] = flask.url_for(
+        page_info["prev_link"] = quart.url_for(
             "product_list", page=page_info["page"] - 1)
-        page_info["next_link"] = flask.url_for(
+        page_info["next_link"] = quart.url_for(
             "product_list", page=page_info["page"] + 1)
 
-    return flask.render_template(
+    return await quart.render_template(
         "product_list.html",
         products=products,
         page_info=page_info,

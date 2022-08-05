@@ -1,23 +1,25 @@
-import sqlite3
-
-import flask
+import quart
+import aiosqlite
 
 import gogdb.core.storage as storage
 
 
 
 def get_storagedb():
-    if "storagedb" not in flask.g:
-        storage_path = flask.current_app.config["STORAGE_PATH"]
-        flask.g.storagedb = storage.Storage(storage_path)
+    if "storagedb" not in quart.g:
+        storage_path = quart.current_app.config["STORAGE_PATH"]
+        quart.g.storagedb = storage.Storage(storage_path)
 
-    return flask.g.storagedb
+    return quart.g.storagedb
 
-def get_indexdb():
-    if "indexdb" not in flask.g:
+async def get_indexdb():
+    if "indexdb" not in quart.g:
         storagedb = get_storagedb()
         index_path = storagedb.path_indexdb()
-        flask.g.indexdb = sqlite3.connect(index_path)
-        flask.g.indexdb.row_factory = sqlite3.Row
+        quart.g.indexdb = await aiosqlite.connect(index_path)
+        quart.g.indexdb.row_factory = aiosqlite.Row
 
-    return flask.g.indexdb
+    return quart.g.indexdb
+
+async def get_indexdb_cursor():
+    return await (await get_indexdb()).cursor()
