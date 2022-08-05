@@ -81,7 +81,7 @@ class StorageItem:
                 async with aiofiles.open(temp_path, "w") as fobj:
                     await fobj.write(json_data)
         except FileNotFoundError:
-            await os.makedirs(path.parent, exist_ok=True)
+            os.makedirs(path.parent, exist_ok=True)
             # Don't want to bother with some fancy recursion, so copy & paste it is
             if self.compressed:
                 async with aiofiles.open(temp_path, "wb") as fobj:
@@ -89,7 +89,7 @@ class StorageItem:
             else:
                 async with aiofiles.open(temp_path, "w") as fobj:
                     await fobj.write(json_data)
-        await os.replace(src=temp_path, dst=path)
+        os.replace(src=temp_path, dst=path)
 
     async def has(self, *args, **kwargs):
         if not params_legal(args, kwargs):

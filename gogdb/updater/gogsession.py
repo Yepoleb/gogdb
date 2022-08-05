@@ -125,7 +125,7 @@ class GogSession:
             async with aiofiles.open(path_temp, "w") as store_file:
                 await store_file.write(json.dumps(
                     content_json, indent=2, sort_keys=True, ensure_ascii=False))
-            await os.replace(path_temp, path_dst)
+            os.replace(path_temp, path_dst)
 
         return content_json
 

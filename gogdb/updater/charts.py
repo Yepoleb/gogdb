@@ -136,7 +136,7 @@ class ChartsProcessor:
             async with aiofiles.open(chart_path, "wb") as fobj:
                 await fobj.write(chart_compressed)
         except FileNotFoundError:
-            await os.makedirs(chart_path.parent, exist_ok=True)
+            os.makedirs(chart_path.parent, exist_ok=True)
             async with aiofiles.open(chart_path, "wb") as fobj:
                 await fobj.write(chart_compressed)
 
