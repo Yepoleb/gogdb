@@ -1,6 +1,7 @@
 import datetime
 import gzip
 import math
+import os
 
 import pygal
 from lxml.etree import ElementTree, Element, tostring
@@ -135,7 +136,7 @@ class ChartsProcessor:
             async with aiofiles.open(chart_path, "wb") as fobj:
                 await fobj.write(chart_compressed)
         except FileNotFoundError:
-            await aiofiles.os.makedirs(chart_path.parent, exist_ok=True)
+            await os.makedirs(chart_path.parent, exist_ok=True)
             async with aiofiles.open(chart_path, "wb") as fobj:
                 await fobj.write(chart_compressed)
 
