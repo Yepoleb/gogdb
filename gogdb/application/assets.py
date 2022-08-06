@@ -25,4 +25,4 @@ def asset_url(filepath):
         hashed_path = f"{path_base}_{file_hash[:8]}.{path_ext}"
     else:
         hashed_path = f"{filepath}_{file_hash[:8]}"
-    return f"/static/{hashed_path}"
+    return f"{quart.request.root_path}/static/{hashed_path}"
