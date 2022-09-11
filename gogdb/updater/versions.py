@@ -124,7 +124,13 @@ class VersionsProcessor:
             return
 
         for os_name in ["windows", "osx"]:
-            os_builds = [build for build in prod.builds if build.os == os_name]
+            os_builds = [
+                build for build in prod.builds
+                if (
+                    build.os == os_name and
+                    (build.version is None or "beta" not in build.version.lower())
+                )
+            ]
             os_dls = [dl for dl in prod.dl_installer if dl.os == os_name and dl.language.code == "en"]
             if os_builds and os_dls:
                 last_build_vers = os_builds[-1].version
