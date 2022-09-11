@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% set title %}Version discrepancy table{% endset %}
+
+{% block content %}
+<h1>{{ title }}</h1>
+
+<div class="shadow">
+  <table class="cellborder">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Title</th>
+        <th>OS</th>
+        <th>Build Vers.</th>
+        <th>Download Vers.</th>
+        <th>Build age</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for mismatch in versions %}
+      <tr>
+        <td>{{ mismatch.id }}</td>
+        <td>{{ mismatch.title }}</td>
+        <td>{{ mismatch.os | os_icon }}</td>
+        <td>{{ mismatch.version_build }}</td>
+        <td>{{ mismatch.version_dl }}</td>
+        <td>{{ (now - mismatch.build_published).days }}&nbsp;days</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock content %}

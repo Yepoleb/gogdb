@@ -328,6 +328,18 @@ class StartpageLists:
     sale: List[StartpageProduct]
 
 
+# User models
+
+@defaultdataclass
+class Mismatch:
+    id: int
+    title: str
+    os: str
+    version_build: str
+    version_dl: str
+    build_published: datetime.datetime
+
+
 ########################################
 # Generation 1
 ########################################

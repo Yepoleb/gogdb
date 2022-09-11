@@ -18,6 +18,7 @@ import gogdb.updater.dataextractors as dataextractors
 from gogdb.updater.indexdb import IndexDbProcessor
 from gogdb.updater.startpage import StartpageProcessor
 from gogdb.updater.charts import ChartsProcessor
+from gogdb.updater.versions import VersionsProcessor
 
 
 logger = logging.getLogger("UpdateDB")
@@ -446,10 +447,10 @@ def main():
 
     tasks = sys.argv[1:]
     if not tasks:
-        eprint("Updater missing task argument: [all, download, index, startpage, charts]")
+        eprint("Updater missing task argument: [all, download, index, startpage, charts, versions]")
         exit(1)
     if "all" in tasks:
-        tasks = ["download", "index", "startpage", "charts"]
+        tasks = ["download", "index", "startpage", "charts", "versions"]
     if "download" in tasks:
         asyncio.run(download_main(db, config))
 
@@ -460,6 +461,8 @@ def main():
         processors.append(StartpageProcessor(db))
     if "charts" in tasks:
         processors.append(ChartsProcessor(db))
+    if "versions" in tasks:
+        processors.append(VersionsProcessor(db))
 
     if processors:
         asyncio.run(processors_main(db, processors))
