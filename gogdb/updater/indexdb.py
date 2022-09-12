@@ -51,9 +51,9 @@ async def count_rows(cur, table_name):
 
 async def index_product(prod, cur, num_ids):
     if prod.rank_bestselling is not None:
-        sale_rank = num_ids - prod.rank_bestselling + 1
+        sale_rank = prod.rank_bestselling
     else:
-        sale_rank = 0
+        sale_rank = 100000  # some high number
     await cur.execute(
         "INSERT INTO products VALUES (?, ?, ?, ?, ?, ?, ?)",
         (

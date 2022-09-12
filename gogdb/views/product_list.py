@@ -30,10 +30,10 @@ async def product_list():
             word_cond = "search_title LIKE '%{}%'".format(word)
             query_filters.append(word_cond)
         filter_string = "WHERE " + " AND ".join(query_filters)
-        order_string = "sale_rank DESC, LENGTH(title) ASC"
+        order_string = "sale_rank ASC, LENGTH(title) ASC"
     else:
         filter_string = ""
-        order_string = "sale_rank DESC"
+        order_string = "sale_rank ASC"
 
     await cur.execute("SELECT COUNT(*) FROM products {};".format(filter_string))
     num_products = (await cur.fetchone())[0]
