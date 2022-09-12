@@ -30,7 +30,7 @@
 
   <h2>Which APIs does GOG DB monitor?</h2>
   <p>
-    GOG DB uses the following GOG APIs calls to collect its data:
+    GOG DB uses the following GOG API calls to collect its data:
   </p>
 <pre>https://www.gog.com/games/ajax/filtered?mediaType=game&amp;page={page_num}&amp;sort=popularity
 https://api.gog.com/products/prices?ids={ids_str}&amp;countryCode={country_code}
@@ -39,6 +39,11 @@ https://api.gog.com/v2/games/{prod_id}?locale=en-US
 https://content-system.gog.com/products/{prod_id}/os/{system}/builds?generation=2
 https://cdn.gog.com/content-system/v1/manifests/{prod_id}/{system}/{legacy_build_id}/repository.json
 https://cdn.gog.com/content-system/v2/meta/{meta_id}</pre>
+
+  <h2>How often is the site updated?</h2>
+  <p>
+    The updater runs every 2 hours starting at 00:45. It takes around 15 minutes to complete.
+  </p>
 
   <h2>Can you help me with GOG related programming?</h2>
   <p>
