@@ -16,10 +16,7 @@
     <link rel="stylesheet" href="{{ asset_url('fonts/font-awesome.css') }}">
     <link rel="stylesheet" href="{{ asset_url('css/common.css') }}">
     {% block link %}{% endblock %}
-    {% block js %}
-    <!-- Fix FOUC in Firefox -->
-    <script>;</script>
-    {% endblock %}
+    {% block js %}{% endblock %}
   </head>
   <body>
     <header class="shadow">
