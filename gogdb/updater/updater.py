@@ -427,7 +427,7 @@ async def processors_main(db, processors):
     ids = await db.ids.load()
 
     for processor in processors:
-        await processor.prepare(len(ids))
+        await processor.prepare()
     worker_tasks = [
         asyncio.create_task(processor_worker(db, ids, processors, worker_num))
         for worker_num in range(8)

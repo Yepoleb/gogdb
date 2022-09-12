@@ -115,7 +115,7 @@ class VersionsProcessor:
         self.issues = []
         self.all = set()
 
-    async def prepare(self, num_ids):
+    async def prepare(self):
         pass
 
     async def process(self, data):

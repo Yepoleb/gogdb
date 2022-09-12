@@ -13,7 +13,7 @@ class Processor:
     def __init__(self, db: gogdb.core.storage.Storage):
         self.db = db
 
-    async def prepare(self, num_ids: int):
+    async def prepare(self):
         pass
 
     async def process(self, data: ProcessorData):

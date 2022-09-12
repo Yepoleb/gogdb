@@ -49,7 +49,7 @@ async def count_rows(cur, table_name):
     await cur.execute(f"SELECT COUNT(*) FROM {table_name};")
     return (await cur.fetchone())[0]
 
-async def index_product(prod, cur, num_ids):
+async def index_product(prod, cur):
     if prod.rank_bestselling is not None:
         sale_rank = prod.rank_bestselling
     else:
@@ -129,8 +129,7 @@ class IndexDbProcessor:
         self.conn = None
         self.cur = None
 
-    async def prepare(self, num_ids):
-        self.num_ids = num_ids
+    async def prepare(self):
         self.indexdb_path.parent.mkdir(exist_ok=True)
         self.conn = await aiosqlite.connect(self.indexdb_path_part, isolation_level=None)
         self.cur = await self.conn.cursor()
@@ -144,7 +143,7 @@ class IndexDbProcessor:
     async def process(self, data):
         if data.product is None:
             return
-        await index_product(data.product, self.cur, self.num_ids)
+        await index_product(data.product, self.cur)
 
         if data.changelog is None:
             return
