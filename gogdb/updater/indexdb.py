@@ -124,18 +124,17 @@ class IndexDbProcessor:
 
     def __init__(self, db):
         self.db = db
+        self.indexdb_path = db.path_indexdb()
+        self.indexdb_path_part = self.indexdb_path.with_name(self.indexdb_path.name + ".part")
         self.conn = None
         self.cur = None
 
     async def prepare(self, num_ids):
         self.num_ids = num_ids
-        changelog_index_path = self.db.path_indexdb()
-        changelog_index_path.parent.mkdir(exist_ok=True)
-        need_create = not changelog_index_path.exists()
-        self.conn = await aiosqlite.connect(changelog_index_path, isolation_level=None)
+        self.indexdb_path.parent.mkdir(exist_ok=True)
+        self.conn = await aiosqlite.connect(self.indexdb_path_part, isolation_level=None)
         self.cur = await self.conn.cursor()
-        if need_create:
-            await init_db(self.cur)
+        await init_db(self.cur)
 
         await self.cur.execute("BEGIN TRANSACTION;")
         await self.cur.execute("DELETE FROM products;")
@@ -163,3 +162,4 @@ class IndexDbProcessor:
         await self.cur.close()
         await self.conn.commit()
         await self.conn.close()
+        os.replace(src=self.indexdb_path_part, dst=self.indexdb_path)
