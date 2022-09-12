@@ -101,6 +101,10 @@ footer {
   text-align: center;
 }
 
+#page, #header-content, #footer-content {
+  padding: 0 10px;
+}
+
 th {
   padding: 10px;
 }
