@@ -58,7 +58,7 @@ def comma_attr(objects, attr_name):
 def gog_image(image_id, extension):
     if not image_id:
         return None
-    return "https://images.gog.com/{}{}".format(image_id, extension)
+    return "https://images.gog-statics.com/{}{}".format(image_id, extension)
 
 
 def gog_meta(meta_id):

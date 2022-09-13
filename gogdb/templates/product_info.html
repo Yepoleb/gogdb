@@ -52,9 +52,13 @@
   </div>
   <div id="info-container-right">
     {% if product.image_logo %}
-    <img id="product-logo" class="shadow" src="{{ product.image_logo | gog_image('_ggvgm.jpg') }}" alt="">
+    <img id="product-logo" class="shadow"
+        srcset="{{ product.image_logo | gog_image('_product_tile_extended_432x243.webp') }},
+                {{ product.image_logo | gog_image('_product_tile_extended_432x243_2x.webp') }} 2x"
+        src="{{ product.image_logo | gog_image('_product_tile_extended_432x243.webp') }}"
+        alt="" width="432" height="243">
     {% else %}
-    <img id="product-logo" class="shadow" src="{{ url_for('static', filename='img/no_logo_1600x900.svg') }}" alt="">
+    <img id="product-logo" class="shadow" src="{{ url_for('static', filename='img/no_logo_1600x900.svg') }}" alt="" width="1600" height="900">
     {% endif %}
     {% if product.store_state %}
     <a id="store-button" class="btn-gog" href="{{ product.link_store | unlocalize | affiliate }}">
@@ -514,8 +518,12 @@
 
   <div id="screen-container">
     {% for image in product.screenshots %}
-    <a class="screen-item no-underline" href="{{ image | gog_image('.jpg') }}">
-      <img class="screen-thumb" src="{{ image | gog_image('_ggvgm.jpg') }}" alt="Screenshot {{ loop.index }}">
+    <a class="screen-item no-underline" href="{{ image | gog_image('.webp') }}">
+      <img class="screen-thumb"
+          srcset="{{ image | gog_image('_product_card_v2_thumbnail_271.webp') }}
+                  {{ image | gog_image('_product_card_v2_thumbnail_542.webp') }}"
+          src="{{ image | gog_image('_product_card_v2_thumbnail_271.webp') }}"
+          alt="Screenshot {{ loop.index }}" width="510" height="287">
     </a>
     {% endfor %}
   </div>
@@ -528,7 +536,7 @@
     {% for video in product.videos %}
     {% if video.provider == "youtube" %}
     <a class="video-item no-underline" href="https://www.youtube.com/watch?v={{ video | videoid }}">
-      <img class="video-thumb" src="https://img.youtube.com/vi/{{ video | videoid }}/mqdefault.jpg" alt="Video {{ loop.index }}">
+      <img class="video-thumb" src="https://img.youtube.com/vi/{{ video | videoid }}/mqdefault.jpg" alt="Video {{ loop.index }}" width="320" height="180">
     </a>
     {% endif %}
     {% endfor %}

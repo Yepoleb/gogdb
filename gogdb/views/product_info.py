@@ -28,7 +28,7 @@ charts_css_hasher.update(CHARTS_CSS.encode("utf-8"))
 charts_css_digest = base64.b64encode(charts_css_hasher.digest()).decode("utf-8")
 csp_header = (
     "default-src 'self'; "
-    "img-src 'self' images.gog.com img.youtube.com; "
+    "img-src 'self' images.gog-statics.com img.youtube.com; "
     f"style-src 'self' 'sha256-{charts_css_digest}';"
 )
 

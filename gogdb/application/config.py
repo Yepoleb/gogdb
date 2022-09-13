@@ -4,7 +4,7 @@ import os
 async def add_security_headers(response):
     if "Content-Security-Policy" not in response.headers:
         response.headers["Content-Security-Policy"] = \
-            "default-src 'self'; img-src 'self' images.gog.com;"
+            "default-src 'self'; img-src 'self' images.gog-statics.com;"
     return response
 
 def configure_app(app):
