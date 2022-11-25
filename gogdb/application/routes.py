@@ -14,6 +14,7 @@ import gogdb.views.moreinfo
 import gogdb.views.charts
 import gogdb.views.static
 import gogdb.views.version_mismatch
+import gogdb.views.dependencies
 
 
 
@@ -30,6 +31,7 @@ def add_routes(app):
     app.add_url_rule("/meta/<meta_id>", "meta", gogdb.views.meta.meta)
     app.add_url_rule("/charts/<int:prod_id>.svg", "charts", gogdb.views.charts.charts)
     app.add_url_rule("/user/version_mismatch", "version_mismatch", gogdb.views.version_mismatch.version_mismatch)
+    app.add_url_rule("/user/dependencies", "dependencies", gogdb.views.dependencies.dependencies)
     # Static pages
     app.add_url_rule("/static/<path:filename>", "static", gogdb.views.static.static)
     app.add_url_rule("/favicon.ico", "favicon", gogdb.views.favicon.favicon)

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% set title %}Content-System Dependencies{% endset %}
+
+{% block content %}
+<h1>{{ title }}</h1>
+
+<div class="textbox shadow">
+  Lists of games using a certain dependency. Intended for client developers who need
+  a list of games to test integration and fixes.
+  {% for dependency, users in dependencies.items() %}
+    <h2>{{ dependency }}</h2>
+    {% for game in users %}
+      <a href="{{ prod_url(game.id) }}">{{ game.id }}</a> {{ game.title }}<br>
+    {% endfor %}
+  {% endfor %}
+</div>
+{% endblock content %}
