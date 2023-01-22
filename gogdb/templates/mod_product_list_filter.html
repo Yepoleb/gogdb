@@ -1,0 +1,68 @@
+{% macro product_list_filter(filter_config, script_nonce) %}
+<form id="product-search" action="{{ filter_config["form_action"] }}">
+  <div class="search-bar shadow">
+    <input
+      id="product-search-input"
+      class="search-input"
+      type="search"
+      name="search"
+      placeholder="Search..."
+      aria-label="Search"
+      value="{{ filter_config["value"]["search"] }}"
+      autofocus
+    >
+    <button id="product-search-button" class="search-button" type="submit">
+      <i class="fa fa-search" aria-hidden="true"></i>
+      <span class="nocss">Search</span>
+    </button>
+  </div>
+  <div>
+    <label class="checkbox">
+      <input
+        type="checkbox"
+        class="checkbox"
+        name="hide-dlcs"
+        value="y"
+        {{ "checked" if filter_config["value"]["hide-dlcs"] else "" }}
+      >Hide DLCs and extras</label>
+  </div>
+  <div class="checkbox-group-inline">
+    System:
+    <label class="checkbox">
+      <input
+        type="checkbox"
+        class="checkbox"
+        name="systems"
+        value="w"
+        {{ "checked" if "w" in filter_config["value"]["systems"] else "" }}
+      >Windows
+    </label>
+    <label class="checkbox">
+      <input
+        type="checkbox"
+        class="checkbox"
+        name="systems"
+        value="o"
+        {{ "checked" if "o" in filter_config["value"]["systems"] else "" }}
+      >macOS
+    </label>
+    <label class="checkbox">
+      <input
+        type="checkbox"
+        class="checkbox"
+        name="systems"
+        value="l"
+        {{ "checked" if "l" in filter_config["value"]["systems"] else "" }}
+      >Linux
+    </label>
+  </div>
+</form>
+<script nonce="{{ script_nonce }}">
+  {# Submit form by selecting any checkbox #}
+  document.querySelector('#product-search').addEventListener('change', function (e) {
+    if (e.target.type === 'checkbox') {
+      this.submit();
+    }
+  });
+</script>
+{% endmacro %}

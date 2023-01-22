@@ -206,3 +206,47 @@ a.hoverlight:hover {
   margin: 20px 0;
   color: #888888;
 }
+
+label.checkbox {
+  cursor: pointer;
+  color: #404040;
+}
+label.checkbox:hover {
+  color: #212121;
+}
+
+input.checkbox[type="checkbox"] {
+  display: inline-block;
+  margin: 3px 6px 0 0;
+  border-radius: 2px;
+  border: 1px solid #B8B8B8;
+  width: 16px;
+  height: 16px;
+  outline: 0;
+  background: #EDEDED;
+  appearance: none;
+  position: relative;
+  overflow: hidden;
+  top: .1em;
+  cursor: pointer;
+}
+input.checkbox[type="checkbox"]:hover {
+  border-color: #6E1D72B3;
+}
+input.checkbox[type="checkbox"]:checked {
+  background-color: #6E1D72;
+  border-color: #4E1551;
+}
+input.checkbox[type="checkbox"]:checked::before {
+  content: "\f00c";
+  font-family: "FontAwesome";
+  font-size: 85%;
+  position: relative;
+  top: -.1em;
+  left: .1em;
+  color: #FFF;
+}
+
+.checkbox-group-inline label.checkbox {
+  margin-left: 15px;
+}

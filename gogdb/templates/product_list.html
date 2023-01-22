@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% from "mod_product_table.html" import product_table %}
+{% from "mod_product_list_filter.html" import product_list_filter %}
 
 {% set title %}Products{% endset %}
 
@@ -10,10 +11,7 @@
 
 {% block content %}
 <h1>{{ title }}</h1>
-<form id="product-search" class="search-bar shadow" action="{{ url_for('product_list') }}">
-  <input id="product-search-input" class="search-input" class="shadow" type="search" name="search" placeholder="Search..." value="{{ search }}" autofocus>
-  <button id="product-search-button" class="search-button" type="submit"><i class="fa fa-search" aria-hidden="true"></i><span class="nocss">Search</span></button>
-</form>
+{{ product_list_filter(filter_config, script_nonce) }}
 
 <div id="result-container">
   {{ product_table(products) }}

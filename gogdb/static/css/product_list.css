@@ -38,15 +38,23 @@
 }
 
 #product-search {
-  height: 40px;
   margin-bottom: 30px;
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 80px;
+}
+
+#product-search .search-bar {
+  height: 40px;
+  margin-bottom: 5px;
   font-size: 20px;
   border-radius: 2px;
   border: 1px solid #c5c5c5;
   background-color: white;
+  flex-basis: 100%;
 }
 
-#product-search:focus-within {
+#product-search .search-bar:focus-within {
   box-shadow: 0 1px 5px rgba(46,23,143,.5);
 }
 
