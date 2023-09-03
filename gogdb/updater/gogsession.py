@@ -180,9 +180,9 @@ class GogSession:
             decompress=True
         )
 
-    async def fetch_manifest_v2(self, manifest_id):
-        manifest_url = "https://cdn.gog.com/content-system/v2/meta/{}/{}/{}".format(
-            manifest_id[0:2], manifest_id[2:4], manifest_id)
+    async def fetch_manifest_v2(self, repo_url, manifest_id):
+        base_url = repo_url.rsplit("/", 3)[0]
+        manifest_url = "/".join((base_url, manifest_id[0:2], manifest_id[2:4], manifest_id))
         return await self.get_json(
             f"manifest v2 {manifest_id}",
             url=manifest_url,

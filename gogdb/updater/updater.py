@@ -286,7 +286,7 @@ async def product_worker(session, qman, db, worker_number):
                     for depot in repo["depots"] + [repo["offlineDepot"]]:
                         mf_id = depot["manifest"]
                         if not await db.manifest_v2.has(mf_id):
-                            manifest = await session.fetch_manifest_v2(mf_id)
+                            manifest = await session.fetch_manifest_v2(build.link, mf_id)
                             if manifest is None:
                                 continue
                             await db.manifest_v2.save(manifest, mf_id)
