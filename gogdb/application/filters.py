@@ -1,6 +1,7 @@
 import jinja2
 import quart
 import re
+import markupsafe
 
 import gogdb.core.names as names
 from gogdb.application.assets import asset_url
@@ -11,11 +12,11 @@ def yes_no(value):
     if isinstance(value, jinja2.Undefined):
         return value
     if value:
-        return jinja2.Markup(
+        return markupsafe.Markup(
             '<i class="fa fa-check" aria-hidden="true"></i>'
             '<span class="nocss">Yes</span>')
     else:
-        return jinja2.Markup(
+        return markupsafe.Markup(
             '<i class="fa fa-times" aria-hidden="true"></i>'
             '<span class="nocss">No</span>')
 
@@ -29,7 +30,7 @@ OS_ICON_ELEMENTS = {
 }
 
 def os_icon(system):
-    return jinja2.Markup(OS_ICON_ELEMENTS[system])
+    return markupsafe.Markup(OS_ICON_ELEMENTS[system])
 
 def os_icons(systems):
     if systems is None:
@@ -38,7 +39,7 @@ def os_icons(systems):
     for system in systems:
         icons.append(OS_ICON_ELEMENTS[system])
     if icons:
-        return jinja2.Markup(" ".join(icons))
+        return markupsafe.Markup(" ".join(icons))
     else:
         return "N/A"
 
@@ -70,8 +71,8 @@ def prod_url(prod_id):
 
 def prod_anchor(prod_id):
     url = prod_url(prod_id=prod_id)
-    return jinja2.Markup('<a class="hoveronly" href="{}">{}</a>'.format(
-        jinja2.escape(url), prod_id))
+    return markupsafe.Markup('<a class="hoveronly" href="{}">{}</a>'.format(
+        markupsafe.escape(url), prod_id))
 
 def prod_type(type_slug):
     return names.PROD_TYPES[type_slug]
