@@ -105,6 +105,10 @@
   min-width: 200px;
 }
 
+.build-version {
+  line-break: anywhere;
+}
+
 #tabs-container {
   display: flex;
   text-align: center;

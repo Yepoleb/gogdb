@@ -488,7 +488,7 @@
     <tr>
       <td><a href="{{ url_for('build', prod_id=product.id, build_id=build.id) }}">{{ build.id }}</a></td>
       <td>{{ build.os | os_icon }}</td>
-      <td>{{ build.version | default("N/A", true) }}</td>
+      <td class="build-version">{{ build.version | default("N/A", true) }}</td>
       <td>{{ build.date_published | datetime_day }}</td>
       <td>{{ build.generation }}</td>
       {% if build.generation == 1 %}
