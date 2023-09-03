@@ -187,7 +187,7 @@ def extract_properties_v2(prod, v2_cont):
     prod.description = v2_cont["description"]
 
 
-META_ID_RE = re.compile(r"v2/meta/.{2}/.{2}/(\w+)")
+META_ID_RE = re.compile(r"/.{2}/.{2}/(\w{32})")
 def extract_metaid(meta_url):
     m = META_ID_RE.search(meta_url)
     if m is None:
