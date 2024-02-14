@@ -37,15 +37,9 @@ Copy the example config and set the storage path
     # cp example-production.py /etc/gogdb/config-production.py
     # editor /etc/gogdb/config-production.py
 
-Build assets. Both commands have to be run in a root shell because sudo resets the environment variables
-
-    # export GOGDB_CONFIG=/etc/gogdb/config-production.py
-    # scripts/run.sh assets
-
 ## Apache2
 
-Apache is used as the webserver to serve static assets and to translate
-HTTP/HTTPS into uwsgi requests.
+Apache is used as the webserver to serve static assets and act as a HTTPS proxy.
 
 Install Apache2
 
@@ -68,13 +62,13 @@ Restart Apache2
 
     # systemctl restart apache2
 
-## Gunicorn
+## Uvicorn
 
-Gunicorn is the default application server for GOG DB
+Uvicorn is the default application server for GOG DB, but any other ASGI server can be used.
 
 Install Gunicorn
 
-    # apt install gunicorn3
+    # apt install uvicorn
 
 Copy the systemd service file
 
