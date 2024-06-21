@@ -66,7 +66,7 @@ Restart Apache2
 
 Uvicorn is the default application server for GOG DB, but any other ASGI server can be used.
 
-Install Gunicorn
+Install Uvicorn
 
     # apt install uvicorn
 
