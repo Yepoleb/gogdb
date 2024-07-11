@@ -5,7 +5,7 @@ Website that collects data on GOG games.
 # Deployment Instructions
 
 All commands need to be run as root. They are specific to Debian Buster, Apache2 and
-Gunicorn. If you want to use a different web or app server search for deploying
+Uvicorn. If you want to use a different web or app server search for deploying
 Flask applications on it.
 
 ## Application
