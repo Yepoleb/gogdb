@@ -76,7 +76,10 @@ class GogSession:
         return resp
 
     async def get_json(self, name, url, path, caching=CACHE_NONE, decompress=False, expect_404=False, **kwargs):
-        logger.debug("Requesting %r", url)
+        if "params" in kwargs:
+            logger.debug("Requesting %r %r", url, kwargs["params"])
+        else:
+            logger.debug("Requesting %r", url)
         if caching & CACHE_LOAD:
             try:
                 with open(path, "r") as load_file:
@@ -193,8 +196,6 @@ class GogSession:
 
     async def fetch_catalog(self, params, page_num):
         page_params = params.copy()
-        page_params["page"] = page_num
-        page_params["limit"] = 48
         cache_id = '_'.join(str(v) for v in page_params.values())
         return await self.get_json(
             f"catalog page {page_num}",

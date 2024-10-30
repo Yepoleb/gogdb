@@ -86,12 +86,12 @@ class CatalogEntry:
     pos_bestselling: int = 0 # This is only set after manually merging both results
     pos_trending: int = 0 # See above
 
-async def get_catalog(session, params):
+async def get_catalog(session, params, pagination_method="page"):
     current_page = 1
     total_pages = 1
     position = 0
     collected_products = []
-    while current_page <= total_pages:
+    while True:
         page = await session.fetch_catalog(params, current_page)
         logger.info("Downloaded store page %s", current_page)
         total_pages = page["pages"]
@@ -107,23 +107,33 @@ async def get_catalog(session, params):
             position += 1
             collected_products.append(cat_entry)
         current_page += 1
+        if pagination_method == "search_after":
+            if not page["products"]:
+                break
+            params["searchAfter"] = page["products"][-1]["id"]
+        else:  # "page"
+            if current_page > total_pages:
+                break
+            params["page"] = current_page
+
     return collected_products
 
 async def catalog_worker(session, qman, db):
     default_params = {
-        "order": "asc:title",
+        "order": "asc:externalProductId",
         "productType": "in:game,pack,dlc,extras",
         "countryCode": "US",
         "locale": "en-US",
-        "currencyCode": "USD"
+        "currencyCode": "USD",
+        "limit": 48
     }
     bestselling_params = default_params.copy()
     bestselling_params["order"] = "desc:bestselling"
     trending_params = default_params.copy()
     trending_params["order"] = "desc:trending"
 
-    # Do a first pass sorted by title because bestselling moves around too much
-    title_res = await get_catalog(session, default_params)
+    # Do a first pass sorted by id because bestselling moves around too much
+    title_res = await get_catalog(session, default_params, pagination_method="search_after")
     catalog_ids = [cat_entry.id for cat_entry in title_res]
     qman.schedule_products(catalog_ids)
 
