@@ -29,4 +29,4 @@ class DependenciesProcessor:
     async def finish(self):
         for game_list in self.dependency_map.values():
             game_list.sort(key=lambda x: x["id"])
-        await self.db.dependencies.save(self.dependency_map)
+        await self.db.user.save(self.dependency_map, "dependencies.json")

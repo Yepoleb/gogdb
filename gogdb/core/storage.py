@@ -114,7 +114,6 @@ class Storage:
         self.startpage = StorageItem(self.path_startpage, self.make_startpage)
         self.versions = StorageItem(self.path_versions, self.make_versions)
         self.user = StorageItem(self.path_user)
-        self.dependencies = StorageItem(self.path_dependencies)
 
     def __repr__(self):
         return f"Storage({repr(self.storage_path)})"
@@ -183,9 +182,6 @@ class Storage:
 
     def path_user(self, name):
         return self.storage_path / "user" / name
-
-    def path_dependencies(self):
-        return self.storage_path / "user/dependencies.json"
 
     def path_indexdb(self):
         return self.storage_path / "index.sqlite3"
