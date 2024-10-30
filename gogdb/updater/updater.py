@@ -15,11 +15,13 @@ import gogdb.core.storage as storage
 from gogdb.core.changelogger import Changelogger
 from gogdb.updater.gogsession import GogSession
 import gogdb.updater.dataextractors as dataextractors
+
 from gogdb.updater.indexdb import IndexDbProcessor
 from gogdb.updater.startpage import StartpageProcessor
 from gogdb.updater.charts import ChartsProcessor
 from gogdb.updater.versions import VersionsProcessor
 from gogdb.updater.dependencies import DependenciesProcessor
+from gogdb.updater.manifest_backref import BackrefProcessor
 
 
 logger = logging.getLogger("UpdateDB")
@@ -476,6 +478,8 @@ def main():
         processors.append(VersionsProcessor(db))
     if "dependencies" in tasks:
         processors.append(DependenciesProcessor(db))
+    if "backref" in tasks:
+        processors.append(BackrefProcessor(db))
 
     if processors:
         asyncio.run(processors_main(db, processors))

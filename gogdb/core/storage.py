@@ -113,6 +113,7 @@ class Storage:
         self.manifest_v2 = StorageItem(self.path_manifest_v2, compressed=True)
         self.startpage = StorageItem(self.path_startpage, self.make_startpage)
         self.versions = StorageItem(self.path_versions, self.make_versions)
+        self.user = StorageItem(self.path_user)
         self.dependencies = StorageItem(self.path_dependencies)
 
     def __repr__(self):
@@ -179,6 +180,9 @@ class Storage:
     @staticmethod
     def make_versions(json_data):
         return [class_from_json(model.Mismatch, mismatch_data) for mismatch_data in json_data]
+
+    def path_user(self, name):
+        return self.storage_path / "user" / name
 
     def path_dependencies(self):
         return self.storage_path / "user/dependencies.json"
