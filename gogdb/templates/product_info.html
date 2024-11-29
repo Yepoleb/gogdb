@@ -418,6 +418,7 @@
       <th class="dl-os">OS</th>
       <th class="dl-lang">Language</th>
       <th class="dl-size">Size</th>
+      <th class="dl-parts">Parts</th>
       <th class="dl-version">Version</th>
     </tr>
     {% for download in downloads %}
@@ -426,6 +427,7 @@
       <td>{{ download.os | os_icon }}</td>
       <td>{{ download.language.name }}</td>
       <td>{{ download.total_size | filesizeformat }}</td>
+      <td>{{ download.files | length }}</td>
       <td>{{ download.version | default('N/A', true) }}</td>
     </tr>
     {% endfor %}
