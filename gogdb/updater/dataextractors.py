@@ -152,7 +152,6 @@ def extract_properties_v2(prod, v2_cont):
     if "galaxyBackgroundImage" in v2_links:
         prod.image_galaxy_background = extract_imageid(v2_links["galaxyBackgroundImage"]["href"])
     prod.image_boxart = extract_imageid(v2_links["boxArtImage"]["href"])
-    prod.image_icon_square = extract_imageid(v2_links["iconSquare"]["href"])
 
     prod.editions = [
         model.Edition(
