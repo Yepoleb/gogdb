@@ -260,7 +260,7 @@
       <td class="table-prop">Icon</td>
       <td>
         <span class="force-overflow">
-          {{ product.image_icon | gog_image(".jpg") | makeanchor | default("", true) }}
+          {{ product.image_icon | gog_image(".png") | makeanchor | default("", true) }}
         </span>
       </td>
     </tr>
@@ -277,14 +277,6 @@
       <td>
         <span class="force-overflow">
           {{ product.image_boxart | gog_image(".jpg") | makeanchor | default("", true) }}
-        </span>
-      </td>
-    </tr>
-    <tr>
-      <td class="table-prop">Square icon</td>
-      <td>
-        <span class="force-overflow">
-          {{ product.image_icon_square | gog_image(".jpg") | makeanchor | default("", true) }}
         </span>
       </td>
     </tr>
