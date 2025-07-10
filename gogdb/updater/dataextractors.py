@@ -151,7 +151,8 @@ def extract_properties_v2(prod, v2_cont):
         prod.age_rating = v2_embed["gogRating"].get("ageRating")
     if "galaxyBackgroundImage" in v2_links:
         prod.image_galaxy_background = extract_imageid(v2_links["galaxyBackgroundImage"]["href"])
-    prod.image_boxart = extract_imageid(v2_links["boxArtImage"]["href"])
+    if "boxArtImage" in v2_links:
+        prod.image_boxart = extract_imageid(v2_links["boxArtImage"]["href"])
 
     prod.editions = [
         model.Edition(
