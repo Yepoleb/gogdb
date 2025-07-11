@@ -178,7 +178,7 @@ def extract_properties_v2(prod, v2_cont):
         for link in v2_links.get("requiresGames", [])
     ]
 
-    if v2_embed["series"]:
+    if v2_embed.get("series"):
         prod.series = model.Series(
             id=v2_embed["series"]["id"],
             name=v2_embed["series"]["name"]
