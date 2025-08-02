@@ -131,6 +131,7 @@ class IndexDbProcessor:
 
     async def prepare(self):
         self.indexdb_path.parent.mkdir(exist_ok=True)
+        self.indexdb_path_part.unlink(missing_ok=True)
         self.conn = await aiosqlite.connect(self.indexdb_path_part, isolation_level=None)
         self.cur = await self.conn.cursor()
         await init_db(self.cur)
