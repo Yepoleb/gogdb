@@ -184,7 +184,7 @@ class GogSession:
         )
 
     async def fetch_repo_v1(self, repo_url, prod_id, build_id):
-        return await self.get_json(
+        return await self.get_json_cached(
             f"repo v1 {repo_url}",
             url=repo_url,
             path=self.storage_path / f"raw/repo_v1/{prod_id}_{build_id}.json",
