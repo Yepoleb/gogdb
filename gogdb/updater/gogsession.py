@@ -26,6 +26,9 @@ CACHE_FALLBACK = 3  # Try to load, on failure fall back to store
 
 logger = logging.getLogger("UpdateDB.session")
 
+def short_exception(e):
+    return traceback.format_exception_only(e)[-1].strip()
+
 class GogSession:
     def __init__(self, db, config):
         self.db = db
@@ -51,31 +54,79 @@ class GogSession:
     async def close(self):
         await self.aio_session.close()
 
-    async def retry_get(self, *args, **kwargs):
-        headers = kwargs.get("headers", {})
+    async def get_json(self, name, url, headers=None, timeout_sec=10, decompress=False, expect_404=False, **kwargs):
         if await self.token.refresh_if_expired():
             await self.save_token()
+
+        if headers is None:
+            headers = {}
         headers["Authorization"] = "Bearer " + self.token.access_token
-        kwargs["headers"] = headers
         # Set default timeout
-        kwargs["timeout"] = aiohttp.ClientTimeout(total=kwargs.get("timeout", 10))
+        timeout = aiohttp.ClientTimeout(total=timeout_sec)
         retries = REQUEST_RETRIES
         while retries > 0:
-            try:
-                resp = await self.aio_session.get(*args, **kwargs)
-            except asyncio.TimeoutError:
-                retries -= 1
-                if retries > 0:
-                    continue
-                else:
-                    raise
-            if resp.status < 500:
-                break
-            await resp.read()
             retries -= 1
-        return resp
+            try:
+                resp = await self.aio_session.get(url, headers=headers, timeout=timeout, **kwargs)
+            except (TimeoutError, aiohttp.ClientError) as e:
+                if retries == 0:
+                    logger.error("Failed to request %s: %s", name, short_exception(e))
+                    return
+                else:
+                    continue
+            except Exception as e:
+                logger.error("Failed to request %s: %s", name, short_exception(e))
+                return
 
-    async def get_json(self, name, url, path, caching=CACHE_NONE, decompress=False, expect_404=False, **kwargs):
+            if 200 <= resp.status < 300:
+                try:
+                    if decompress:
+                        content_comp = await resp.read()
+                        content_binary = zlib.decompress(content_comp, wbits=15)
+                        content_text = content_binary.decode("utf-8")
+                    else:
+                        content_text = await resp.text()
+                except (TimeoutError, aiohttp.ClientError) as e:
+                    if retries == 0:
+                        logger.error(
+                            "Failed to read request body of %s: %s", name, short_exception(e)
+                        )
+                        return
+                    else:
+                        continue
+                except Exception as e:
+                    logger.error("Failed to read request body of %s: %s", name, short_exception(e))
+                    return
+
+                try:
+                    content_json = json.loads(content_text)
+                except json.JSONDecodeError as e:
+                    if retries == 0:
+                        logger.error("Failed to decode json of %s: %s", name, short_exception(e))
+                        return
+                    else:
+                        continue
+                except Exception as e:
+                    logger.error("Failed to decode json of %s: %s", name, short_exception(e))
+                    return
+                return content_json
+
+            # Treat 404s as info because they are so common
+            elif resp.status == 404 and expect_404:
+                logger.info("Request for %s returned %s", name, resp.status)
+                await resp.read()
+                return
+            # Status 400 is more likely to be a server error than a client error, retry
+            # 408 is request timeout
+            elif 401 <= resp.status < 500 and resp.status != 408:
+                logger.error("Request for %s returned %s", name, resp.status)
+                await resp.read()
+                return
+
+        logger.info("Request for %s returned %s", name, resp.status)
+        # Function regularly ends with `return content_json`
+
+    async def get_json_cached(self, name, url, path, caching=CACHE_NONE, **kwargs):
         if "params" in kwargs:
             logger.debug("Requesting %r %r", url, kwargs["params"])
         else:
@@ -91,34 +142,8 @@ class GogSession:
                 else:
                     pass # Continue downloading
 
-        try:
-            resp = await self.retry_get(url, **kwargs)
-        except Exception as e:
-            logger.error("Failed to load %s: %s", name, traceback.format_exception_only(e)[-1].strip())
-            return
-        if resp.status >= 400:
-            # Treat 404s as info because they are so common
-            if resp.status == 404 and expect_404:
-                logger.info("Request for %s returned %s", name, resp.status)
-            else:
-                logger.error("Request for %s returned %s", name, resp.status)
-            await resp.read()
-            return
-        try:
-            if decompress:
-                content_comp = await resp.read()
-                content_binary = zlib.decompress(content_comp, wbits=15)
-                content_text = content_binary.decode("utf-8")
-            else:
-                content_text = await resp.text()
-        except Exception as e:
-            logger.error("Failed to read response content for %s: %r", name, e)
-            return
-
-        try:
-            content_json = json.loads(content_text)
-        except Exception as e:
-            logger.error("Failed to decode json for %s: %r", name, e)
+        content_json = await self.get_json(name, url, **kwargs)
+        if content_json is None:
             return
 
         if caching & CACHE_STORE:
@@ -133,7 +158,7 @@ class GogSession:
         return content_json
 
     async def fetch_product_v0(self, prod_id):
-        return await self.get_json(
+        return await self.get_json_cached(
             f"api v0 {prod_id}",
             url=f"https://api.gog.com/products/{prod_id}?expand=downloads,expanded_dlcs,description,screenshots,videos,related_products,changelog&locale=en-US",
             path=self.storage_path / f"raw/prod_v0/{prod_id}_v0.json",
@@ -142,7 +167,7 @@ class GogSession:
         )
 
     async def fetch_product_v2(self, prod_id):
-        return await self.get_json(
+        return await self.get_json_cached(
             f"api v2 {prod_id}",
             url=f"https://api.gog.com/v2/games/{prod_id}?locale=en-US",
             path=self.storage_path / f"raw/prod_v2/{prod_id}_v2.json",
@@ -151,7 +176,7 @@ class GogSession:
         )
 
     async def fetch_builds(self, prod_id, system):
-        return await self.get_json(
+        return await self.get_json_cached(
             f"api v0 {prod_id}",
             url=f"https://content-system.gog.com/products/{prod_id}/os/{system}/builds?generation=2",
             path=self.storage_path / f"raw/builds/{prod_id}_builds_{system}.json",
@@ -167,7 +192,7 @@ class GogSession:
         )
 
     async def fetch_manifest_v1(self, mf_name, manifest_url):
-        return await self.get_json(
+        return await self.get_json_cached(
             f"manifest v1 {mf_name}",
             url=manifest_url,
             path=None,
@@ -175,7 +200,7 @@ class GogSession:
         )
 
     async def fetch_repo_v2(self, repo_url, prod_id, build_id):
-        return await self.get_json(
+        return await self.get_json_cached(
             f"repo v2 {repo_url}",
             url=repo_url,
             path=self.storage_path / f"raw/repo_v2/{prod_id}_{build_id}.json",
@@ -186,7 +211,7 @@ class GogSession:
     async def fetch_manifest_v2(self, repo_url, manifest_id):
         base_url = repo_url.rsplit("/", 3)[0]
         manifest_url = "/".join((base_url, manifest_id[0:2], manifest_id[2:4], manifest_id))
-        return await self.get_json(
+        return await self.get_json_cached(
             f"manifest v2 {manifest_id}",
             url=manifest_url,
             path=None,
@@ -197,7 +222,7 @@ class GogSession:
     async def fetch_catalog(self, params, page_num):
         page_params = params.copy()
         cache_id = '_'.join(str(v) for v in page_params.values())
-        return await self.get_json(
+        return await self.get_json_cached(
             f"catalog page {page_num}",
             url="https://catalog.gog.com/v1/catalog",
             params=page_params,
