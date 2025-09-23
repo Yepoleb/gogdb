@@ -123,7 +123,7 @@ class GogSession:
                 await resp.read()
                 return
 
-        logger.info("Request for %s returned %s", name, resp.status)
+        logger.error("Request for %s returned %s", name, resp.status)
         # Function regularly ends with `return content_json`
 
     async def get_json_cached(self, name, url, path, caching=CACHE_NONE, **kwargs):
