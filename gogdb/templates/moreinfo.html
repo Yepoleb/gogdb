@@ -41,8 +41,7 @@
   <p>
     GOG DB uses the following GOG API calls to collect its data:
   </p>
-<pre>https://www.gog.com/games/ajax/filtered?mediaType=game&amp;page={page_num}&amp;sort=popularity
-https://api.gog.com/products/prices?ids={ids_str}&amp;countryCode={country_code}
+<pre>https://catalog.gog.com/v1/catalog?limit=48&amp;order=asc%3AexternalProductId&amp;productType=in%3Agame%2Cpack%2Cdlc%2Cextras&amp;countryCode=US&amp;locale=en-US&amp;currencyCode=USD&amp;searchAfter=0
 https://api.gog.com/products/{prod_id}?locale=en_US&amp;expand=downloads,screenshots,videos,changelog
 https://api.gog.com/v2/games/{prod_id}?locale=en-US
 https://content-system.gog.com/products/{prod_id}/os/{system}/builds?generation=2
