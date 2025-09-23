@@ -1,0 +1,11 @@
+[Unit]
+Description=Fetch remote GOG DB backup
+
+[Service]
+Type=exec
+User=backup
+Group=backup
+
+ExecStart=/usr/bin/python3 /usr/local/share/gogdb/scripts/fetch_backup.py
+RuntimeMaxSec=4h
+

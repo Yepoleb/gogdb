@@ -1,0 +1,9 @@
+[Unit]
+Description=GOG DB Fetch Backup Timer
+
+[Timer]
+OnCalendar=00:10:15
+AccuracySec=5min
+
+[Install]
+WantedBy=timers.target
