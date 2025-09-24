@@ -95,6 +95,8 @@ async def get_catalog(session, params, pagination_method="page"):
     collected_products = []
     while True:
         page = await session.fetch_catalog(params, current_page)
+        if page is None:
+            return
         logger.info("Downloaded store page %s", current_page)
         total_pages = page["pages"]
         for cat_prod in page["products"]:
@@ -135,29 +137,41 @@ async def catalog_worker(session, qman, db):
     trending_params["order"] = "desc:trending"
 
     # Do a first pass sorted by id because bestselling moves around too much
-    title_res = await get_catalog(session, default_params, pagination_method="search_after")
-    catalog_ids = [cat_entry.id for cat_entry in title_res]
+    catalog_res = await get_catalog(session, default_params, pagination_method="search_after")
+    if catalog_res is None:
+        logger.error("Requesting catalog by product id failed, ending catalog worker")
+        return
+    catalog_ids = [cat_entry.id for cat_entry in catalog_res]
     qman.schedule_products(catalog_ids)
 
     bestselling_res = await get_catalog(session, bestselling_params)
     trending_res = await get_catalog(session, trending_params)
-    bestselling_by_id = {cat_entry.id: cat_entry for cat_entry in bestselling_res}
-    trending_by_id = {cat_entry.id: cat_entry for cat_entry in trending_res}
-    merged_res = title_res
-    for cat_entry in merged_res:
-        bestselling_entry = bestselling_by_id.get(cat_entry.id)
-        if bestselling_entry:
-            cat_entry.pos_bestselling = bestselling_entry.position
-        trending_entry = trending_by_id.get(cat_entry.id)
-        if trending_entry:
-            cat_entry.pos_trending = trending_entry.position
+    ranking_success = True
+    if bestselling_res is None:
+        logger.error("Requesting catalog by bestselling failed")
+        ranking_success = False
+    if trending_res is None:
+        logger.error("Requesting catalog by trending failed")
+        ranking_success = False
+
+    if ranking_success:
+        bestselling_by_id = {cat_entry.id: cat_entry for cat_entry in bestselling_res}
+        trending_by_id = {cat_entry.id: cat_entry for cat_entry in trending_res}
+        merged_res = catalog_res
+        for cat_entry in merged_res:
+            bestselling_entry = bestselling_by_id.get(cat_entry.id)
+            if bestselling_entry:
+                cat_entry.pos_bestselling = bestselling_entry.position
+            trending_entry = trending_by_id.get(cat_entry.id)
+            if trending_entry:
+                cat_entry.pos_trending = trending_entry.position
 
     now = datetime.datetime.now(datetime.timezone.utc)
     all_ids = qman.scheduled_products.copy()
-    title_by_id = {cat_entry.id: cat_entry for cat_entry in title_res}
+    entries_by_id = {cat_entry.id: cat_entry for cat_entry in catalog_res}
     for prod_id in all_ids:
-        # Work on the bestselling entries because that is already dictionary indexed
-        cat_entry = title_by_id.get(prod_id)
+        # Get catalog entry and update price
+        cat_entry = entries_by_id.get(prod_id)
         if cat_entry is not None:
             await update_price(
                 db,
@@ -178,7 +192,11 @@ async def catalog_worker(session, qman, db):
                 price_final = None,
                 now = now
             )
-    return merged_res
+
+    if ranking_success:
+        return merged_res
+    else:
+        return None
 
 async def update_price(db, prod_id, country, currency, price_base, price_final, now):
     price_log = await db.prices.load(prod_id)
@@ -406,9 +424,12 @@ async def download_main(db, config):
     ids = list(qman.scheduled_products)
     await db.ids.save(ids)
 
-    logger.info("Setting catalog data")
     catalog_results = catalog_task.result()
-    await set_storedata(db, catalog_results, ids)
+    if catalog_results is not None:
+        logger.info("Setting catalog data")
+        await set_storedata(db, catalog_results, ids)
+    else:
+        logger.error("Not setting catalog data because of worker error")
     eprint(f"Requested {len(ids)} products")
 
     await session.close()
