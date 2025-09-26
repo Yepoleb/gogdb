@@ -13,7 +13,7 @@ products_path="$BACKUP_PATH/products"
 mkdir -p "$products_path/$month"
 cd "$STORAGE_PATH"
 echo "Compressing products"
-tar --create --xz --file "$products_path/$month/gogdb_$today.tar.xz" "products"
+tar --create --xz --file "$products_path/$month/gogdb_$today.tar.xz" "products" "ids.json"
 cd "$products_path"
 find . -name 'gogdb_*' -printf '%P\n' | sort > "$products_path/filelist.txt"
 
