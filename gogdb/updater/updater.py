@@ -7,6 +7,7 @@ import sys
 import decimal
 from dataclasses import dataclass
 from typing import List
+import time
 
 import quart
 
@@ -22,6 +23,7 @@ from gogdb.updater.charts import ChartsProcessor
 from gogdb.updater.versions import VersionsProcessor
 from gogdb.updater.dependencies import DependenciesProcessor
 from gogdb.updater.manifest_backref import BackrefProcessor
+from gogdb.updater.filelist import FilelistProcessor
 
 
 logger = logging.getLogger("UpdateDB")
@@ -470,7 +472,7 @@ async def processors_main(db, processors):
     for processor in processors:
         await processor.finish()
 
-def main():
+async def main():
     config = quart.Config(".")
     config.from_envvar("GOGDB_CONFIG")
     db = storage.Storage(config["STORAGE_PATH"])
@@ -479,14 +481,16 @@ def main():
     logger.setLevel(config.get("UPDATER_LOGLEVEL", logging.NOTSET))
     logging.getLogger("UpdateDB.session").setLevel(config.get("SESSION_LOGLEVEL", logging.NOTSET))
 
+    start_time = time.monotonic()
+
     tasks = sys.argv[1:]
     if not tasks:
-        eprint("Updater missing task argument: [all, download, index, startpage, charts, versions, dependencies]")
+        eprint("Updater missing task argument: [all, download, index, startpage, charts, versions, dependencies, backref, filelist]")
         exit(1)
     if "all" in tasks:
         tasks = ["download", "index", "startpage", "charts", "versions"]
     if "download" in tasks:
-        asyncio.run(download_main(db, config))
+        await download_main(db, config)
 
     processors = []
     if "index" in tasks:
@@ -501,8 +505,13 @@ def main():
         processors.append(DependenciesProcessor(db))
     if "backref" in tasks:
         processors.append(BackrefProcessor(db))
+    if "filelist" in tasks:
+        processors.append(FilelistProcessor(db))
 
     if processors:
-        asyncio.run(processors_main(db, processors))
+        await processors_main(db, processors)
 
-main()
+    runtime_min = (time.monotonic() - start_time) / 60
+    eprint(f"Took {runtime_min:.2f} minutes")
+
+asyncio.run(main())
