@@ -24,6 +24,7 @@ from gogdb.updater.versions import VersionsProcessor
 from gogdb.updater.dependencies import DependenciesProcessor
 from gogdb.updater.manifest_backref import BackrefProcessor
 from gogdb.updater.filelist import FilelistProcessor
+from gogdb.updater.idmapping import IdMappingProcessor
 
 
 logger = logging.getLogger("UpdateDB")
@@ -507,6 +508,8 @@ async def main():
         processors.append(BackrefProcessor(db))
     if "filelist" in tasks:
         processors.append(FilelistProcessor(db))
+    if "idmapping" in tasks:
+        processors.append(IdMappingProcessor(db))
 
     if processors:
         await processors_main(db, processors)
