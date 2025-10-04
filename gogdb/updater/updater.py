@@ -17,14 +17,6 @@ from gogdb.core.changelogger import Changelogger
 from gogdb.updater.gogsession import GogSession
 import gogdb.updater.dataextractors as dataextractors
 
-from gogdb.updater.indexdb import IndexDbProcessor
-from gogdb.updater.startpage import StartpageProcessor
-from gogdb.updater.charts import ChartsProcessor
-from gogdb.updater.versions import VersionsProcessor
-from gogdb.updater.dependencies import DependenciesProcessor
-from gogdb.updater.manifest_backref import BackrefProcessor
-from gogdb.updater.filelist import FilelistProcessor
-from gogdb.updater.idmapping import IdMappingProcessor
 
 
 logger = logging.getLogger("UpdateDB")
@@ -490,26 +482,35 @@ async def main():
         exit(1)
     if "all" in tasks:
         tasks = ["download", "index", "startpage", "charts", "versions"]
-    if "download" in tasks:
-        await download_main(db, config)
 
     processors = []
     if "index" in tasks:
+        from gogdb.updater.indexdb import IndexDbProcessor
         processors.append(IndexDbProcessor(db))
     if "startpage" in tasks:
+        from gogdb.updater.startpage import StartpageProcessor
         processors.append(StartpageProcessor(db))
     if "charts" in tasks:
+        from gogdb.updater.charts import ChartsProcessor
         processors.append(ChartsProcessor(db))
     if "versions" in tasks:
+        from gogdb.updater.versions import VersionsProcessor
         processors.append(VersionsProcessor(db))
     if "dependencies" in tasks:
+        from gogdb.updater.dependencies import DependenciesProcessor
         processors.append(DependenciesProcessor(db))
     if "backref" in tasks:
+        from gogdb.updater.manifest_backref import BackrefProcessor
         processors.append(BackrefProcessor(db))
     if "filelist" in tasks:
+        from gogdb.updater.filelist import FilelistProcessor
         processors.append(FilelistProcessor(db))
     if "idmapping" in tasks:
+        from gogdb.updater.idmapping import IdMappingProcessor
         processors.append(IdMappingProcessor(db))
+
+    if "download" in tasks:
+        await download_main(db, config)
 
     if processors:
         await processors_main(db, processors)
