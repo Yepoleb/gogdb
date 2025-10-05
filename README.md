@@ -2,13 +2,22 @@
 
 Website that collects data on GOG games.
 
-# Deployment Instructions
+## Development setup
+
+1. Create a storage directory
+2. Download `gogdb_{date}.tar.xz` and `manifests_current.tar` from https://gogdb.org/backups_v3 and extract them to the storage directory.
+3. Adapt `config-development.py` from `example-development.py`
+4. Generate a token as described in the application setup process
+
+The `scripts/run.sh` script is a convenient way to run the components of GOG DB with development defaults. Use `scripts/run.sh web` to run the development webserver or `scripts/run.sh updater` to run the updater.
+
+## Deployment Instructions
 
 All commands need to be run as root. They are specific to Debian Buster, Apache2 and
 Uvicorn. If you want to use a different web or app server search for deploying
 Flask applications on it.
 
-## Application
+### Application
 
 Clone the application
 
@@ -37,7 +46,7 @@ Copy the example config and set the storage path
     # cp example-production.py /etc/gogdb/config-production.py
     # editor /etc/gogdb/config-production.py
 
-## Apache2
+### Apache2
 
 Apache is used as the webserver to serve static assets and act as a HTTPS proxy.
 
@@ -62,7 +71,7 @@ Restart Apache2
 
     # systemctl restart apache2
 
-## Uvicorn
+### Uvicorn
 
 Uvicorn is the default application server for GOG DB, but any other ASGI server can be used.
 
@@ -80,7 +89,7 @@ Start service
     # systemctl enable gogdb
     # systemctl start gogdb
 
-## Scripts
+### Scripts
 
 Scripts insert the data into the database and keep it up to date. They are
 also used to build the search index.
@@ -109,20 +118,11 @@ Enable the timer
     # systemctl enable gogdb-backup.timer
     # systemctl start gogdb-backup.timer
 
-## Development
-
-1. Create a storage directory
-2. Download `gogdb_{date}.tar.xz` and `manifests_current.tar` and extract them to the storage directory.
-3. Adapt `config-development.py` from `example-development.py`
-4. Generate a token as described in the application setup process
-
-The `scripts/run.sh` script is a convenient way to run the components of GOG DB with development defaults. Use `scripts/run.sh web` to run the development webserver or `scripts/run.sh updater` to run the updater.
-
-# Database Migrations
+## Database Migrations
 
 See [MIGRATIONS.md](MIGRATIONS.md)
 
-# License
+## License
 
 AGPLv3 or later
 
