@@ -112,10 +112,11 @@ Enable the timer
 ## Development
 
 1. Create a storage directory
-2. Adapt `config-development.py` from `example-development.py`
-3. Generate a token as described in the application setup process
+2. Download `gogdb_{date}.tar.xz` and `manifests_current.tar` and extract them to the storage directory.
+3. Adapt `config-development.py` from `example-development.py`
+4. Generate a token as described in the application setup process
 
-The `scripts/run.sh` script is a convenient way to run the components of GOG DB with development defaults.
+The `scripts/run.sh` script is a convenient way to run the components of GOG DB with development defaults. Use `scripts/run.sh web` to run the development webserver or `scripts/run.sh updater` to run the updater.
 
 # Database Migrations
 
