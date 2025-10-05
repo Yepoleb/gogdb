@@ -2,6 +2,21 @@
 
 Website that collects data on GOG games.
 
+## Dependencies (Debian package names)
+
+* python3
+* python3-quart
+* python3-jinja2
+* python3-pygal
+* python3-lxml
+* python3-aiosqlite
+* python3-aiofiles
+* python3-aiohttp
+* python3-dateutil
+* python3-bleach
+
+If you want to use pip see `setup.py`.
+
 ## Development setup
 
 1. Create a storage directory

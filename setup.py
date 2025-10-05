@@ -6,10 +6,6 @@ requires = [
     "quart",
     "jinja2",
 
-    # legacy
-    "SQLAlchemy",
-    "psycopg2",
-
     # charts
     "pygal",
     "lxml",
@@ -35,9 +31,9 @@ setup(
         "Topic :: Internet :: WWW/HTTP :: WSGI :: Application"
     ],
     author="Gabriel Huber",
-    author_email="gabriel@yepoleb.at",
+    author_email="mail@gabrielhuber.at",
     url="https://www.gogdb.org",
-    keywords="web flask",
+    keywords="web quart",
     packages=["gogdb"],
     include_package_data=True,
     zip_safe=False,
