@@ -13,6 +13,10 @@
       <td>{{ build.id }}</td>
     </tr>
     <tr>
+      <td>Repository ID</td>
+      <td>{{ build.meta_id }}</td>
+    </tr>
+    <tr>
       <td>Install directory</td>
       <td class="mono">{{ repo.install_directory }}/</td>
     </tr>
@@ -30,7 +34,7 @@
     </tr>
     <tr>
       <td>Branch</td>
-      <td>{{ build.branch | default("Not set", true) }}</td>
+      <td>{{ build.branch | default("Master", True) }}</td>
     </tr>
     <tr>
       <td>Version</td>

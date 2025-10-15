@@ -476,7 +476,8 @@
       <th>Version</th>
       <th>Date</th>
       <th>Gen</th>
-      <th>Repository ID</th>
+      <th>Branch</th>
+      <th>Visible</th>
     </tr>
     {% for build in product.builds | reverse %}
     <tr>
@@ -485,10 +486,11 @@
       <td class="build-version">{{ build.version | default("N/A", true) }}</td>
       <td>{{ build.date_published | datetime_day }}</td>
       <td>{{ build.generation }}</td>
-      {% if build.generation == 1 %}
-      <td class="mono">{{ build.legacy_build_id }}</td>
+      <td>{{ build.branch | default("Master", True) }}</td>
+      {% if build.listed %}
+      <td><i class="fa fa-eye" aria-hidden="true"></i><span class="nocss">Yes</span></td>
       {% else %}
-      <td class="mono">{{ build.meta_id }}</td>
+      <td><i class="fa fa-eye-slash" aria-hidden="true"></i><span class="nocss">Yes</span></td>
       {% endif %}
     </tr>
     {% endfor %}
