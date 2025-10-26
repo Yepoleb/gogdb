@@ -24,7 +24,8 @@ BONUS_TYPES = {
     "artworks": "Artworks",
     "avatars": "Avatars",
     "audio": "Audio",
-    "guides & reference ": "Guides & Reference",
+    "guides & reference ": "Guides & Reference",  # Old string mistake (pre 2025-10-26)
+    "guides & reference": "Guides & Reference",
     "wallpapers": "Wallpapers",
     "game add-ons": "Game Add-ons",
     "video": "Videos"
