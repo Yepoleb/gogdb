@@ -427,7 +427,7 @@
   {% endmacro %}
 
   {% if product.dl_installer %}
-  <h2>Installers</h2>
+  <h2>Offline Installers</h2>
 
   {{ softwaretable(product.dl_installer) }}
   {% endif %}
@@ -466,7 +466,7 @@
 </div>
 
 <div id="tab-builds" class="tab">
-  <h2>Builds</h2>
+  <h2>GOG Galaxy Builds</h2>
 
   {% if product.builds %}
   <table id="builds-table" class="shadow cellborder">
@@ -477,7 +477,7 @@
       <th>Date</th>
       <th>Gen</th>
       <th>Branch</th>
-      <th>Visible</th>
+      <th>Listed</th>
     </tr>
     {% for build in product.builds | reverse %}
     <tr>
