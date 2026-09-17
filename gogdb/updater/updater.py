@@ -511,6 +511,9 @@ async def main():
     if "idmapping" in tasks:
         from gogdb.updater.idmapping import IdMappingProcessor
         processors.append(IdMappingProcessor(db))
+    if "libgalaxy" in tasks:
+        from gogdb.updater.libgalaxy import LibGalaxyProcessor
+        processors.append(LibGalaxyProcessor(db))
 
     if "download" in tasks:
         await download_main(db, config)
