@@ -20,7 +20,7 @@ class LibGalaxyProcessor:
         prod = data.product
         if prod is None:
             return
-        is_multiplayer = "multi" not in [feature.id for feature in prod.features]
+        is_multiplayer = "multi" in [feature.id for feature in prod.features]
         win_builds = [
             build for build in prod.builds
             if build.os == "windows" and build.generation == 2
